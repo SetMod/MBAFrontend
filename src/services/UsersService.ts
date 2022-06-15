@@ -1,4 +1,4 @@
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 import config from "../config";
 import Users from "../models/UsersModel";
 
@@ -16,85 +16,108 @@ interface UsersResponse {
 
 
 export default class UsersService {
+
     async getUsers() {
+        const errorMessage: String = 'Failed to get users'
         try {
-            const data = await axios.get(`${config.baseUrl}/users`)
-            if (data.data.length == 0) return null
-            const users: Users[] = data.data.map((val: UsersResponse) => {
-                return this.mapDataToUser(val)
+            const response = await axios.get(`${config.baseUrl}/users`)
+
+            if (response.data instanceof String) return response.data
+            if (Array.isArray(response.data) == false) return errorMessage
+
+            const users: Users[] = response.data.map((user: UsersResponse) => {
+                return this.mapDataToUser(user)
             })
             console.log(users)
             return users
         } catch (error) {
             console.error(error);
-            return null
+            return errorMessage
         }
     }
-    async getUserByID(userId: number) {
+    async getUserById(userId: number) {
+        const errorMessage: String = 'Failed to get user'
         try {
-            const data = await axios.get(`${config.baseUrl}/users/${userId}`)
-            if (Object.keys(data.data).length === 0) return null
-            const user: Users = this.mapDataToUser(data.data)
+            const response = await axios.get(`${config.baseUrl}/users/${userId}`)
+
+            if (response.data instanceof String) return response.data
+            if (Object.keys(response.data).length === 0) return errorMessage
+
+            const user: Users = this.mapDataToUser(response.data)
             console.log(user)
             return user
         } catch (error) {
             console.error(error);
-            return null
+            return errorMessage
         }
     }
-
     async sigInUser(userUsername: string, userPassword: string) {
+        const errorMessage: String = 'Sign In failed'
         try {
-            const data = await axios.post(`${config.baseUrl}/users/login`, { user_username: userUsername, user_password: userPassword })
-            const user = this.mapDataToUser(data.data)
+            const response = await axios.post(`${config.baseUrl}/users/login`, {
+                user_username: userUsername,
+                user_password: userPassword
+            })
+
+            if (response.data instanceof String) return response.data
+            if (Object.keys(response.data).length === 0) return errorMessage
+
+            const user = this.mapDataToUser(response.data)
             return user
         } catch (error) {
             console.error(error);
-            if (error instanceof AxiosError) {
-                alert(error.response?.data)
-            }
-            return null
+            // if (error instanceof AxiosError) {
+            //     alert(error.response?.data)
+            // }
+            return errorMessage
         }
 
     }
-
     async createUser(user: Users) {
+        const errorMessage: String = 'Sign Up failed'
         try {
             const dataUser = this.mapUserToData(user)
-            const data = await axios.post(`${config.baseUrl}/users/`, dataUser)
-            const newUser: Users = this.mapDataToUser(data.data)
+            const response = await axios.post(`${config.baseUrl}/users/`, dataUser)
+
+            if (response.data instanceof String) return response.data
+
+            const newUser: Users = this.mapDataToUser(response.data)
             console.log(newUser)
             return newUser
         } catch (error) {
             console.error(error);
-            if (error instanceof AxiosError) {
-                alert(error.response?.data)
-            }
-            return null
+            return errorMessage
         }
     }
-    async updateUser(userId: number, user: Users) {
+    async updateUser(user: Users) {
+        const errorMessage: String = 'User update failed'
         try {
             const dataUser = this.mapUserToData(user)
-            const data = await axios.put(`${config.baseUrl}/users/${userId}`, dataUser)
-            const updatedUser: Users = this.mapDataToUser(data.data)
+            const response = await axios.put(`${config.baseUrl}/users/${user.userId}`, dataUser)
+
+            if (response.data instanceof String) return response.data
+
+            const updatedUser: Users = this.mapDataToUser(response.data)
             console.log(updatedUser)
             return updatedUser
         } catch (error) {
             console.error(error);
-            return null
+            return errorMessage
         }
     }
     async deleteUser(userId: number) {
+        const errorMessage: String = 'Failed to delete a user'
         try {
-            const data = await axios.delete(`${config.baseUrl}/users/${userId}`)
-            if (Object.keys(data.data).length === 0) return null
-            const user: Users = this.mapDataToUser(data.data)
+            const response = await axios.delete(`${config.baseUrl}/users/${userId}`)
+
+            if (response.data instanceof String) return response.data
+
+            const user: Users = this.mapDataToUser(response.data)
             console.log(user)
             return user
         } catch (error) {
             console.log(error)
-            return null
+            return errorMessage
         }
     }
     mapDataToUser(data: UsersResponse) {

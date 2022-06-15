@@ -1,7 +1,10 @@
 import { computed, reactive, ref, toRefs } from "vue";
-import { useRouter } from "vue-router";
 import Users from "../models/UsersModel";
-import { userService } from "../services/UsersService";
+import UsersService from "../services/UsersService";
+import useFiles from "./useFiles";
+import useOrganizations from "./useOrganizations";
+import useRedirect from "./useRedirect";
+import useRoles from "./useRoles";
 
 interface UsersState {
     user: Users | undefined
@@ -14,85 +17,89 @@ const state = reactive<UsersState>({
 })
 
 export default function useUsers() {
-    const router = useRouter()
-    const isUsersLoading = ref(false)
+    const { redirectHome, redirectSignIn } = useRedirect()
+    const userService = reactive(new UsersService())
+    const isLoading = ref(false)
     const isLoggedIn = computed(() => {
+        const user = localStorage.getItem('user',)
+        if (user) {
+            const loggedUser = userService.mapDataToUser(JSON.parse(user))
+            state.user = loggedUser
+        }
         return state.user === undefined ? false : true
     })
-    const getUsers = () => {
-        isUsersLoading.value = true
-        userService.getUsers().then((users) => {
-            if (users) state.users = users
-        }).finally(() => isUsersLoading.value = false)
-    }
-    const getUser = (userId: number) => {
-        isUsersLoading.value = true
-        userService.getUserByID(userId).then((user) => {
-            if (user instanceof String) alert(user)
-            else if (user instanceof Users) state.user = user
-            else alert('An unexpected error ocurred')
-        }).finally(() => isUsersLoading.value = false)
+
+    const getUsers = async () => {
+        isLoading.value = true
+        const response = await userService.getUsers()
+        if (Array.isArray(response)) state.users = response
+        isLoading.value = false
+
+        return response
     }
 
-    const sigInUser = (userUsername: string, userPassword: string) => {
-        userService.sigInUser(userUsername, userPassword).then((user) => {
-            if (user) {
-                state.user = user
-                router.push({
-                    path: '/'
-                })
-            }
-        })
+    const getUserById = async (userId: number) => {
+        isLoading.value = true
+        const response = await userService.getUserById(userId)
+        isLoading.value = false
+
+        return response
     }
 
-    const signInRedirect = () => {
-        router.push({
-            path: '/signin'
-        })
-    }
-    const signUpRedirect = () => {
-        router.push({
-            path: '/signup'
-        })
+    const sigIn = async (userUsername: string, userPassword: string) => {
+        isLoading.value = true
+        const response = await userService.sigInUser(userUsername, userPassword)
+        if (response instanceof Users) {
+            state.user = response
+            localStorage.setItem('user', JSON.stringify(userService.mapUserToData(response)))
+            redirectHome()
+        }
+        isLoading.value = false
+
+        return response
     }
 
-    const createUser = (newUser: Users) => {
-        userService.createUser(newUser).then((createdUser) => {
-            if (createdUser) {
-                alert('User created successfully!')
-                signInRedirect()
-            } else {
-                alert('Couldn\'t create an user!')
-                return false
-            }
-        })
+    const resetUsers = () => {
+        state.user = undefined
+        localStorage.removeItem('user')
     }
 
-    const updateUser = (userId: number, updatedUser: Users) => {
-        userService.updateUser(userId, updatedUser).then((updatedUser) => {
-            if (updatedUser instanceof String) alert(updatedUser)
-            if (updatedUser instanceof Users) alert('User successfully updated!')
-            else alert('An unexpected error ocurred')
-        })
+    const signUp = async (newUser: Users) => {
+        isLoading.value = true
+        const response = await userService.createUser(newUser)
+        if (response instanceof Users) {
+            redirectSignIn()
+        }
+        isLoading.value = false
+
+        return response
+    }
+    const updateUser = async (updatedUser: Users) => {
+        isLoading.value = true
+        const response = await userService.updateUser(updatedUser)
+        isLoading.value = false
+
+        return response
     }
 
-    const deleteUser = (userId: number) => {
-        const result = confirm('Delete user?')
-        if (result) userService.deleteUser(userId).then((deletedUser) => {
-            console.log(deletedUser);
-        })
+    const deleteUser = async (userId: number) => {
+        isLoading.value = true
+        const response = await userService.deleteUser(userId)
+        isLoading.value = false
+
+        return response
     }
 
     return {
         isLoggedIn,
-        isUsersLoading,
+        isUsersLoading: isLoading,
+        resetUsers,
         getUsers,
-        getUser,
-        createUser,
+        getUserById,
+        updateUser,
         deleteUser,
-        sigInUser,
-        signInRedirect,
-        signUpRedirect,
+        signUp,
+        sigIn,
         ...toRefs(state)
     }
 }
