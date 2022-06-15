@@ -9,8 +9,8 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import Button from "primevue/button"
-import { useRouter } from 'vue-router'
 import useUsers from "../hooks/useUsers";
+import useRedirect from "../hooks/useRedirect";
 
 export default defineComponent({
   name: "Home",
@@ -18,18 +18,11 @@ export default defineComponent({
     Button
   },
   setup() {
-    const { user } = useUsers()
-    const router = useRouter()
+    const { isLoggedIn } = useUsers()
+    const { redirectSignIn, redirectFiles } = useRedirect()
     const getStarted = () => {
-      if (!user.value) {
-        router.push({
-          path: '/signin',
-        })
-      } else {
-        router.push({
-          path: '/files',
-        })
-      }
+      if (isLoggedIn.value) redirectFiles()
+      else redirectSignIn()
     }
     return {
       getStarted
