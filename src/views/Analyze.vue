@@ -5,22 +5,28 @@
       <form class="p-card-body" @submit.prevent="handleSubmit">
         <div class="field flex justify-content-between align-items-center">
           <label class="mr-2">Support:</label>
-          <InputNumber v-model="state.support" placeholder="support" :step="0.1" />
+          <InputNumber v-model="state.support" :step="0.1" />
         </div>
 
         <div class="field flex justify-content-between align-items-center">
           <label class="mr-2">Lift:</label>
-          <InputNumber v-model="state.lift" placeholder="lift" :step="0.1" />
+          <InputNumber v-model="state.lift" :step="0.1" />
         </div>
 
         <div class="field flex justify-content-between align-items-center">
           <label class="mr-2">Confidence:</label>
-          <InputNumber v-model="state.confidence" placeholder="confidence" :step="0.1" />
+          <InputNumber v-model="state.confidence" :step="0.1" />
         </div>
 
         <div class="field flex justify-content-between align-items-center">
           <label for="Rule_length">Rule length:</label>
-          <InputNumber v-model="state.ruleLength" placeholder="rule length" :step="0.1" />
+          <InputNumber v-model="state.ruleLength" :step="0.1" />
+        </div>
+
+        <div class="flex justify-content-between align-content-center mt-2">
+          <label for="File" class="flex align-items-center">File:</label>
+          <Dropdown v-model="selectedFileId" :options="files" option-label="fileName" placeholder="Select a file"
+            :filter="true" filter-placeholder="Find file" :loading="isFilesLoading" />
         </div>
 
         <div class="p-card-footer">
@@ -32,17 +38,27 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive } from "vue";
-import useCSV from "../hooks/useCSV";
+import { defineComponent, onMounted, reactive, ref } from "vue";
 import InputNumber from 'primevue/inputnumber';
 import Button from "primevue/button";
+import useFiles from "../hooks/useFiles";
+import useUsers from "../hooks/useUsers";
+
+import Dropdown from "primevue/dropdown";
 
 export default defineComponent({
   components: {
     InputNumber,
-    Button
+    Button,
+    Dropdown
   },
   setup() {
+    onMounted(async () => {
+      if (isLoggedIn.value && user.value) await getUserFiles(user.value.userId)
+    })
+    const { getUserFiles, files, isFilesLoading } = useFiles()
+    const { isLoggedIn, user } = useUsers()
+    const selectedFileId = ref(0)
     const state = reactive({
       support: 0.1,
       lift: 0.1,
@@ -53,6 +69,9 @@ export default defineComponent({
       console.log(event);
     }
     return {
+      files,
+      selectedFileId,
+      isFilesLoading,
       state,
       handleSubmit,
     };
