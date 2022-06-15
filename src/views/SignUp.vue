@@ -1,8 +1,9 @@
 <template>
   <Dialog v-model:visible="showMessage" :breakpoints="{ '960px': '80vw' }" :style="{ width: '30vw' }" position="top">
     <div class="flex align-items-center flex-column pt-6 px-3">
-      <i class="pi pi-check-circle" :style="{ fontSize: '5rem', color: 'var(--green-500)' }"></i>
-      <h5>Registration Successful!</h5>
+      <i class="mb-3 pi" :class="isSuccess ? 'pi-check-circle' : 'pi-exclamation-circle'"
+        :style="{ fontSize: '5rem', color: isSuccess ? 'var(--green-500)' : 'var(--red-500)' }"></i>
+      <h5>{{ message }}</h5>
     </div>
     <template #footer>
       <div class="flex justify-content-center">
@@ -116,8 +117,14 @@
               placeholder="+38012345678" type="tel" />
           </div>
 
-          <small v-if="(v$.userPhone.$invalid && submitted) || v$.userPhone.$pending" class="p-error">{{
+          <small v-if="(v$.userPhone.required.$invalid && submitted) || v$.userPhone.$pending" class="p-error">{{
               v$.userPhone.required.$message.replace('Value', 'Phone number')
+          }}</small>
+          <small v-else-if="v$.userPhone.minLength.$invalid" class="p-error">{{
+              v$.userPhone.minLength.$message.replace('Value', 'Phone number')
+          }}</small>
+          <small v-else-if="v$.userPhone.maxLength.$invalid" class="p-error">{{
+              v$.userPhone.maxLength.$message.replace('Value', 'Phone number')
           }}</small>
         </div>
 
@@ -129,7 +136,7 @@
 
         <div class="p-card-footer flex justify-content-around align-content-center mt-2">
           <Button type="submit">Submit</Button>
-          <Button class="p-button-secondary" @click="signInRedirect">Sign In</Button>
+          <Button class="p-button-secondary" @click="redirectSignIn">Sign In</Button>
         </div>
       </form>
     </div>
@@ -139,7 +146,7 @@
 <script lang="ts">
 import { reactive, ref, defineComponent, onMounted, computed } from "vue";
 import { useVuelidate } from '@vuelidate/core';
-import { required, email, minLength, sameAs } from "@vuelidate/validators";
+import { required, email, minLength, maxLength, sameAs } from "@vuelidate/validators";
 import Roles from "../models/RolesModel";
 import useRoles from "../hooks/useRoles";
 import Users from "../models/UsersModel";
@@ -149,6 +156,7 @@ import Dialog from "primevue/dialog"
 import Password from "primevue/password"
 import Button from "primevue/button";
 import useUsers from "../hooks/useUsers";
+import useRedirect from "../hooks/useRedirect";
 
 export default defineComponent({
   components: {
@@ -159,16 +167,19 @@ export default defineComponent({
     Button
   },
   setup() {
-    onMounted(() => {
-      getRoles()
+    onMounted(async () => {
     })
 
-    const { roles, getRoles } = useRoles()
-    const { createUser, signInRedirect } = useUsers()
+    const { roles } = useRoles()
+    const { signUp } = useUsers()
+    const { redirectSignIn } = useRedirect()
 
     const confirmPassword = ref("")
+    const newUser = reactive(new Users())
     const submitted = ref(false);
     const showMessage = ref(false);
+    const message = ref<String>('Sign in successful!')
+    const isSuccess = ref(true)
 
     const state = reactive({
       userFirstName: '',
@@ -187,38 +198,22 @@ export default defineComponent({
       userFirstName: { required },
       userSecondName: { required },
       userEmail: { required, email },
-      userUsername: { required, minLength: minLength(6) },
+      userUsername: { required, minLength: minLength(4) },
       userPassword: { required, minLength: minLength(6) },
       userConfirmPassword: { required, sameAsPassword: sameAs(userPassword) },
-      userPhone: { required, minLength: minLength(13) },
+      userPhone: { required, minLength: minLength(13), maxLength: maxLength(13) },
     }
 
     const v$ = useVuelidate(rules, state)
 
-    const handleSubmit = (isFormValid: boolean) => {
+    const handleSubmit = async (isFormValid: boolean) => {
       submitted.value = true;
 
       if (!isFormValid) {
         return;
       }
 
-      toggleDialog();
 
-    }
-    const toggleDialog = () => {
-      showMessage.value = !showMessage.value;
-      if (!showMessage.value) {
-        resetForm();
-      }
-      signUp()
-    }
-    const resetForm = () => {
-      state.userUsername = '';
-      state.userPassword = '';
-      submitted.value = false;
-    }
-    const signUp = () => {
-      const newUser = new Users()
       newUser.userFirstName = state.userFirstName
       newUser.userSecondName = state.userSecondName
       newUser.userEmail = state.userEmail
@@ -226,8 +221,33 @@ export default defineComponent({
       newUser.userPassword = state.userPassword
       newUser.userPhone = state.userPhone
       newUser.roleId = state.roleId.roleId !== undefined ? state.roleId.roleId : roles.value?.filter(role => role.roleName == 'User')[0].roleId
-      console.log(newUser);
-      createUser(newUser)
+      const result = await signUp(newUser)
+      if (typeof result !== 'string') {
+        message.value = 'Sign Up successful!'
+        isSuccess.value = true
+      }
+      else {
+        isSuccess.value = false
+        message.value = result
+      }
+      toggleDialog();
+    }
+    const toggleDialog = () => {
+      showMessage.value = !showMessage.value;
+      if (!showMessage.value) resetForm();
+    }
+    const resetForm = () => {
+      newUser.userFirstName = ''
+      newUser.userSecondName = ''
+      newUser.userEmail = ''
+      newUser.userUsername = ''
+      newUser.userPassword = ''
+      newUser.userPhone = ''
+      newUser.roleId = 0
+      submitted.value = false;
+    }
+    const submit = () => {
+
     }
 
     return {
@@ -236,12 +256,12 @@ export default defineComponent({
       state,
       v$,
       showMessage,
+      isSuccess,
       submitted,
+      message,
       toggleDialog,
       handleSubmit,
-      signUp,
-      createUser,
-      signInRedirect
+      redirectSignIn
     };
   },
 });
