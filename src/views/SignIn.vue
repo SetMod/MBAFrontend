@@ -1,8 +1,9 @@
 <template>
   <Dialog v-model:visible="showMessage" :breakpoints="{ '960px': '80vw' }" :style="{ width: '30vw' }" position="top">
     <div class="flex align-items-center flex-column pt-6 px-3">
-      <i class="pi pi-check-circle" :style="{ fontSize: '5rem', color: 'var(--green-500)' }"></i>
-      <h5>Sign in successful!</h5>
+      <i class="mb-3 pi" :class="isLoggedIn ? 'pi-check-circle' : 'pi-exclamation-circle'"
+        :style="{ fontSize: '5rem', color: isLoggedIn ? 'var(--green-500)' : 'var(--red-500)' }"></i>
+      <h5>{{ message }}</h5>
     </div>
     <template #footer>
       <div class="flex justify-content-center">
@@ -20,8 +21,8 @@
           <div class="flex justify-content-between align-content-center mt-2">
             <label for="Username" class="flex align-items-center mr-3"
               :class="{ 'p-error': v$.userUsername.$invalid && submitted }">Username:</label>
-            <InputText v-model="v$.userUsername.$model" :class="{ 'p-invalid': v$.userUsername.$invalid && submitted }"
-              placeholder="Username" />
+            <InputText v-model="v$.userUsername.$model" :disabled="isUsersLoading"
+              :class="{ 'p-invalid': v$.userUsername.$invalid && submitted }" placeholder="Username" />
           </div>
 
           <small v-if="(v$.userUsername.$invalid && submitted) || v$.userUsername.$pending" class="p-error">{{
@@ -34,7 +35,7 @@
             <label for="Password" class="flex align-items-center mr-3"
               :class="{ 'p-error': v$.userPassword.$invalid && submitted }">Password:</label>
 
-            <Password v-model="v$.userPassword.$model" placeholder="Password"
+            <Password v-model="v$.userPassword.$model" placeholder="Password" :disabled="isUsersLoading"
               :class="{ 'p-invalid': v$.userPassword.$invalid && submitted }" toggle-mask :feedback="false" />
           </div>
 
@@ -44,7 +45,7 @@
         </div>
         <div class="p-card-footer flex justify-content-around align-content-center mt-2">
           <Button type="submit">Submit</Button>
-          <Button class="p-button-secondary" label="Sign Un" @click="signUpRedirect" />
+          <Button class="p-button-secondary" label="Sign Un" @click="redirectSignUp" />
         </div>
       </form>
     </div>
@@ -60,7 +61,7 @@ import Button from "primevue/button";
 import InputText from "primevue/inputtext";
 import Password from "primevue/password";
 import Dialog from "primevue/dialog";
-import useRoles from "../hooks/useRoles";
+import useRedirect from "../hooks/useRedirect";
 
 export default defineComponent({
   components: {
@@ -70,13 +71,13 @@ export default defineComponent({
     Dialog
   },
   setup() {
-    onMounted(() => {
-      getRoles()
+    onMounted(async () => {
     })
-    const { getRoles } = useRoles()
-    const { signUpRedirect, sigInUser } = useUsers()
+    const { isUsersLoading, isLoggedIn, sigIn } = useUsers()
+    const { redirectSignUp } = useRedirect()
     const submitted = ref(false);
     const showMessage = ref(false);
+    const message = ref<String>('Sign in successful!')
 
     const state = reactive({
       userUsername: '',
@@ -89,13 +90,17 @@ export default defineComponent({
 
     const v$ = useVuelidate(rules, state)
 
-    const handleSubmit = (isFormValid: boolean) => {
+    const handleSubmit = async (isFormValid: boolean) => {
       submitted.value = true;
 
       if (!isFormValid) {
         return;
       }
-      sigInUser(state.userUsername, state.userPassword)
+      const result = await sigIn(state.userUsername, state.userPassword)
+      if (typeof result !== 'string')
+        message.value = 'Sign in successful!'
+      else
+        message.value = result
       toggleDialog();
     }
     const toggleDialog = () => {
@@ -104,28 +109,25 @@ export default defineComponent({
       if (!showMessage.value) {
         resetForm();
       }
-
-
     }
     const resetForm = () => {
-      state.userUsername = '';
+      // state.userUsername = '';
       state.userPassword = '';
       submitted.value = false;
     }
 
-    const signIn = () => {
-
-    }
     return {
       v$,
       state,
       rules,
       submitted,
       showMessage,
+      isUsersLoading,
+      isLoggedIn,
+      message,
       handleSubmit,
       toggleDialog,
-      signUpRedirect,
-      signIn
+      redirectSignUp,
     }
   }
 });
