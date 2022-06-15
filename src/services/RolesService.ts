@@ -2,6 +2,12 @@ import axios from "axios";
 import config from "../config";
 import Roles from "../models/RolesModel";
 
+interface RolesResponse {
+    role_id: number
+    role_name: string
+    role_description: string
+}
+
 export default class RolesService {
 
     async getRoles() {
@@ -12,7 +18,7 @@ export default class RolesService {
             if (response.data instanceof String) return response.data
             if (Array.isArray(response.data) == false) return errorMessage
 
-            const roles: Roles[] = response.data.map((val: any) => {
+            const roles: Roles[] = response.data.map((val: RolesResponse) => {
                 return this.mapDataToRole(val)
             })
             console.log(roles)
@@ -31,7 +37,7 @@ export default class RolesService {
             if (response.data instanceof String) return response.data
             if (Object.keys(response.data).length === 0) return errorMessage
 
-            const roles: Roles[] = response.data.map((val: any) => {
+            const roles: Roles[] = response.data.map((val: RolesResponse) => {
                 return this.mapDataToRole(val)
             })
             console.log(roles)
@@ -89,7 +95,7 @@ export default class RolesService {
             return errorMessage
         }
     }
-    mapDataToRole(data: any) {
+    mapDataToRole(data: RolesResponse) {
         const role = new Roles()
         role.roleId = data.role_id
         role.roleName = data.role_name
