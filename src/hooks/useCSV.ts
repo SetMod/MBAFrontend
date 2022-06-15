@@ -1,4 +1,4 @@
-import { reactive, ref, toRefs } from "vue";
+import { reactive, toRefs } from "vue";
 import useTable from "./useTable";
 
 export interface ICSVState {
