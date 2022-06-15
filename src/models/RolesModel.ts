@@ -1,5 +1,5 @@
 export default class Roles {
-    roleId: number | undefined
-    roleName: string | undefined
-    roleDescription: string | undefined
+    roleId: number = 0
+    roleName: string = ''
+    roleDescription: string = ''
 }

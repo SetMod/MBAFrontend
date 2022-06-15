@@ -3,6 +3,92 @@ import config from "../config";
 import Roles from "../models/RolesModel";
 
 export default class RolesService {
+
+    async getRoles() {
+        const errorMessage: String = 'Failed to get roles'
+        try {
+            const response = await axios.get(`${config.baseUrl}/roles/`)
+
+            if (response.data instanceof String) return response.data
+            if (Array.isArray(response.data) == false) return errorMessage
+
+            const roles: Roles[] = response.data.map((val: any) => {
+                return this.mapDataToRole(val)
+            })
+            console.log(roles)
+            return roles
+        } catch (error) {
+            console.log(error)
+            return errorMessage
+        }
+    }
+
+    async getRoleById(roleId: number) {
+        const errorMessage: String = 'Failed to get role'
+        try {
+            const response = await axios.get(`${config.baseUrl}/roles/${roleId}`)
+
+            if (response.data instanceof String) return response.data
+            if (Object.keys(response.data).length === 0) return errorMessage
+
+            const roles: Roles[] = response.data.map((val: any) => {
+                return this.mapDataToRole(val)
+            })
+            console.log(roles)
+            return roles
+        } catch (error) {
+            console.log(error)
+            return errorMessage
+        }
+    }
+
+    async createRole(role: Roles) {
+        const errorMessage: String = 'Failed to create an role'
+        try {
+            const dataRole = this.mapRoleToData(role)
+            const response = await axios.post(`${config.baseUrl}/roles/`, dataRole)
+
+            if (response.data instanceof String) return response.data
+
+            const newRole = this.mapDataToRole(response.data)
+            console.log(newRole);
+            return newRole
+        } catch (error) {
+            console.log(error);
+            return errorMessage
+        }
+    }
+    async updateRole(role: Roles) {
+        const errorMessage: String = 'Failed to update role'
+        try {
+            const dataRole = this.mapRoleToData(role)
+            const response = await axios.put(`${config.baseUrl}/roles/${role.roleId}`, dataRole)
+
+            if (response.data instanceof String) return response.data
+
+            const updatedRole: Roles = this.mapDataToRole(response.data)
+            console.log(updatedRole)
+            return updatedRole
+        } catch (error) {
+            console.error(error);
+            return errorMessage
+        }
+    }
+    async deleteRole(roleId: number) {
+        const errorMessage: String = 'Failed to delete a role'
+        try {
+            const response = await axios.delete(`${config.baseUrl}/users/${roleId}`)
+
+            if (response.data instanceof String) return response.data
+
+            const deletedRole: Roles = this.mapDataToRole(response.data)
+            console.log(deletedRole)
+            return deletedRole
+        } catch (error) {
+            console.log(error)
+            return errorMessage
+        }
+    }
     mapDataToRole(data: any) {
         const role = new Roles()
         role.roleId = data.role_id
@@ -14,31 +100,6 @@ export default class RolesService {
         return {
             role_name: role.roleName,
             role_description: role.roleDescription,
-        }
-    }
-    async getAllRoles() {
-        try {
-            const data = await axios.get(`${config.baseUrl}/roles/`)
-            if (data.data.length == 0) return null
-            const roles: Roles[] = data.data.map((val: any) => {
-                return this.mapDataToRole(val)
-            })
-            console.log(roles)
-            return roles
-        } catch (error) {
-            console.log(error)
-            return null
-        }
-    }
-    async createRole(role: Roles) {
-        try {
-            const dataRole = this.mapRoleToData(role)
-            const data = await axios.post(`${config.baseUrl}/roles/`, dataRole)
-            const newRole = this.mapDataToRole(data.data)
-            return newRole
-        } catch (error) {
-            console.log(error);
-            return null
         }
     }
 }
