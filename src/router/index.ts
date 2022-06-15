@@ -6,6 +6,8 @@ import Profile from '../views/Profile.vue'
 import SignIn from '../views/SignIn.vue'
 import SignUp from '../views/SignUp.vue'
 import Admin from '../views/Admin.vue'
+import About from '../views/About.vue'
+import Reports from '../views/Reports.vue'
 import useUsers from '../hooks/useUsers'
 import useRoles from '../hooks/useRoles'
 
@@ -25,6 +27,11 @@ export const routes: Array<RouteRecordRaw> = [
       return isLoggedIn.value
     },
     component: Files
+  },
+  {
+    path: '/reports',
+    name: 'Reports',
+    component: Reports
   },
   {
     path: '/analyze',
@@ -53,6 +60,12 @@ export const routes: Array<RouteRecordRaw> = [
     component: Admin
   },
   {
+    path: '/about',
+    name: 'About',
+    component: About
+    // component: () => import('../views/About.vue')
+  },
+  {
     path: '/signin',
     name: 'Sign In',
     beforeEnter: (to, from) => {
@@ -67,11 +80,6 @@ export const routes: Array<RouteRecordRaw> = [
       return !isLoggedIn.value
     },
     component: SignUp
-  },
-  {
-    path: '/about',
-    name: 'About',
-    component: () => import('../views/About.vue')
   },
 ]
 
