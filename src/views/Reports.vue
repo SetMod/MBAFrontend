@@ -93,7 +93,6 @@
 import { ref, onMounted, defineComponent } from 'vue';
 import { FilterMatchMode } from 'primevue/api';
 import { useToast } from 'primevue/usetoast';
-import { Reports } from '../models/ReportsModel';
 import Dialog from 'primevue/dialog'
 import Toolbar from 'primevue/toolbar'
 import InputText from 'primevue/inputtext';
@@ -102,6 +101,7 @@ import DataTable from 'primevue/datatable';
 import FileUpload from 'primevue/fileupload';
 import Textarea from 'primevue/textarea'
 import Column from 'primevue/column';
+import Reports from '../models/ReportsModel';
 
 export default defineComponent({
     components: {
