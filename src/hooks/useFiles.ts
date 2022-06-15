@@ -1,7 +1,8 @@
+import { reactive, ref, toRefs } from "vue";
+import Files from "../models/FilesModel"
+import FilesService from "../services/FilesService";
+import useUsers from "./useUsers";
 
-import { reactive, ref, toRefs } from "vue"
-import Files from "../models/FilesMode"
-import { filesService } from "../services/FilesService"
 
 export interface IFilesState {
     file: Files | undefined
@@ -14,17 +15,79 @@ const state = reactive<IFilesState>({
 })
 
 export default function useFiles() {
-    const isFilesLoading = ref(false)
-    const getUserFiles = (userId: number) => {
-        isFilesLoading.value = true
-        filesService.getUserFiles(userId).then((files) => {
-            if (Array.isArray(files)) state.files = files
-        }).finally(() => isFilesLoading.value = false)
+    const filesService = reactive(new FilesService())
+    const isLoading = ref(false)
+    const { user, isLoggedIn } = useUsers()
+
+    const resetFiles = () => {
+        state.file = undefined
+        state.files = undefined
     }
 
+    const getFiles = async () => {
+        isLoading.value = true
+        const response = await filesService.getFiles()
+        state.files = Array.isArray(response) ? response : undefined
+        isLoading.value = false
+
+        return response
+    }
+    const getFileById = async (fileId: number) => {
+        isLoading.value = true
+        const response = await filesService.getFileById(fileId)
+        isLoading.value = false
+
+        return response
+    }
+    const getUserFiles = async (userId: number) => {
+        isLoading.value = true
+        const response = await filesService.getUserFiles(userId)
+        state.files = Array.isArray(response) ? response : undefined
+        isLoading.value = false
+
+        return response
+    }
+    const downloadFile = async (fileId: number) => {
+        isLoading.value = true
+        const response = await filesService.downloadFileById(fileId)
+        isLoading.value = false
+        return response
+    }
+    const createFile = async (file: Files, form: FormData) => {
+        isLoading.value = true
+        const response = await filesService.createFile(file, form)
+        isLoading.value = false
+
+        return response
+    }
+    const updateFile = async (file: Files) => {
+        isLoading.value = true
+        const response = await filesService.updateFile(file)
+        isLoading.value = false
+
+        return response
+    }
+    const deleteFile = async (fileId: number) => {
+        isLoading.value = true
+        const response = await filesService.deleteFile(fileId)
+        isLoading.value = false
+
+        return response
+    }
+    const refreshFiles = async () => {
+        if (isLoggedIn.value && user.value) await getUserFiles(user.value.userId)
+    }
     return {
+        isFilesLoading: isLoading,
+        getFiles,
+        getFileById,
         getUserFiles,
-        isFilesLoading,
+        downloadFile,
+        createFile,
+        updateFile,
+        deleteFile,
+        resetFiles,
+        refreshFiles,
         ...toRefs(state)
     }
 }
