@@ -1,7 +1,10 @@
 <template>
   <div v-if="isUsersLoading"><i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i></div>
-  <div v-else-if="!users">
-    <h5>Users not found</h5>
+  <div v-else-if="!users" class="mt-8">
+    <Message severity="info">Users not found</Message>
+    <div class="flex justify-content-end">
+      <Button label="Refresh" icon="pi pi-refresh" class="h-2rem" @click="refresh" />
+    </div>
   </div>
   <div v-else>
     <DataTable :value="users" removable-sort responsive-layout="scroll" :paginator="true" :rows="10"
@@ -30,7 +33,15 @@
           }}</span>
         </template>
       </Column>
-      <Column field="roleId" header="Actions"></Column>
+      <Column header="Actions" header-style="width: 4rem; text-align: center" body-style="overflow: visible;">
+        <template #body="slotProps">
+          <div class="flex justify-content-around align-content-center">
+            <Button type="button" icon="pi pi-user-edit" class="mr-1 p-button-outlined p-button-info"></Button>
+            <Button type="button" icon="pi pi-times" class="p-button-outlined p-button-danger"
+              @click="() => deleteUser(slotProps.data.userId)"></Button>
+          </div>
+        </template>
+      </Column>
       <template #paginatorstart>
         <Button type="button" icon="pi pi-refresh" class="p-button-text" @click="refresh" />
       </template>
@@ -38,45 +49,6 @@
       </template>
     </DataTable>
   </div>
-  <!-- <table v-else>
-    <thead>
-      <th>ID</th>
-      <th>FirstName</th>
-      <th>SecondName</th>
-      <th>Email</th>
-      <th>Phone</th>
-      <th>Username</th>
-      <th>Password</th>
-      <th>CreateDate</th>
-      <th>Role</th>
-      <th>Actions</th>
-    </thead>
-    <tbody>
-      <tr v-for="(user, index) in users" :key="user.userId || index">
-        <td>{{ user.userId }}</td>
-        <td>{{ user.userFirstName }}</td>
-        <td>{{ user.userSecondName }}</td>
-        <td>{{ user.userEmail }}</td>
-        <td>{{ user.userPhone }}</td>
-        <td>{{ user.userUsername }}</td>
-        <td>{{ user.userPassword }}</td>
-        <td>{{ user.userCreateDate }}</td>
-        <td>
-          {{
-              roles
-                ? roles.find((role) => role.roleId == user.roleId)?.roleName
-                : user.roleId
-          }}
-        </td>
-        <td>
-          <button>Edit</button>
-          <button @click="() => (user.userId ? deleteUser(user.userId) : '')">
-            Delete
-          </button>
-        </td>
-      </tr>
-    </tbody>
-  </table> -->
   <hr />
 </template>
 
@@ -87,37 +59,36 @@ import useUsers from "../hooks/useUsers";
 import Button from "primevue/button";
 import DataTable from "primevue/datatable"
 import Column from "primevue/column"
-
+import Message from "primevue/message";
 export default defineComponent({
   components: {
     Button,
+    Message,
     DataTable,
     Column
   },
   setup() {
-    // const roles = ref<Roles[]>();
-    // const users = ref<Users[]>();
-    // onMounted(async () => {
-    //   const { roles: globalRoles, users: globalUsers } = await useUsers();
-    //   users.value = globalUsers.value ? globalUsers.value : new Array();
-    //   roles.value = globalRoles.value ? globalRoles.value : new Array();
-    // });
-    onMounted(() => {
-      getUsers()
-      getRoles()
+    onMounted(async () => {
+      await getUsers()
     })
-    const { users, isUsersLoading, deleteUser, getUsers } = useUsers()
+    const { users, isUsersLoading, deleteUser: deleteUserById, getUsers } = useUsers()
     const { roles, getRoles } = useRoles()
-    const refresh = () => {
-      getUsers()
-      getRoles()
+    const refresh = async () => {
+      await getUsers()
+      await getRoles()
+    }
+    const deleteUser = async (userId: number) => {
+      const result = confirm('Delete user?')
+      if (result == false) return
+      await deleteUserById(userId)
+      await getUsers()
     }
     return {
       isUsersLoading,
       users,
+      roles,
       deleteUser,
       refresh,
-      roles,
     };
   },
 });
