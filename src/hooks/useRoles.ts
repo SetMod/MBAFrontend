@@ -35,6 +35,14 @@ export default function useRoles() {
         return response
     }
 
+    const createRole = async (newRole: Roles) => {
+        isLoading.value = true
+        const response = await rolesService.createRole(newRole)
+        isLoading.value = false
+
+        return response
+    }
+
     const updateRole = async (updatedRole: Roles) => {
         isLoading.value = true
         const response = await rolesService.updateRole(updatedRole)
@@ -44,8 +52,6 @@ export default function useRoles() {
     }
 
     const deleteRole = async (roleId: number) => {
-        const result = confirm('Delete role?')
-        if (result == false) return
         isLoading.value = true
         const response = await rolesService.deleteRole(roleId)
         isLoading.value = false
@@ -53,15 +59,19 @@ export default function useRoles() {
         return response
     }
 
-    const getUserRole = (user: Users | undefined) => {
-        if (Array.isArray(state.roles) && user instanceof Users)
-            return state.roles.find((role) => role.roleId === user.roleId)?.roleName
-        else return 'User'
+    const getUserRole = async (user: Users) => {
+        await getRoles()
+
+        if (!state.roles) return
+
+        const role = state.roles.find((role) => role.roleId === user.roleId)
+        return role ? role.roleName : 'User'
     }
 
     return {
         getRoles,
         getRoleById,
+        createRole,
         updateRole,
         deleteRole,
         getUserRole,
