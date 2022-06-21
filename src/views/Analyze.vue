@@ -29,6 +29,13 @@
             :filter="true" filter-placeholder="Find file" :loading="isFilesLoading" />
         </div>
 
+        <div class="flex justify-content-between align-content-center mt-2">
+          <label for="Report" class="flex align-items-center">Report:</label>
+          <Dropdown v-model="selectedReportId" :options="reports" option-label="reportName"
+            placeholder="Select a report" :filter="true" filter-placeholder="Search report"
+            :loading="isReportsLoading" />
+        </div>
+
         <div class="p-card-footer">
           <Button type="submit" label="Analyze" />
         </div>
@@ -39,26 +46,25 @@
 
 <script lang="ts">
 import { defineComponent, onMounted, reactive, ref } from "vue";
-import InputNumber from 'primevue/inputnumber';
-import Button from "primevue/button";
 import useFiles from "../hooks/useFiles";
+import useOrganizations from "../hooks/useOrganizations";
+import useReports from "../hooks/useReports";
 import useUsers from "../hooks/useUsers";
 
-import Dropdown from "primevue/dropdown";
-
 export default defineComponent({
-  components: {
-    InputNumber,
-    Button,
-    Dropdown
-  },
   setup() {
     onMounted(async () => {
-      if (isLoggedIn.value && user.value) await getUserFiles(user.value.userId)
+      if (isLoggedIn.value && user.value) {
+        await getUserFiles(user.value.userId)
+        await getUserReports(user.value.userId)
+      }
     })
-    const { getUserFiles, files, isFilesLoading } = useFiles()
     const { isLoggedIn, user } = useUsers()
-    const selectedFileId = ref(0)
+    const { organization } = useOrganizations()
+    const { getUserReports, userReports: reports, isReportsLoading } = useReports()
+    const { getUserFiles, files, isFilesLoading } = useFiles()
+    const selectedFileId = ref<number>()
+    const selectedReportId = ref<number>()
     const state = reactive({
       support: 0.1,
       lift: 0.1,
@@ -69,9 +75,12 @@ export default defineComponent({
       console.log(event);
     }
     return {
-      files,
       selectedFileId,
+      selectedReportId,
+      files,
       isFilesLoading,
+      reports,
+      isReportsLoading,
       state,
       handleSubmit,
     };
