@@ -2,7 +2,7 @@
     <Toast />
 
     <Dialog v-model:visible="displayDelete" header="Confirmation" :style="{ width: '350px' }" :modal="true">
-        <div class="confirmation-content">
+        <div class="confirmation-content flex align-content-center justify-content-between">
             <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
             <span>Are you sure you want to proceed?</span>
         </div>
@@ -110,27 +110,10 @@ import useFiles from "../hooks/useFiles"
 import useUsers from "../hooks/useUsers"
 import { useToast } from "primevue/usetoast";
 import useOrganizations from "../hooks/useOrganizations";
-import Button from "primevue/button";
-import DataTable from "primevue/datatable"
-import Column from "primevue/column"
-import FileUpload, { FileUploadRemoveEvent } from "primevue/fileupload"
-import Message from 'primevue/message';
-import Toast from "primevue/toast";
-import Dialog from "primevue/dialog";
-import InputText from "primevue/inputtext";
+import { FileUploadRemoveEvent } from "primevue/fileupload"
 import Files from "../models/FilesModel";
 
 export default defineComponent({
-    components: {
-        Button,
-        DataTable,
-        Column,
-        FileUpload,
-        Message,
-        Toast,
-        Dialog,
-        InputText
-    },
     setup() {
         onMounted(async () => {
             if (!files.value) await refreshFiles()

@@ -30,11 +30,8 @@
 
 <script lang="ts">
 import { defineComponent, ref } from "@vue/runtime-core";
-import Chart from 'primevue/chart';
-import { computed } from "vue";
 
 export default defineComponent({
-  components: { Chart },
   setup() {
     const chartData = ref({
       labels: ['A', 'B', 'C'],
