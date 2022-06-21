@@ -1,11 +1,9 @@
 import { ref } from "vue"
 import { MenuItem } from "primevue/menuitem"
 import useUsers from "./useUsers"
-import useRoles from "./useRoles"
 
 export default function useNavBar() {
-    const { user, isLoggedIn } = useUsers()
-    const { getUserRole } = useRoles()
+    const { isAdmin, isLoggedIn } = useUsers()
 
     const items = ref(new Array<MenuItem>(
         {
@@ -17,12 +15,15 @@ export default function useNavBar() {
         },
         {
             label: 'Reports', to: '/reports', icon: 'pi pi-fw pi-list',
+            visible: () => isLoggedIn.value
         },
         {
             label: 'Analyze', to: '/analyze', icon: 'pi pi-fw pi-check',
+            visible: () => isLoggedIn.value
         },
         {
             label: 'Visualizations', to: '/visualizations', icon: 'pi pi-fw pi-image',
+            visible: () => isLoggedIn.value
         },
         {
             label: 'Profile', to: '/profile', icon: 'pi pi-fw pi-user',
@@ -30,10 +31,8 @@ export default function useNavBar() {
         },
         {
             label: 'Admin', to: '/admin',
-            visible: () => {
-                if (isLoggedIn.value && getUserRole(user.value) === 'Admin') return true
-                else return false
-            }
+            visible: () => isLoggedIn.value && isAdmin.value
+            // isLoggedIn.value && getUserRole(user.value) === 'Admin' ? true : false
         },
         {
             label: 'About', to: '/about', icon: 'pi pi-fw pi-info-circle',

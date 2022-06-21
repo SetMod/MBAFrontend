@@ -3,7 +3,7 @@
     <Toast />
     <Menubar :model="items">
       <template #end>
-        <div v-if="user" class="flex align-items-center">
+        <div v-if="isLoggedIn" class="flex align-items-center">
           <span class="mr-3">Hello {{ user?.userUsername || 'user' }}!</span>
           <Button class="p-button-outlined mr-3 pi pi-sign-out fw" @click="logOutWithToast" />
           <InputText placeholder="Search" type="text" />
@@ -40,12 +40,12 @@ export default defineComponent({
     Button,
   },
   setup() {
-    onMounted(async () => {
-      if (isLoggedIn.value) await getRoles()
+    onMounted(() => {
+      // if (isLoggedIn.value) await getRoles()
     })
     const toast = useToast();
     const { items } = useNavBar()
-    const { getRoles, resetRoles } = useRoles()
+    const { resetRoles } = useRoles()
     const { user, isLoggedIn, resetUsers } = useUsers()
     const { resetFiles } = useFiles()
     const { resetOrganizations } = useOrganizations()
@@ -60,7 +60,13 @@ export default defineComponent({
       redirectSignIn()
     }
 
-    return { items, routes, user, logOutWithToast }
+    return {
+      items,
+      routes,
+      user,
+      isLoggedIn,
+      logOutWithToast
+    }
   },
 });
 </script>

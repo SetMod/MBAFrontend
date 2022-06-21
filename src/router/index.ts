@@ -9,10 +9,8 @@ import Admin from '../views/Admin.vue'
 import About from '../views/About.vue'
 import Reports from '../views/Reports.vue'
 import useUsers from '../hooks/useUsers'
-import useRoles from '../hooks/useRoles'
 
-const { getUserRole } = useRoles()
-const { user, isLoggedIn } = useUsers()
+const { isAdmin, isLoggedIn } = useUsers()
 
 export const routes: Array<RouteRecordRaw> = [
   {
@@ -23,40 +21,37 @@ export const routes: Array<RouteRecordRaw> = [
   {
     path: '/files',
     name: 'Files',
-    beforeEnter: (to, from) => {
-      return isLoggedIn.value
-    },
+    beforeEnter: (to, from) => isLoggedIn.value,
     component: Files
   },
   {
     path: '/reports',
     name: 'Reports',
+    beforeEnter: (to, from) => isLoggedIn.value,
     component: Reports
   },
   {
     path: '/analyze',
     name: 'Analyze',
+    beforeEnter: (to, from) => isLoggedIn.value,
     component: Analyze
   },
   {
     path: '/visualizations',
     name: 'Visualizations',
+    beforeEnter: (to, from) => isLoggedIn.value,
     component: () => import('../views/Visualizations.vue')
   },
   {
     path: '/profile',
     name: 'Profile',
-    beforeEnter: (to, from) => {
-      return isLoggedIn.value
-    },
+    beforeEnter: (to, from) => isLoggedIn.value,
     component: Profile
   },
   {
     path: '/admin',
     name: 'Admin',
-    beforeEnter: (to, from) => {
-      return getUserRole(user.value) === 'Admin' && isLoggedIn.value ? true : false
-    },
+    beforeEnter: (to, from) => isLoggedIn.value && isAdmin.value,
     component: Admin
   },
   {
@@ -68,17 +63,13 @@ export const routes: Array<RouteRecordRaw> = [
   {
     path: '/signin',
     name: 'Sign In',
-    beforeEnter: (to, from) => {
-      return !isLoggedIn.value
-    },
+    beforeEnter: (to, from) => !isLoggedIn.value,
     component: SignIn
   },
   {
     path: '/signup',
     name: 'Sign Un',
-    beforeEnter: (to, from) => {
-      return !isLoggedIn.value
-    },
+    beforeEnter: (to, from) => !isLoggedIn.value,
     component: SignUp
   },
 ]
