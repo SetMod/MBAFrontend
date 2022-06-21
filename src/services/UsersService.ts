@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import config from "../config";
 import Users from "../models/UsersModel";
 
@@ -12,6 +12,7 @@ interface UsersResponse {
     user_username: string
     user_password: string
     role_id: number
+    role_name: string
 }
 
 
@@ -32,6 +33,8 @@ export default class UsersService {
             return users
         } catch (error) {
             console.error(error);
+            if (error instanceof AxiosError)
+                if (error.response?.data && typeof error.response?.data === 'string') return new String(error.response?.data)
             return errorMessage
         }
     }
@@ -43,11 +46,15 @@ export default class UsersService {
             if (response.data instanceof String) return response.data
             if (Object.keys(response.data).length === 0) return errorMessage
 
+            console.log(response.data);
+
             const user: Users = this.mapDataToUser(response.data)
             console.log(user)
             return user
         } catch (error) {
-            console.error(error);
+            console.error(error)
+            if (error instanceof AxiosError)
+                if (error.response?.data && typeof error.response?.data === 'string') return new String(error.response?.data)
             return errorMessage
         }
     }
@@ -63,9 +70,12 @@ export default class UsersService {
             if (Object.keys(response.data).length === 0) return errorMessage
 
             const user = this.mapDataToUser(response.data)
+            console.log(user);
             return user
         } catch (error) {
             console.error(error);
+            if (error instanceof AxiosError)
+                if (error.response?.data && typeof error.response?.data === 'string') return new String(error.response?.data)
             // if (error instanceof AxiosError) {
             //     alert(error.response?.data)
             // }
@@ -86,6 +96,8 @@ export default class UsersService {
             return newUser
         } catch (error) {
             console.error(error);
+            if (error instanceof AxiosError)
+                if (error.response?.data && typeof error.response?.data === 'string') return new String(error.response?.data)
             return errorMessage
         }
     }
@@ -102,6 +114,8 @@ export default class UsersService {
             return updatedUser
         } catch (error) {
             console.error(error);
+            if (error instanceof AxiosError)
+                if (error.response?.data && typeof error.response?.data === 'string') return new String(error.response?.data)
             return errorMessage
         }
     }
@@ -131,6 +145,7 @@ export default class UsersService {
         user.userPassword = data.user_password
         user.userCreateDate = new Date(data.user_create_date)
         user.roleId = data.role_id
+        user.roleName = data.role_name
         return user
     }
     mapUserToData(user: Users) {
@@ -139,11 +154,12 @@ export default class UsersService {
             user_first_name: user.userFirstName?.toString(),
             user_second_name: user.userSecondName?.toString(),
             user_email: user.userEmail?.toString(),
-            user_create_date: user.userCreateDate?.toDateString(),
+            user_create_date: user.userCreateDate?.toJSON(),
             user_phone: user.userPhone?.toString(),
             user_username: user.userUsername?.toString(),
             user_password: user.userPassword?.toString(),
-            role_id: user.roleId
+            role_id: user.roleId,
+            role_name: user.roleName,
         }
     }
 }

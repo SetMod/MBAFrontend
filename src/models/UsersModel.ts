@@ -9,4 +9,5 @@ export default class Users {
     userPassword: string = ''
     userCreateDate: Date = new Date()
     roleId: number = 0
+    roleName: string = 'User'
 }

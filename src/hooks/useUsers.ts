@@ -1,10 +1,7 @@
 import { computed, reactive, ref, toRefs } from "vue";
 import Users from "../models/UsersModel";
 import UsersService from "../services/UsersService";
-import useFiles from "./useFiles";
-import useOrganizations from "./useOrganizations";
 import useRedirect from "./useRedirect";
-import useRoles from "./useRoles";
 
 interface UsersState {
     user: Users | undefined
@@ -21,13 +18,14 @@ export default function useUsers() {
     const userService = reactive(new UsersService())
     const isLoading = ref(false)
     const isLoggedIn = computed(() => {
-        const user = localStorage.getItem('user',)
+        const user = localStorage.getItem('user')
         if (user) {
             const loggedUser = userService.mapDataToUser(JSON.parse(user))
             state.user = loggedUser
         }
         return state.user === undefined ? false : true
     })
+    const isAdmin = computed(() => state.user && state.user?.roleName === 'Admin' ? true : false)
 
     const getUsers = async () => {
         isLoading.value = true
@@ -75,9 +73,9 @@ export default function useUsers() {
         return response
     }
     const updateUser = async (updatedUser: Users) => {
-        isLoading.value = true
+        // isLoading.value = true
         const response = await userService.updateUser(updatedUser)
-        isLoading.value = false
+        // isLoading.value = false
 
         return response
     }
@@ -93,6 +91,7 @@ export default function useUsers() {
     return {
         isLoggedIn,
         isUsersLoading: isLoading,
+        isAdmin,
         resetUsers,
         getUsers,
         getUserById,
