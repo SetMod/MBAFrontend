@@ -1,6 +1,6 @@
 <template>
     <Dialog v-model:visible="props.display" header="Confirmation" :style="{ width: '350px' }" :modal="true">
-        <div class="confirmation-content flex align-content-center justify-content-between">
+        <div class="confirmation-content flex align-content-center justify-content-center">
             <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
             <span>Leave organization?</span>
         </div>

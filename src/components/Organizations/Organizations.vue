@@ -1,7 +1,6 @@
 <template>
     <Toast />
-    <OrganizationCreateDialogVue :display="displayCreate" :submitted="submitted" :close-dialog="closeDialog"
-        :submit-dialog="submitCreate" />
+    <OrganizationCreateDialogVue :display="displayCreate" :close-dialog="closeDialog" :submit-dialog="submitCreate" />
     <OrganizationEditDialogVue v-if="selectedOrganization" :display="displayEdit" :organization="selectedOrganization"
         :close-dialog="closeDialog" :submit-dialog="submitEdit" />
     <OrganizationLeaveDialogVue :display="displayLeave" :close-dialog="closeDialog" :submit-dialog="submitLeave" />
@@ -83,9 +82,7 @@ export default defineComponent({
         const displayLeave = ref(false)
 
         const organizations = ref(props.userOrganizations ? userOrganizations : allOrganizations)
-        const submitted = ref(false);
         const selectedOrganization = ref<Organizations>()
-        const selectedOrganizationId = ref<number>()
         const refreshTable = () => {
             if (isLoggedIn && user.value) getUserOrganizations(user.value.userId)
             getOrganizations()
@@ -96,34 +93,27 @@ export default defineComponent({
             displayEdit.value = false
             displayLeave.value = false
             displayDelete.value = false
-            submitted.value = false
             selectedOrganization.value = undefined
-            selectedOrganizationId.value = undefined
         }
         const openCreate = () => {
             displayCreate.value = true
-            submitted.value = false
         }
         const openEdit = (organization: Organizations) => {
             displayEdit.value = true
-            submitted.value = false
-            console.log(organization);
             selectedOrganization.value = organization
-            console.log(selectedOrganization.value);
         }
-        const openLeave = (organizationId: number) => {
+        const openLeave = (organization: Organizations) => {
             displayLeave.value = true
-            selectedOrganizationId.value = organizationId
+            selectedOrganization.value = organization
         };
-        const openDelete = (organizationId: number) => {
+        const openDelete = (organization: Organizations) => {
             displayDelete.value = true
-            selectedOrganizationId.value = organizationId
+            selectedOrganization.value = organization
         };
         const selectOrganization = (selectedOrganization: Organizations) => {
             organization.value = selectedOrganization
         }
         const submitCreate = async (newOrganization: Organizations) => {
-            submitted.value = true
             const response = await createOrganization(newOrganization)
             if (response instanceof String) return toast.add({ severity: 'error', summary: 'Failed to Create', detail: response, life: 3000 });
             toast.add({ severity: 'success', summary: 'Created', detail: 'Organization created', life: 1500 });
@@ -157,13 +147,13 @@ export default defineComponent({
         }
         const submitLeave = async () => {
             if (!user.value) return
-            if (!selectedOrganizationId.value) return
+            if (!selectedOrganization.value) return toast.add({ severity: 'warn', summary: 'Warning', detail: 'Select organization to leave', life: 3000 })
 
             const userOrganization = new UsersOrganizations()
             userOrganization.userId = user.value.userId
-            userOrganization.organizationId = selectedOrganizationId.value
+            userOrganization.organizationId = selectedOrganization.value.organizationId
             userOrganization.organizationRoleId = 1
-            console.log(userOrganization);
+
             const response = await deleteUserFromOrganization(userOrganization)
             if (response instanceof String) return toast.add({ severity: 'error', summary: 'Error', detail: response, life: 3000 })
             toast.add({ severity: 'success', summary: 'Success', detail: 'Exited from organization', life: 1500 })
@@ -172,9 +162,10 @@ export default defineComponent({
             refreshTable()
         }
         const submitDelete = async () => {
-            if (!selectedOrganizationId.value) return toast.add({ severity: 'warn', summary: 'Warning', detail: 'Select organization to delete', life: 3000 })
+            if (!selectedOrganization.value) return toast.add({ severity: 'warn', summary: 'Warning', detail: 'Select organization to delete', life: 3000 })
+            if (!selectedOrganization.value) return toast.add({ severity: 'warn', summary: 'Warning', detail: 'Select organization to delete', life: 3000 })
 
-            const response = await deleteOrganization(selectedOrganizationId.value)
+            const response = await deleteOrganization(selectedOrganization.value.organizationId)
             if (response instanceof String) return toast.add({ severity: 'error', summary: 'Error', detail: response, life: 3000 })
             toast.add({ severity: 'success', summary: 'Success', detail: 'User deleted', life: 1500 })
 
@@ -183,7 +174,6 @@ export default defineComponent({
         }
         return {
             props,
-            submitted,
             displayDelete,
             isOrganizationsLoading,
             allOrganizations,

@@ -26,7 +26,7 @@
                         :icon="organization?.organizationId === slotProps.data.organizationId ? 'pi pi-minus-circle' : 'pi pi-plus-circle'"
                         @click="() => selectOrganization(slotProps.data)"></Button>
                     <Button type="button" icon="pi pi-times" class="p-button-outlined p-button-danger"
-                        @click="() => openLeave(slotProps.data.organizationId)"></Button>
+                        @click="() => openLeave(slotProps.data)"></Button>
                 </div>
             </template>
         </Column>

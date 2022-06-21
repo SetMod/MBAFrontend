@@ -22,7 +22,7 @@
                     <Button type="button" icon="pi pi-pencil" class="p-button-outlined p-button-warning mr-1"
                         @click="() => openEdit(slotProps.data)"></Button>
                     <Button type="button" icon="pi pi-times" class="p-button-outlined p-button-danger"
-                        @click="() => openDelete(slotProps.data.organizationId)"></Button>
+                        @click="() => openDelete(slotProps.data)"></Button>
                 </div>
             </template>
         </Column>
