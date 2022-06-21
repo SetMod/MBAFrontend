@@ -36,7 +36,7 @@
 
             <div class="field">
                 <label for="role">Role:</label>
-                <InputText v-model="role" :disabled="!edit" placeholder="User" />
+                <InputText v-model="user.roleName" :disabled="!edit" placeholder="User" />
             </div>
         </div>
 
@@ -52,7 +52,6 @@ import { defineComponent, onMounted, ref } from "vue";
 import useUsers from "../hooks/useUsers";
 import Button from "primevue/button";
 import InputText from "primevue/inputtext";
-import useRoles from "../hooks/useRoles";
 import Password from "primevue/password";
 
 export default defineComponent({
@@ -64,9 +63,7 @@ export default defineComponent({
     setup() {
         onMounted(async () => {
         })
-        const { getUserRole } = useRoles()
         const { user } = useUsers()
-        const role = ref(getUserRole(user.value))
         const edit = ref(false)
         const updateProfile = () => {
             edit.value = true
@@ -77,7 +74,6 @@ export default defineComponent({
         return {
             edit,
             user,
-            role,
             saveChanges,
             updateProfile,
         }
