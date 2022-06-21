@@ -1,28 +1,24 @@
 import { reactive, ref, toRefs } from "vue";
 import Organizations from "../models/OrganizationsModel";
+import UserOrganizations from "../models/UserOrganizationsModel";
+import UsersOrganizations from "../models/UsersOrganizationsModel";
 import OrganizationsService from "../services/OrganizationsService";
 
 interface OrganizationsState {
     organization: Organizations | undefined,
-    organizations: Organizations[] | undefined
+    organizations: Organizations[] | undefined,
+    userOrganizations: UserOrganizations[] | undefined,
 }
 
 const state = reactive<OrganizationsState>({
     organization: undefined,
-    organizations: undefined
+    organizations: undefined,
+    userOrganizations: undefined,
 })
 
 export default function useOrganizations() {
     const organizationsService = reactive(new OrganizationsService())
     const isLoading = ref(false)
-    // const isLoggedIn = computed(() => {
-    //     const user = localStorage.getItem('user',)
-    //     if (user) {
-    //         const loggedUser = organizationsService.mapDataToUser(JSON.parse(user))
-    //         state.user = loggedUser
-    //     }
-    //     return state.user === undefined ? false : true
-    // })
 
     const resetOrganizations = () => {
         state.organization = undefined
@@ -43,7 +39,7 @@ export default function useOrganizations() {
         return response
     }
 
-    const getUserById = async (userId: number) => {
+    const getOrganizationById = async (userId: number) => {
         isLoading.value = true
         const response = await organizationsService.getOrganizationById(userId)
         if (response instanceof Organizations) {
@@ -57,12 +53,18 @@ export default function useOrganizations() {
     const getUserOrganizations = async (userId: number) => {
         isLoading.value = true
         const response = await organizationsService.getUserOrganizations(userId)
-        if (Array.isArray(response)) state.organizations = response
+        if (Array.isArray(response)) state.userOrganizations = response
         isLoading.value = false
 
         return response
     }
+    const addUserToOrganization = async (usersOrganization: UsersOrganizations) => {
+        isLoading.value = true
+        const response = await organizationsService.addUserToOrganization(usersOrganization)
+        isLoading.value = false
 
+        return response
+    }
     const createOrganization = async (newOrganization: Organizations) => {
         isLoading.value = true
         const response = await organizationsService.createOrganization(newOrganization)
@@ -86,16 +88,25 @@ export default function useOrganizations() {
 
         return response
     }
+    const deleteUserFromOrganization = async (usersOrganization: UsersOrganizations) => {
+        isLoading.value = true
+        const response = await organizationsService.deleteUserFromOrganization(usersOrganization)
+        isLoading.value = false
+
+        return response
+    }
     return {
-        isLoading,
+        isOrganizationsLoading: isLoading,
         resetOrganizations,
         resetOrganization,
-        getUserById,
+        getOrganizationById,
         getOrganizations,
         getUserOrganizations,
+        addUserToOrganization,
         createOrganization,
         updateOrganization,
         deleteOrganization,
+        deleteUserFromOrganization,
         ...toRefs(state)
     }
 }
