@@ -16,11 +16,10 @@
     <div class="p-card">
       <h3 class="p-card-title">Sign In</h3>
 
-      <form class="p-card-body" @submit.prevent="handleSubmit(!v$.$invalid)">
+      <form class="p-card-body text-left" @submit.prevent="handleSubmit(!v$.$invalid)">
         <div>
-          <div class="flex justify-content-between align-content-center mt-2">
-            <label for="Username" class="flex align-items-center mr-3"
-              :class="{ 'p-error': v$.userUsername.$invalid && submitted }">Username:</label>
+          <div class="field flex flex-column align-content-center">
+            <label for="Username" class="flex align-items-center mr-3">Username:</label>
             <InputText v-model="v$.userUsername.$model" :disabled="isUsersLoading"
               :class="{ 'p-invalid': v$.userUsername.$invalid && submitted }" placeholder="Username" />
           </div>
@@ -31,9 +30,8 @@
         </div>
 
         <div>
-          <div class="flex justify-content-between align-content-center mt-2">
-            <label for="Password" class="flex align-items-center mr-3"
-              :class="{ 'p-error': v$.userPassword.$invalid && submitted }">Password:</label>
+          <div class="field flex flex-column align-content-center">
+            <label for="Password" class="flex align-items-center mr-3">Password:</label>
 
             <Password v-model="v$.userPassword.$model" placeholder="Password" :disabled="isUsersLoading"
               :class="{ 'p-invalid': v$.userPassword.$invalid && submitted }" toggle-mask :feedback="false" />
@@ -57,19 +55,9 @@ import { defineComponent, ref, reactive, onMounted } from "vue";
 import { useVuelidate } from '@vuelidate/core'
 import { required } from '@vuelidate/validators'
 import useUsers from "../hooks/useUsers";
-import Button from "primevue/button";
-import InputText from "primevue/inputtext";
-import Password from "primevue/password";
-import Dialog from "primevue/dialog";
 import useRedirect from "../hooks/useRedirect";
 
 export default defineComponent({
-  components: {
-    Button,
-    InputText,
-    Password,
-    Dialog
-  },
   setup() {
     onMounted(async () => {
     })

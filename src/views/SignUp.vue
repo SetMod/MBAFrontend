@@ -12,15 +12,14 @@
     </template>
   </Dialog>
 
-  <section class="flex justify-content-center align-items-center mt-8">
-    <div class="p-card">
+  <section class="flex justify-content-center align-items-center">
+    <div class="p-card w-30rem mt-8">
       <h3 class="p-card-title">Sign Up</h3>
 
-      <form class="p-card-body" @submit.prevent="handleSubmit(!v$.$invalid)">
+      <form class="p-card-body text-left" @submit.prevent="handleSubmit(!v$.$invalid)">
         <div>
-          <div class="flex justify-content-between align-content-center mt-2">
-            <label for="firstName" class="flex align-items-center"
-              :class="{ 'p-error': v$.userFirstName.$invalid && submitted }">First name:</label>
+          <div class="field flex flex-column align-content-center">
+            <label for="firstName">First name:</label>
 
             <InputText v-model="v$.userFirstName.$model"
               :class="{ 'p-invalid': v$.userFirstName.$invalid && submitted }" placeholder="first name" />
@@ -32,9 +31,8 @@
         </div>
 
         <div>
-          <div class="flex justify-content-between align-content-center mt-2">
-            <label for="secondName" class="flex align-items-center"
-              :class="{ 'p-error': v$.userSecondName.$invalid && submitted }">Second name:</label>
+          <div class="field flex flex-column align-content-center">
+            <label for="secondName" class="flex align-items-center">Second name:</label>
 
             <InputText v-model="v$.userSecondName.$model"
               :class="{ 'p-invalid': v$.userSecondName.$invalid && submitted }" placeholder="second name" />
@@ -46,9 +44,8 @@
         </div>
 
         <div>
-          <div class="flex justify-content-between align-content-center mt-2">
-            <label for="email" class="flex align-items-center"
-              :class="{ 'p-error': v$.userEmail.$invalid && submitted }">E-mail:</label>
+          <div class="field flex flex-column align-content-center">
+            <label for="email">E-mail:</label>
             <InputText v-model="v$.userEmail.$model" :class="{ 'p-invalid': v$.userEmail.$invalid && submitted }"
               placeholder="email@example.com" type="email" />
           </div>
@@ -65,9 +62,8 @@
         </div>
 
         <div>
-          <div class="flex justify-content-between align-content-center mt-2">
-            <label for="username" class="flex align-items-center"
-              :class="{ 'p-error': v$.userUsername.$invalid && submitted }">Username:</label>
+          <div class="field flex flex-column align-content-center">
+            <label for="username">Username:</label>
             <InputText v-model="v$.userUsername.$model" :class="{ 'p-invalid': v$.userUsername.$invalid && submitted }"
               placeholder="username" />
           </div>
@@ -78,12 +74,10 @@
         </div>
 
         <div>
-          <div class="flex justify-content-between align-content-center mt-2">
-            <label for="password" class="flex align-items-center"
-              :class="{ 'p-error': v$.userPassword.$invalid && submitted }">Password:</label>
-
-            <Password v-model="v$.userPassword.$model" :class="{ 'p-invalid': v$.userPassword.$invalid && submitted }"
-              placeholder="password" toggle-mask />
+          <div class="field flex flex-column align-content-center">
+            <label for="password">Password:</label>
+            <Password v-model="v$.userPassword.$model" class="w-fit"
+              :class="{ 'p-invalid': v$.userPassword.$invalid && submitted }" placeholder="password" toggle-mask />
           </div>
 
           <small v-if="(v$.userPassword.required.$invalid && submitted) || v$.userPassword.$pending" class="p-error">{{
@@ -92,11 +86,9 @@
         </div>
 
         <div>
-          <div class="flex justify-content-between align-content-center mt-2">
-            <label for="confirmPassword" class="flex align-items-center"
-              :class="{ 'p-error': v$.userConfirmPassword.$invalid && submitted }">Confirm password:</label>
-
-            <Password v-model="v$.userConfirmPassword.$model"
+          <div class="field flex flex-column align-content-center">
+            <label for="confirmPassword">Confirm password:</label>
+            <Password v-model="v$.userConfirmPassword.$model" class="w-fit"
               :class="{ 'p-invalid': v$.userConfirmPassword.$invalid && submitted }" placeholder="confirm password"
               :feedback="false" />
           </div>
@@ -110,11 +102,12 @@
         </div>
 
         <div>
-          <div class="flex justify-content-between align-content-center mt-2">
-            <label for="phone" class="flex align-items-center"
-              :class="{ 'p-error': v$.userPhone.$invalid && submitted }">Phone number:</label>
-            <InputText v-model="v$.userPhone.$model" :class="{ 'p-invalid': v$.userPhone.$invalid && submitted }"
-              placeholder="+38012345678" type="tel" />
+          <div class="field flex flex-column align-content-center">
+            <label for="phone">Phone number:</label>
+            <!-- <InputText v-model="v$.userPhone.$model" :class="{ 'p-invalid': v$.userPhone.$invalid && submitted }"
+              placeholder="+38012345678" type="tel" /> -->
+            <!-- <InputMask v-model="v$.userPhone.$model" mask="+99 (999) 999-9999" placeholder="+ 99 (999) 999-9999" /> -->
+            <InputMask v-model="v$.userPhone.$model" mask="+99 (999) 999-9999" placeholder="+ 99 (999) 999-9999" />
           </div>
 
           <small v-if="(v$.userPhone.required.$invalid && submitted) || v$.userPhone.$pending" class="p-error">{{
@@ -128,13 +121,17 @@
           }}</small>
         </div>
 
-        <div class="flex justify-content-between align-content-center mt-2">
-          <label for="role" class="flex align-items-center">Role:</label>
-          <Dropdown v-model="state.roleId" :options="roles" option-label="roleName" placeholder="Select a role"
-            :filter="true" filter-placeholder="Find Role" :loading="!roles" />
+        <div>
+          <div class="field flex flex-column align-content-center">
+            <label for="role">Role:</label>
+            <Dropdown v-model="selectedRole" :options="roles" option-label="roleName" placeholder="Select a role"
+              :filter="true" filter-placeholder="Find Role" :loading="!roles" />
+          </div>
+
+          <small v-if="!selectedRole && submitted" class="p-error">Role is required</small>
         </div>
 
-        <div class="p-card-footer flex justify-content-around align-content-center mt-2">
+        <div class="p-card-footer flex justify-content-around align-content-center">
           <Button type="submit">Submit</Button>
           <Button class="p-button-secondary" @click="redirectSignIn">Sign In</Button>
         </div>
@@ -147,30 +144,19 @@
 import { reactive, ref, defineComponent, onMounted, computed } from "vue";
 import { useVuelidate } from '@vuelidate/core';
 import { required, email, minLength, maxLength, sameAs } from "@vuelidate/validators";
-import Roles from "../models/RolesModel";
 import useRoles from "../hooks/useRoles";
 import Users from "../models/UsersModel";
-import InputText from "primevue/inputtext"
-import Dropdown from "primevue/dropdown"
-import Dialog from "primevue/dialog"
-import Password from "primevue/password"
-import Button from "primevue/button";
 import useUsers from "../hooks/useUsers";
 import useRedirect from "../hooks/useRedirect";
+import Roles from "../models/RolesModel";
 
 export default defineComponent({
-  components: {
-    InputText,
-    Password,
-    Dropdown,
-    Dialog,
-    Button
-  },
   setup() {
     onMounted(async () => {
+      await getRoles()
     })
 
-    const { roles } = useRoles()
+    const { roles, getRoles } = useRoles()
     const { signUp } = useUsers()
     const { redirectSignIn } = useRedirect()
 
@@ -178,6 +164,7 @@ export default defineComponent({
     const newUser = reactive(new Users())
     const submitted = ref(false);
     const showMessage = ref(false);
+    const selectedRole = ref<Roles>()
     const message = ref<String>('Sign in successful!')
     const isSuccess = ref(true)
 
@@ -189,7 +176,7 @@ export default defineComponent({
       userPassword: '',
       userConfirmPassword: '',
       userPhone: '',
-      roleId: new Roles(),
+      roleId: 0,
     })
     const userPassword = computed(() => {
       return state.userPassword
@@ -201,7 +188,7 @@ export default defineComponent({
       userUsername: { required, minLength: minLength(4) },
       userPassword: { required, minLength: minLength(6) },
       userConfirmPassword: { required, sameAsPassword: sameAs(userPassword) },
-      userPhone: { required, minLength: minLength(13), maxLength: maxLength(13) },
+      userPhone: { required, minLength: minLength(18), maxLength: maxLength(18) },
     }
 
     const v$ = useVuelidate(rules, state)
@@ -220,7 +207,7 @@ export default defineComponent({
       newUser.userUsername = state.userUsername
       newUser.userPassword = state.userPassword
       newUser.userPhone = state.userPhone
-      newUser.roleId = state.roleId.roleId !== undefined ? state.roleId.roleId : roles.value?.filter(role => role.roleName == 'User')[0].roleId
+      newUser.roleId = state.roleId
       const result = await signUp(newUser)
       if (typeof result !== 'string') {
         message.value = 'Sign Up successful!'
@@ -259,6 +246,7 @@ export default defineComponent({
       isSuccess,
       submitted,
       message,
+      selectedRole,
       toggleDialog,
       handleSubmit,
       redirectSignIn
