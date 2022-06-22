@@ -27,7 +27,7 @@
             </template>
         </Column>
         <template #paginatorstart>
-            <Button type="button" icon="pi pi-refresh" class="p-button-text" @click="() => props.refreshTable()" />
+            <Button type="button" icon="pi pi-refresh" class="p-button-text" @click="() => refreshTable()" />
         </template>
         <template #paginatorend>
         </template>
