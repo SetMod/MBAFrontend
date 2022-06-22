@@ -23,10 +23,16 @@ export default function useRedirect() {
             path: '/files'
         })
     }
+    const redirectReports = () => {
+        router.push({
+            path: '/reports'
+        })
+    }
     return {
         redirectHome,
         redirectSignIn,
         redirectSignUp,
         redirectFiles,
+        redirectReports,
     }
 }
