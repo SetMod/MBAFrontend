@@ -1,88 +1,56 @@
 <template>
-  <div>
-    <section class="p-card max-w-fit m-auto my-5">
-      <h1 class="p-card-title">Analyze</h1>
-      <form class="p-card-body" @submit.prevent="handleSubmit">
-        <div class="field flex justify-content-between align-items-center">
-          <label class="mr-2">Support:</label>
-          <InputNumber v-model="state.support" :step="0.1" />
-        </div>
-
-        <div class="field flex justify-content-between align-items-center">
-          <label class="mr-2">Lift:</label>
-          <InputNumber v-model="state.lift" :step="0.1" />
-        </div>
-
-        <div class="field flex justify-content-between align-items-center">
-          <label class="mr-2">Confidence:</label>
-          <InputNumber v-model="state.confidence" :step="0.1" />
-        </div>
-
-        <div class="field flex justify-content-between align-items-center">
-          <label for="Rule_length">Rule length:</label>
-          <InputNumber v-model="state.ruleLength" :step="0.1" />
-        </div>
-
-        <div class="flex justify-content-between align-content-center mt-2">
-          <label for="File" class="flex align-items-center">File:</label>
-          <Dropdown v-model="selectedFileId" :options="files" option-label="fileName" placeholder="Select a file"
-            :filter="true" filter-placeholder="Find file" :loading="isFilesLoading" />
-        </div>
-
-        <div class="flex justify-content-between align-content-center mt-2">
-          <label for="Report" class="flex align-items-center">Report:</label>
-          <Dropdown v-model="selectedReportId" :options="reports" option-label="reportName"
-            placeholder="Select a report" :filter="true" filter-placeholder="Search report"
-            :loading="isReportsLoading" />
-        </div>
-
-        <div class="p-card-footer">
-          <Button type="submit" label="Analyze" />
-        </div>
-      </form>
-    </section>
-  </div>
+  <Toast />
+  <AnalyzeCreateVue :submit="submitAnalyze" />
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, reactive, ref } from "vue";
+import { defineComponent, onMounted, ref } from "vue";
+import useAnalyzes from "../hooks/useAnalyzes";
 import useFiles from "../hooks/useFiles";
 import useOrganizations from "../hooks/useOrganizations";
 import useReports from "../hooks/useReports";
 import useUsers from "../hooks/useUsers";
+import Analyzes from "../models/AnalyzesModel";
+import AnalyzeCreateVue from "../components/Analyzes/AnalyzeCreate.vue";
+import Files from "../models/FilesModel";
+import Reports from "../models/ReportsModel";
+import { useToast } from "primevue/usetoast";
 
 export default defineComponent({
+  components: {
+    AnalyzeCreateVue
+  },
   setup() {
-    onMounted(async () => {
+    onMounted(() => {
       if (isLoggedIn.value && user.value) {
-        await getUserFiles(user.value.userId)
-        await getUserReports(user.value.userId)
+        getUserFiles(user.value.userId)
+        getUserReports(user.value.userId)
+        getUserAnalyzes(user.value.userId)
       }
     })
-    const { isLoggedIn, user } = useUsers()
+    const toast = useToast();
+    const { user, isLoggedIn, } = useUsers()
     const { organization } = useOrganizations()
     const { getUserReports, userReports: reports, isReportsLoading } = useReports()
     const { getUserFiles, files, isFilesLoading } = useFiles()
-    const selectedFileId = ref<number>()
-    const selectedReportId = ref<number>()
-    const state = reactive({
-      support: 0.1,
-      lift: 0.1,
-      confidence: 0.1,
-      ruleLength: 0
-    })
-    const handleSubmit = (event: any) => {
-      console.log(event);
+    const { userAnalyzes: analyzes, getUserAnalyzes, createAnalyze } = useAnalyzes()
+    const selectedAnalyze = ref<Analyzes>()
+    const submitAnalyze = async (analyze: Analyzes, file: Files, report: Reports) => {
+      if (!file || !report) return toast.add({ severity: 'warn', summary: 'Warning', detail: 'Select file and report', life: 3000 });
+      // toast.add({ severity: 'info', summary: 'Updated', detail: 'File Updated', life: 3000 });
+      console.log(analyze);
+      console.log(file);
+      console.log(report);
+
     }
     return {
-      selectedFileId,
-      selectedReportId,
-      files,
-      isFilesLoading,
+      selectedAnalyze,
       reports,
+      files,
+      analyzes,
+      isFilesLoading,
       isReportsLoading,
-      state,
-      handleSubmit,
+      submitAnalyze,
     };
   },
 });
