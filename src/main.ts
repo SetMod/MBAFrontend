@@ -20,6 +20,8 @@ import ToastService from 'primevue/toastservice';
 import Toast from "primevue/toast";
 import Password from "primevue/password";
 import Tooltip from 'primevue/tooltip';
+import ScrollPanel from 'primevue/scrollpanel';
+import ScrollTop from 'primevue/scrolltop';
 
 const app = createApp(App);
 
@@ -45,5 +47,7 @@ app.component('InputText', InputText);
 app.component('InputMask', InputMask);
 app.component('InputNumber', InputNumber);
 app.component('Password', Password);
+app.component('ScrollPanel', ScrollPanel);
+app.component('ScrollTop', ScrollTop);
 
 app.mount('#app')
