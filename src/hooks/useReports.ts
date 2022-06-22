@@ -18,6 +18,12 @@ export default function useReports() {
     const reportsService = reactive(new ReportsService())
     const isLoading = ref(false)
 
+    const resetReports = () => {
+        state.report = undefined
+        state.reports = undefined
+        state.userReports = undefined
+    }
+
     const getReports = async () => {
         isLoading.value = true
         const response = await reportsService.getReports()
@@ -38,7 +44,15 @@ export default function useReports() {
 
     const getReportsById = async (reportId: number) => {
         isLoading.value = true
-        const response = await reportsService.getReportsById(reportId)
+        const response = await reportsService.getReportById(reportId)
+        if (response instanceof Reports) state.report = response
+        isLoading.value = false
+
+        return response
+    }
+    const getReportsAnalyzes = async (reportId: number) => {
+        isLoading.value = true
+        const response = await reportsService.getReportAnalyzes(reportId)
         if (response instanceof Reports) state.report = response
         isLoading.value = false
 
@@ -70,6 +84,7 @@ export default function useReports() {
     }
 
     return {
+        resetReports,
         getReports,
         getUserReports,
         getReportsById,
