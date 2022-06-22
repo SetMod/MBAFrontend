@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import config from "../config";
 import Reports from "../models/ReportsModel";
 
@@ -27,11 +27,13 @@ export default class ReportsService {
             console.log(reports)
             return reports
         } catch (error) {
-            console.log(error)
+            console.error(error);
+            if (error instanceof AxiosError)
+                if (error.response?.data && typeof error.response?.data === 'string') return new String(error.response?.data)
             return errorMessage
         }
     }
-    async getReportsById(reportId: number) {
+    async getReportById(reportId: number) {
         const errorMessage: String = 'Failed to get report'
         try {
             const response = await axios.get(`${config.baseUrl}/reports/${reportId}`)
@@ -43,7 +45,27 @@ export default class ReportsService {
             console.log(report)
             return report
         } catch (error) {
-            console.log(error)
+            console.error(error);
+            if (error instanceof AxiosError)
+                if (error.response?.data && typeof error.response?.data === 'string') return new String(error.response?.data)
+            return errorMessage
+        }
+    }
+    async getReportAnalyzes(reportId: number) {
+        const errorMessage: String = 'Failed to get report analyzes'
+        try {
+            const response = await axios.get(`${config.baseUrl}/reports/${reportId}.analyzes`)
+
+            if (response.data instanceof String) return response.data
+            if (Object.keys(response.data).length === 0) return errorMessage
+
+            const report: Reports = this.mapDataToReport(response.data)
+            console.log(report)
+            return report
+        } catch (error) {
+            console.error(error);
+            if (error instanceof AxiosError)
+                if (error.response?.data && typeof error.response?.data === 'string') return new String(error.response?.data)
             return errorMessage
         }
     }
@@ -61,7 +83,9 @@ export default class ReportsService {
             console.log(reports)
             return reports
         } catch (error) {
-            console.log(error)
+            console.error(error);
+            if (error instanceof AxiosError)
+                if (error.response?.data && typeof error.response?.data === 'string') return new String(error.response?.data)
             return errorMessage
         }
     }
@@ -77,7 +101,9 @@ export default class ReportsService {
             console.log(newReport)
             return newReport
         } catch (error) {
-            console.log(error);
+            console.error(error);
+            if (error instanceof AxiosError)
+                if (error.response?.data && typeof error.response?.data === 'string') return new String(error.response?.data);
             return errorMessage
         }
     }
@@ -108,7 +134,9 @@ export default class ReportsService {
             console.log(deletedReport)
             return deletedReport
         } catch (error) {
-            console.log(error)
+            console.error(error);
+            if (error instanceof AxiosError)
+                if (error.response?.data && typeof error.response?.data === 'string') return new String(error.response?.data)
             return errorMessage
         }
     }
