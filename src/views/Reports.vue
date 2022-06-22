@@ -47,12 +47,11 @@ export default defineComponent({
         const { user, isLoggedIn } = useUsers()
         const { organization } = useOrganizations()
         const { userReports: reports, isReportsLoading, createReport, updateReport, deleteReport, getUserReports } = useReports()
+        const selectedReport = ref<Reports>();
 
         const displayCreate = ref(false);
         const displayEdit = ref(false);
         const displayDelete = ref(false);
-
-        const selectedReport = ref<Reports>();
 
         const refreshTable = async () => {
             if (isLoggedIn && user.value) await getUserReports(user.value.userId)
@@ -107,7 +106,6 @@ export default defineComponent({
             closeDialog()
         };
         const exportCSV = (event: MouseEvent) => {
-            console.log(event);
             dt.value.exportCSV();
         };
 
