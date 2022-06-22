@@ -1,33 +1,33 @@
 import { reactive, ref, toRefs } from "vue";
 import Files from "../models/FilesModel"
 import FilesService from "../services/FilesService";
-import useUsers from "./useUsers";
-
 
 export interface IFilesState {
     file: Files | undefined
     files: Files[] | undefined
+    userFiles: Files[] | undefined
 }
 
 const state = reactive<IFilesState>({
     file: undefined,
-    files: undefined
+    files: undefined,
+    userFiles: undefined
 })
 
 export default function useFiles() {
     const filesService = reactive(new FilesService())
     const isLoading = ref(false)
-    const { user, isLoggedIn } = useUsers()
 
     const resetFiles = () => {
         state.file = undefined
         state.files = undefined
+        state.userFiles = undefined
     }
 
     const getFiles = async () => {
         isLoading.value = true
         const response = await filesService.getFiles()
-        state.files = Array.isArray(response) ? response : undefined
+        if (Array.isArray(response)) state.files = response
         isLoading.value = false
 
         return response
@@ -42,15 +42,15 @@ export default function useFiles() {
     const getUserFiles = async (userId: number) => {
         isLoading.value = true
         const response = await filesService.getUserFiles(userId)
-        state.files = Array.isArray(response) ? response : undefined
+        if (Array.isArray(response)) state.userFiles = response
         isLoading.value = false
 
         return response
     }
     const downloadFile = async (fileId: number) => {
-        isLoading.value = true
+        // isLoading.value = true
         const response = await filesService.downloadFileById(fileId)
-        isLoading.value = false
+        // isLoading.value = false
         return response
     }
     const createFile = async (file: Files, form: FormData) => {
@@ -74,9 +74,6 @@ export default function useFiles() {
 
         return response
     }
-    const refreshFiles = async () => {
-        if (isLoggedIn.value && user.value) await getUserFiles(user.value.userId)
-    }
     return {
         isFilesLoading: isLoading,
         getFiles,
@@ -87,7 +84,6 @@ export default function useFiles() {
         updateFile,
         deleteFile,
         resetFiles,
-        refreshFiles,
         ...toRefs(state)
     }
 }
