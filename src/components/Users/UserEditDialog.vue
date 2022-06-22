@@ -34,19 +34,20 @@
             <div class="field">
                 <label for="role">Role:</label>
                 <!-- <InputText v-model="selectedUser.roleName" placeholder="User" /> -->
-                <Dropdown v-model="props.role" :options="roles" option-label="roleName" placeholder="Select a role"
+                <Dropdown v-model="selectedRole" :options="roles" option-label="roleName" placeholder="Select a role"
                     :filter="true" filter-placeholder="Find Role" :loading="isRolesLoading" />
             </div>
         </div>
         <template #footer>
             <Button label="Cancel" icon="pi pi-times" class="p-button-text" @click="() => props.closeDialog()" />
-            <Button label="Save" icon="pi pi-check" class="p-button-text" @click="() => props.submitDialog()" />
+            <Button label="Save" icon="pi pi-check" class="p-button-text"
+                @click="() => props.submitDialog(selectedRole)" />
         </template>
     </Dialog>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue"
+import { defineComponent, onMounted, ref } from "vue"
 import useRoles from "../../hooks/useRoles"
 import Roles from "../../models/RolesModel"
 import Users from "../../models/UsersModel"
@@ -62,10 +63,6 @@ export default defineComponent({
             type: Users,
             required: true
         },
-        role: {
-            type: Roles,
-            required: true
-        },
         closeDialog: {
             type: Function,
             required: true
@@ -76,8 +73,13 @@ export default defineComponent({
         }
     },
     setup(props) {
-        const { roles, isRolesLoading } = useRoles()
+        onMounted(() => {
+            getRoles()
+        })
+        const selectedRole = ref<Roles>()
+        const { roles, isRolesLoading, getRoles } = useRoles()
         return {
+            selectedRole,
             roles,
             isRolesLoading,
             props

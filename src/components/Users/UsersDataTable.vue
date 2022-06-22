@@ -35,7 +35,7 @@
                     <Button type="button" icon="pi pi-user-edit" class="mr-1 p-button-outlined p-button-info"
                         @click="() => props.openEdit(slotProps.data)"></Button>
                     <Button type="button" icon="pi pi-times" class="p-button-outlined p-button-danger"
-                        @click="() => props.openDelete(slotProps.data.userId)"></Button>
+                        @click="() => props.openDelete(slotProps.data)"></Button>
                 </div>
             </template>
         </Column>

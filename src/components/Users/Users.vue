@@ -1,8 +1,9 @@
 <template>
   <Toast />
-  <UserEditDialogVue v-if="selectedUser" :display="displayEdit" :user="selectedUser" :role="selectedRole"
-    :close-dialog="closeDialog" :submit-dialog="submitEdit" />
-  <UserDeleteDialogVue :display="displayDelete" :close-dialog="closeDialog" :submit-dialog="submitDelete" />
+  <UserEditDialogVue v-if="selectedUser" :display="displayEdit" :user="selectedUser" :close-dialog="closeDialog"
+    :submit-dialog="submitEdit" />
+  <UserDeleteDialogVue v-if="selectedUser" :user="selectedUser" :display="displayDelete" :close-dialog="closeDialog"
+    :submit-dialog="submitDelete" />
 
   <div v-if="isUsersLoading">
     <i class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
@@ -22,10 +23,10 @@ import { useToast } from "primevue/usetoast";
 import useUsers from "../../hooks/useUsers";
 import useRoles from "../../hooks/useRoles";
 import Users from "../../models/UsersModel";
-import Roles from "../../models/RolesModel";
 import UserDeleteDialogVue from "./UserDeleteDialog.vue";
 import UserEditDialogVue from "./UserEditDialog.vue";
 import UsersDataTableVue from "./UsersDataTable.vue";
+import Roles from "../../models/RolesModel";
 
 export default defineComponent({
   components: {
@@ -43,8 +44,7 @@ export default defineComponent({
     const { roles, isRolesLoading, getRoles } = useRoles()
     const toast = useToast()
     const selectedUser = ref<Users>()
-    const selectedUserId = ref<number>()
-    const selectedRole = ref<Roles>()
+
     const displayEdit = ref(false)
     const displayDelete = ref(false)
     const refreshTable = () => {
@@ -53,21 +53,22 @@ export default defineComponent({
     }
     const openEdit = (user: Users) => {
       displayEdit.value = true
-      selectedUser.value = Object.assign(new Users(), user)
+      selectedUser.value = user
     }
-    const openDelete = (userId: number) => {
-      selectedUserId.value = userId
+    const openDelete = (user: Users) => {
       displayDelete.value = true
+      selectedUser.value = user
     }
     const closeDialog = () => {
       displayEdit.value = false
       displayDelete.value = false
+      selectedUser.value = undefined
     }
-    const submitEdit = async () => {
+    const submitEdit = async (selectedRole: Roles) => {
       if (!selectedUser.value) return toast.add({ severity: 'warn', summary: 'Warning', detail: 'Select a user to edit', life: 3000 })
-      if (!selectedRole.value) return toast.add({ severity: 'warn', summary: 'Warning', detail: 'Select a user role', life: 3000 })
+      if (!selectedRole) return toast.add({ severity: 'warn', summary: 'Warning', detail: 'Select a user role', life: 3000 })
 
-      selectedUser.value.roleId = selectedRole.value.roleId
+      selectedUser.value.roleId = selectedRole.roleId
 
       const response = await updateUser(selectedUser.value)
       if (response instanceof String) return toast.add({ severity: 'error', summary: 'Error', detail: response, life: 3000 })
@@ -77,9 +78,9 @@ export default defineComponent({
       refreshTable()
     }
     const submitDelete = async () => {
-      if (!selectedUserId.value) return toast.add({ severity: 'warn', summary: 'Warning', detail: 'Select user to delete', life: 3000 })
+      if (!selectedUser.value) return toast.add({ severity: 'warn', summary: 'Warning', detail: 'Select user to delete', life: 3000 })
 
-      const response = await deleteUser(selectedUserId.value)
+      const response = await deleteUser(selectedUser.value.userId)
       if (response instanceof String) return toast.add({ severity: 'error', summary: 'Error', detail: response, life: 3000 })
       toast.add({ severity: 'success', summary: 'Success', detail: 'User deleted', life: 1500 })
 
@@ -92,7 +93,6 @@ export default defineComponent({
       users,
       roles,
       selectedUser,
-      selectedRole,
       displayEdit,
       displayDelete,
       refreshTable,
