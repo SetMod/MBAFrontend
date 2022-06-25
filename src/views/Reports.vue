@@ -1,6 +1,6 @@
 <template>
     <ReportViewDialogVue v-if="selectedReport" :report="selectedReport" :display="displayView"
-        :close-dialog="closeDialog" :submit-download="submitDownload" />
+        :close-dialog="closeDialog" />
     <ReportCreateDialogVue :display="displayCreate" :close-dialog="closeDialog" :submit-dialog="submitCreate" />
     <ReportEditDialogVue v-if="selectedReport" :report="selectedReport" :display="displayEdit"
         :close-dialog="closeDialog" :submit-dialog="submitEdit" />
@@ -52,7 +52,7 @@ export default defineComponent({
         const { user, isLoggedIn } = useUsers()
         const { organization } = useOrganizations()
         const { userReports: reports, isReportsLoading, createReport, updateReport, deleteReport, getUserReports } = useReports()
-        const { reportAnalyzes, getReportAnalyzes, downloadAnalyze } = useAnalyzes()
+        const { reportAnalyzes, getReportAnalyzes } = useAnalyzes()
         const { reportVisualizations, getReportVisualizations } = useVisualizations()
         const selectedReport = ref<Reports>();
 
@@ -126,15 +126,6 @@ export default defineComponent({
             await getUserReports(user.value.userId)
             closeDialog()
         };
-        const submitDownload = async (analyzeId: number) => {
-
-            const response = await downloadAnalyze(analyzeId)
-            console.log(response instanceof String);
-            console.log(response);
-            if (response instanceof String) return toast.add({ severity: 'error', summary: 'Error', detail: response, life: 3000 })
-            toast.add({ severity: 'success', summary: 'Success', detail: 'Analyze downloaded', life: 1500 })
-
-        }
         const exportCSV = (event: MouseEvent) => {
             dt.value.exportCSV();
         };
@@ -153,7 +144,6 @@ export default defineComponent({
             closeDialog,
             submitEdit,
             submitCreate,
-            submitDownload,
             openEdit,
             openDelete,
             submitDelete,
