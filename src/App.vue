@@ -1,12 +1,12 @@
 <template>
-  <div class="h-screen pi-dec">
+  <div class="h-screen">
     <Toast />
     <Menubar :model="items">
       <template #end>
         <div v-if="isLoggedIn" class="flex align-items-center">
           <span class="mr-3">Hello {{ user?.userUsername || 'user' }}!</span>
           <Button class="p-button-outlined mr-3 pi pi-sign-out fw" @click="logOutWithToast" />
-          <InputText placeholder="Search" type="text" />
+          <!-- <InputText placeholder="Search" type="text" /> -->
         </div>
       </template>
     </Menubar>
@@ -17,16 +17,11 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted } from "vue";
+import { defineComponent } from "vue";
 import { routes } from "./router/index"
 import useUsers from "./hooks/useUsers";
 import useRoles from "./hooks/useRoles";
 import { useToast } from 'primevue/usetoast'
-
-import Menubar from "primevue/menubar"
-import InputText from "primevue/inputtext"
-import Button from "primevue/button";
-import Toast from "primevue/toast";
 import useNavBar from "./hooks/useNavBar";
 import useFiles from "./hooks/useFiles";
 import useOrganizations from "./hooks/useOrganizations";
@@ -37,16 +32,7 @@ import useOrganizationRoles from "./hooks/useOrganizationRoles";
 import useVisualizations from "./hooks/useVisualizations";
 
 export default defineComponent({
-  components: {
-    InputText,
-    Menubar,
-    Toast,
-    Button,
-  },
   setup() {
-    onMounted(() => {
-      // if (isLoggedIn.value) await getRoles()
-    })
     const toast = useToast();
     const { items } = useNavBar()
     const { resetRoles } = useRoles()
