@@ -1,8 +1,9 @@
 import axios, { AxiosError } from "axios";
 import config from "../config";
 import Analyzes from "../models/AnalyzesModel";
+import AssociationRules from "../models/AssociationRulesModel";
 
-interface AnalyzeResponse {
+export interface AnalyzeResponse {
     analyze_id: number
     analyze_name: string
     analyze_description: string
@@ -11,14 +12,25 @@ interface AnalyzeResponse {
     analyze_confidence: number
     analyze_rules_length: number
     analyze_file_path: string
-    analyze_create_date: Date
+    analyze_create_date: string
     report_id: number
+}
+export interface AssociationRulesResponse {
+    "antecedent support": number
+    antecedents: Array<String>
+    confidence: number
+    "consequent support": number
+    consequents: Array<String>
+    conviction: number
+    leverage: number
+    lift: number
+    support: number
 }
 
 export default class AnalyzesService {
 
     async getAnalyzes() {
-        const errorMessage: String = 'Failed to get analyzes'
+        const errorMessage = new String('Failed to get analyzes')
         try {
             const response = await axios.get(`${config.baseUrl}/analyzes/`)
 
@@ -38,7 +50,7 @@ export default class AnalyzesService {
         }
     }
     async getAnalyzeById(analyzeId: number) {
-        const errorMessage: String = 'Failed to get analyze'
+        const errorMessage = new String('Failed to get analyze')
         try {
             const response = await axios.get(`${config.baseUrl}/analyzes/${analyzeId}`)
 
@@ -55,8 +67,30 @@ export default class AnalyzesService {
             return errorMessage
         }
     }
+    async downloadAnalyzeById(analyzeId: number) {
+        const errorMessage = new String('Failed to download the analyze file')
+        try {
+            const analyze = await this.getAnalyzeById(analyzeId)
+            if (analyze instanceof String) return analyze
+
+            const response = await axios.get(`${config.baseUrl}/analyzes/download/${analyzeId}`, { responseType: 'blob' })
+
+            const blob = new Blob([response.data], { type: response.data.type })
+            const link = document.createElement('a')
+            link.href = URL.createObjectURL(blob)
+
+            link.download = analyze.analyzeName ? analyze.analyzeName : 'Untitled'
+            // link.download = response.headers["content-disposition"].split("filename=")[1]
+            document.body.appendChild(link);
+            link.click()
+
+        } catch (error) {
+            console.error(error);
+            return errorMessage
+        }
+    }
     async getReportAnalyzes(reportId: number) {
-        const errorMessage: String = 'Failed to get report analyzes'
+        const errorMessage = new String('Failed to get report analyzes')
         try {
             const response = await axios.get(`${config.baseUrl}/reports/${reportId}/analyzes`)
 
@@ -75,37 +109,22 @@ export default class AnalyzesService {
             return errorMessage
         }
     }
-    async getUserAnalyzes(userId: number) {
-        const errorMessage: String = 'Failed to get user analyzes'
-        try {
-            const response = await axios.get(`${config.baseUrl}/users/${userId}/analyzes`)
-
-            if (response.data instanceof String) return response.data
-            if (Object.keys(response.data).length === 0) return errorMessage
-
-            const analyzes: Analyzes[] = response.data.map((val: AnalyzeResponse) => {
-                return this.mapDataToAnalyze(val)
-            })
-            console.log(analyzes)
-            return analyzes
-        } catch (error) {
-            console.error(error);
-            if (error instanceof AxiosError)
-                if (error.response?.data && typeof error.response?.data === 'string') return new String(error.response?.data)
-            return errorMessage
-        }
-    }
-    async createAnalyze(analyze: Analyzes) {
-        const errorMessage: String = 'Failed to create an analyze'
+    async createAnalyze(analyze: Analyzes, fileId: number) {
+        const errorMessage = new String('Failed to create an analyze')
         try {
             const dataAnalyze = this.mapAnalyzeToData(analyze)
-            const response = await axios.post(`${config.baseUrl}/analyzes/`, dataAnalyze)
+            // const response = await axios.post(`${config.baseUrl}/analyzes/`, { ...dataAnalyze, file_id: fileId })
+            const response = await axios.post(`${config.baseUrl}/analyzes/?file_id=${fileId}`, dataAnalyze)
+            // console.log(response);
 
             if (response.data instanceof String) return response.data
+            if (Array.isArray(response.data) == false) return errorMessage
 
-            const newAnalyze: Analyzes = this.mapDataToAnalyze(response.data)
-            console.log(newAnalyze)
-            return newAnalyze
+            const associationRules: AssociationRules[] = response.data.map((val: AssociationRulesResponse) => {
+                return this.mapDataToAssociationRules(val)
+            })
+            // console.log(associationRules)
+            return associationRules
         } catch (error) {
             console.error(error);
             if (error instanceof AxiosError)
@@ -114,7 +133,7 @@ export default class AnalyzesService {
         }
     }
     async updateAnalyze(analyze: Analyzes) {
-        const errorMessage: String = 'Failed to update analyze'
+        const errorMessage = new String('Failed to update analyze')
         try {
             const dataAnalyze = this.mapAnalyzeToData(analyze)
             const response = await axios.put(`${config.baseUrl}/analyzes/${analyze.analyzeId}`, dataAnalyze)
@@ -126,11 +145,13 @@ export default class AnalyzesService {
             return updatedAnalyze
         } catch (error) {
             console.error(error);
+            if (error instanceof AxiosError)
+                if (error.response?.data && typeof error.response?.data === 'string') return new String(error.response?.data);
             return errorMessage
         }
     }
     async deleteAnalyze(analyzeId: number) {
-        const errorMessage: String = 'Failed to delete analyze'
+        const errorMessage = new String('Failed to delete analyze')
         try {
             const response = await axios.delete(`${config.baseUrl}/analyzes/${analyzeId}`)
 
@@ -156,9 +177,22 @@ export default class AnalyzesService {
         analyze.analyzeConfidence = data.analyze_confidence
         analyze.analyzeRulesLength = data.analyze_rules_length
         analyze.analyzeFilePath = data.analyze_file_path
-        analyze.analyzeCreateDate = data.analyze_create_date
+        analyze.analyzeCreateDate = new Date(data.analyze_create_date)
         analyze.reportId = data.report_id
         return analyze
+    }
+    mapDataToAssociationRules(data: AssociationRulesResponse) {
+        const associationRules = new AssociationRules()
+        associationRules.antecedentSupport = data["antecedent support"]
+        associationRules.antecedents = data.antecedents
+        associationRules.confidence = data.confidence
+        associationRules.consequentSupport = data["consequent support"]
+        associationRules.consequents = data.consequents
+        associationRules.conviction = data.conviction
+        associationRules.leverage = data.leverage
+        associationRules.lift = data.lift
+        associationRules.support = data.support
+        return associationRules
     }
     mapAnalyzeToData(analyze: Analyzes) {
         return <AnalyzeResponse>{
@@ -170,7 +204,7 @@ export default class AnalyzesService {
             analyze_confidence: analyze.analyzeConfidence,
             analyze_rules_length: analyze.analyzeRulesLength,
             analyze_file_path: analyze.analyzeFilePath,
-            analyze_create_date: analyze.analyzeCreateDate,
+            analyze_create_date: analyze.analyzeCreateDate.toJSON(),
             report_id: analyze.reportId,
         }
     }

@@ -130,7 +130,9 @@ export default class UsersService {
             console.log(user)
             return user
         } catch (error) {
-            console.log(error)
+            console.error(error);
+            if (error instanceof AxiosError)
+                if (error.response?.data && typeof error.response?.data === 'string') return new String(error.response?.data)
             return errorMessage
         }
     }
@@ -151,15 +153,14 @@ export default class UsersService {
     mapUserToData(user: Users) {
         return <UsersResponse>{
             user_id: user.userId,
-            user_first_name: user.userFirstName?.toString(),
-            user_second_name: user.userSecondName?.toString(),
-            user_email: user.userEmail?.toString(),
+            user_first_name: user.userFirstName,
+            user_second_name: user.userSecondName,
+            user_email: user.userEmail,
             user_create_date: user.userCreateDate?.toJSON(),
-            user_phone: user.userPhone?.toString(),
-            user_username: user.userUsername?.toString(),
-            user_password: user.userPassword?.toString(),
+            user_phone: user.userPhone,
+            user_username: user.userUsername,
+            user_password: user.userPassword,
             role_id: user.roleId,
-            role_name: user.roleName,
         }
     }
 }

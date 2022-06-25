@@ -30,7 +30,7 @@ interface UsersOrganizationsResponse {
 }
 export default class OrganizationsService {
     async getOrganizations() {
-        const errorMessage: String = 'Failed to get organizations'
+        const errorMessage = new String('Failed to get organizations')
         try {
             const response = await axios.get(`${config.baseUrl}/organizations/`)
 
@@ -50,7 +50,7 @@ export default class OrganizationsService {
         }
     }
     async getOrganizationById(organizationId: number) {
-        const errorMessage: String = 'Failed to get organization'
+        const errorMessage = new String('Failed to get organization')
         try {
             const response = await axios.get(`${config.baseUrl}/organizations/${organizationId}`)
 
@@ -68,7 +68,7 @@ export default class OrganizationsService {
         }
     }
     async getUserOrganizations(userId: number) {
-        const errorMessage: String = 'Failed to get user organizations'
+        const errorMessage = new String('Failed to get user organizations')
         try {
             const response = await axios.get(`${config.baseUrl}/organizations/user/${userId}`)
 
@@ -89,7 +89,7 @@ export default class OrganizationsService {
         }
     }
     async addUserToOrganization(userOrganization: UsersOrganizations) {
-        const errorMessage: String = 'Failed to add user to organization'
+        const errorMessage = new String('Failed to add user to organization')
         try {
             const dataUserOrganization = this.mapUserOrganizationToData(userOrganization)
             const response = await axios.post(`${config.baseUrl}/organizations/users`, dataUserOrganization)
@@ -108,11 +108,11 @@ export default class OrganizationsService {
             return errorMessage
         }
     }
-    async createOrganization(organization: Organizations) {
-        const errorMessage: String = 'Failed to create organization'
+    async createOrganization(organization: Organizations, userId: number) {
+        const errorMessage = new String('Failed to create organization')
         try {
             const dataOrganization = this.mapOrganizationToData(organization)
-            const response = await axios.post(`${config.baseUrl}/organizations/`, dataOrganization)
+            const response = await axios.post(`${config.baseUrl}/organizations/?user_id=${userId}`, dataOrganization)
 
             if (response.data instanceof String) return response.data
 
@@ -127,7 +127,7 @@ export default class OrganizationsService {
         }
     }
     async updateOrganization(organization: Organizations) {
-        const errorMessage: String = 'Failed to update organization'
+        const errorMessage = new String('Failed to update organization')
         try {
             const dataOrganization = this.mapOrganizationToData(organization)
             const response = await axios.put(`${config.baseUrl}/organizations/${organization.organizationId}`, dataOrganization)
@@ -145,7 +145,7 @@ export default class OrganizationsService {
         }
     }
     async deleteOrganization(organizationId: number) {
-        const errorMessage: String = 'Failed to delete organization'
+        const errorMessage = new String('Failed to delete organization')
         try {
             const response = await axios.delete(`${config.baseUrl}/organizations/${organizationId}`)
             if (Object.keys(response.data).length === 0) return errorMessage
@@ -160,7 +160,7 @@ export default class OrganizationsService {
         }
     }
     async deleteUserFromOrganization(userOrganization: UsersOrganizations) {
-        const errorMessage: String = 'Failed to delete user from organization'
+        const errorMessage = new String('Failed to delete user from organization')
         try {
             const response = await axios.delete(`${config.baseUrl}/organizations/${userOrganization.organizationId}/user/${userOrganization.userId}`)
             if (Object.keys(response.data).length === 0) return errorMessage

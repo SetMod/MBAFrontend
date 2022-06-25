@@ -155,9 +155,9 @@ export default class FilesService {
     mapFileToData(file: Files) {
         return <FilesResponse>{
             file_id: file.fileId,
-            file_name: file.fileName.toString(),
+            file_name: file.fileName,
             file_create_date: file.fileCreateDate.toJSON(),
-            file_path: file.filePath.toString(),
+            file_path: file.filePath,
             user_id: file.userId,
             organization_id: file.organizationId,
         }
