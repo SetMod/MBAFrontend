@@ -16,6 +16,11 @@ export default function useUsers() {
     const userService = reactive(new UsersService())
     const isLoading = ref(false)
 
+    const resetUsers = () => {
+        state.user = undefined
+        state.users = undefined
+        localStorage.removeItem('user')
+    }
     const mapUser = (lsUser: any) => {
         const user = new Users()
         user.userId = lsUser.userId
@@ -23,6 +28,7 @@ export default function useUsers() {
         user.userSecondName = lsUser.userSecondName
         user.userEmail = lsUser.userEmail
         user.userPhone = lsUser.userPhone
+        user.userUsername = lsUser.userUsername
         user.userPassword = lsUser.userPassword
         user.roleId = lsUser.roleId
         user.roleName = lsUser.roleName
@@ -68,10 +74,6 @@ export default function useUsers() {
         return response
     }
 
-    const resetUsers = () => {
-        state.user = undefined
-        localStorage.removeItem('user')
-    }
 
     const signUp = async (newUser: Users) => {
         isLoading.value = true
@@ -83,6 +85,10 @@ export default function useUsers() {
     const updateUser = async (updatedUser: Users) => {
         // isLoading.value = true
         const response = await userService.updateUser(updatedUser)
+        if (response instanceof Users) {
+            state.user = response
+            localStorage.setItem('user', JSON.stringify(response))
+        }
         // isLoading.value = false
 
         return response
