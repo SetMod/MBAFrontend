@@ -114,7 +114,7 @@ export default defineComponent({
             organization.value = selectedOrganization
         }
         const submitCreate = async (newOrganization: Organizations) => {
-            if (!user.value) return toast.add({ severity: 'error', summary: 'Failed to Create', detail: 'User not specified', life: 3000 });
+            if (!user.value) return toast.add({ severity: 'error', summary: 'Fail', detail: 'User not specified', life: 3000 });
 
             const response = await createOrganization(newOrganization, user.value.userId)
             if (response instanceof String) return toast.add({ severity: 'error', summary: 'Failed to Create', detail: response, life: 3000 });
@@ -124,7 +124,7 @@ export default defineComponent({
             refreshTable()
         }
         const submitEdit = async (invalid: boolean) => {
-            if (invalid) return toast.add({ severity: 'warn', summary: 'Warning', detail: 'Enter all fields', life: 3000 })
+            if (invalid) return toast.add({ severity: 'warn', summary: 'Warning', detail: 'Validate all fields', life: 3000 })
             if (!selectedOrganization.value) return toast.add({ severity: 'warn', summary: 'Warning', detail: 'Select an organization to edit', life: 3000 })
 
             const response = await updateOrganization(selectedOrganization.value)
