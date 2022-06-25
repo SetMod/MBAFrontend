@@ -119,15 +119,9 @@ export default defineComponent({
             type: Reports,
             required: true
         },
-        submitDownload: {
-            type: Function,
-            default: () => {
-                console.log('download analyze');
-            }
-        }
     },
     setup(props) {
-        const { reportAnalyzes, isAnalyzesLoading, deleteAnalyze, getReportAnalyzes } = useAnalyzes()
+        const { reportAnalyzes, isAnalyzesLoading, deleteAnalyze, downloadAnalyze, getReportAnalyzes } = useAnalyzes()
         const layout = ref('list');
         const selectedAnalyze = ref<Analyzes>()
         const displayDelete = ref(false)
@@ -150,6 +144,11 @@ export default defineComponent({
             closeDialog()
             getReportAnalyzes(props.report.reportId)
         }
+        const submitDownload = async (analyzeId: number) => {
+            const response = await downloadAnalyze(analyzeId)
+            if (response instanceof String) return toast.add({ severity: 'error', summary: 'Error', detail: response, life: 3000 })
+            toast.add({ severity: 'success', summary: 'Success', detail: 'Analyze downloaded', life: 1500 })
+        }
         return {
             layout,
             props,
@@ -160,6 +159,7 @@ export default defineComponent({
             openDelete,
             submitEdit,
             submitDelete,
+            submitDownload,
             closeDialog,
         }
     }

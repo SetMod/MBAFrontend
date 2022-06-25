@@ -49,10 +49,6 @@ export default defineComponent({
             type: Reports,
             required: true
         },
-        submitDownload: {
-            type: Function,
-            required: true
-        },
         closeDialog: {
             type: Function,
             required: true
