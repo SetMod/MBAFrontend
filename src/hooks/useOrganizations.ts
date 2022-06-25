@@ -65,9 +65,9 @@ export default function useOrganizations() {
 
         return response
     }
-    const createOrganization = async (newOrganization: Organizations) => {
+    const createOrganization = async (newOrganization: Organizations, userId: number) => {
         isLoading.value = true
-        const response = await organizationsService.createOrganization(newOrganization)
+        const response = await organizationsService.createOrganization(newOrganization, userId)
         isLoading.value = false
 
         return response

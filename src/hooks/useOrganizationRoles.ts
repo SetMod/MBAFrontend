@@ -1,6 +1,6 @@
-import { reactive, toRefs } from "vue"
+import { reactive, ref, toRefs } from "vue"
 import OrganizationRoles from "../models/OrganizationRolesModel"
-import { organizationRolesService } from "../services/OrganizationRolesService"
+import OrganizationRolesService from "../services/OrganizationRolesService"
 
 interface OrganizationsRolesState {
     organizationRoles: OrganizationRoles[] | undefined
@@ -11,13 +11,23 @@ const state = reactive<OrganizationsRolesState>({
 })
 
 export default function useOrganizationRoles() {
-    const getOrganizationsRoles = () => {
-        organizationRolesService.getAllOrganizationRoles().then((organizationRoles => {
-            if (organizationRoles instanceof String) alert(organizationRoles)
-            else if (Array.isArray(organizationRoles)) state.organizationRoles = organizationRoles
-        }))
+    const organizationRolesService = reactive(new OrganizationRolesService())
+    const isLoading = ref(false)
+
+    const resetOrganizationRoles = () => {
+        state.organizationRoles = undefined
+    }
+
+    const getOrganizationsRoles = async () => {
+        isLoading.value = true
+        const response = organizationRolesService.getAllOrganizationRoles()
+        if (Array.isArray(response)) state.organizationRoles = response
+        isLoading.value = true
+
+        return response
     }
     return {
+        resetOrganizationRoles,
         getOrganizationsRoles,
         ...toRefs(state)
     }

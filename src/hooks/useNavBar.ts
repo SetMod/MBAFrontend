@@ -21,10 +21,10 @@ export default function useNavBar() {
             label: 'Analyze', to: '/analyze', icon: 'pi pi-fw pi-check',
             visible: () => isLoggedIn.value
         },
-        {
-            label: 'Visualizations', to: '/visualizations', icon: 'pi pi-fw pi-image',
-            visible: () => isLoggedIn.value
-        },
+        // {
+        //     label: 'Visualizations', to: '/visualizations', icon: 'pi pi-fw pi-image',
+        //     visible: () => isLoggedIn.value
+        // },
         {
             label: 'Profile', to: '/profile', icon: 'pi pi-fw pi-user',
             visible: () => isLoggedIn.value

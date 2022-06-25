@@ -1,7 +1,6 @@
 import { computed, reactive, ref, toRefs } from "vue";
 import Users from "../models/UsersModel";
 import UsersService from "../services/UsersService";
-import useRedirect from "./useRedirect";
 
 interface UsersState {
     user: Users | undefined
@@ -14,18 +13,31 @@ const state = reactive<UsersState>({
 })
 
 export default function useUsers() {
-    const { redirectHome, redirectSignIn } = useRedirect()
     const userService = reactive(new UsersService())
     const isLoading = ref(false)
+
+    const mapUser = (lsUser: any) => {
+        const user = new Users()
+        user.userId = lsUser.userId
+        user.userFirstName = lsUser.userFirstName
+        user.userSecondName = lsUser.userSecondName
+        user.userEmail = lsUser.userEmail
+        user.userPhone = lsUser.userPhone
+        user.userPassword = lsUser.userPassword
+        user.roleId = lsUser.roleId
+        user.roleName = lsUser.roleName
+        user.userCreateDate = lsUser.userCreateDate
+        return user
+    }
     const isLoggedIn = computed(() => {
         const user = localStorage.getItem('user')
         if (user) {
-            const loggedUser = userService.mapDataToUser(JSON.parse(user))
+            const loggedUser = mapUser(JSON.parse(user))
             state.user = loggedUser
         }
         return state.user === undefined ? false : true
     })
-    const isAdmin = computed(() => state.user && state.user?.roleName === 'Admin' ? true : false)
+    const isAdmin = computed(() => state.user && state.user.roleName === 'Admin' ? true : false)
 
     const getUsers = async () => {
         isLoading.value = true
@@ -49,8 +61,7 @@ export default function useUsers() {
         const response = await userService.sigInUser(userUsername, userPassword)
         if (response instanceof Users) {
             state.user = response
-            localStorage.setItem('user', JSON.stringify(userService.mapUserToData(response)))
-            redirectHome()
+            localStorage.setItem('user', JSON.stringify(response))
         }
         isLoading.value = false
 
@@ -65,9 +76,6 @@ export default function useUsers() {
     const signUp = async (newUser: Users) => {
         isLoading.value = true
         const response = await userService.createUser(newUser)
-        if (response instanceof Users) {
-            redirectSignIn()
-        }
         isLoading.value = false
 
         return response

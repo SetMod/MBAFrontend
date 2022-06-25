@@ -1,5 +1,6 @@
 import { reactive, ref, toRefs } from "vue"
 import Analyzes from "../models/AnalyzesModel"
+import AssociationRules from "../models/AssociationRulesModel"
 import AnalyzesService from "../services/AnalyzeService"
 
 export interface AnalyzesState {
@@ -7,6 +8,7 @@ export interface AnalyzesState {
     analyzes: Analyzes[] | undefined
     reportAnalyzes: Analyzes[] | undefined
     userAnalyzes: Analyzes[] | undefined
+    associationRules: AssociationRules[] | undefined
 }
 
 const state = reactive<AnalyzesState>({
@@ -14,6 +16,7 @@ const state = reactive<AnalyzesState>({
     analyzes: undefined,
     reportAnalyzes: undefined,
     userAnalyzes: undefined,
+    associationRules: undefined,
 })
 
 export default function useAnalyzes() {
@@ -44,6 +47,13 @@ export default function useAnalyzes() {
 
         return response
     }
+    const downloadAnalyze = async (analyzeId: number) => {
+        isLoading.value = true
+        const response = await analyzesService.downloadAnalyzeById(analyzeId)
+        isLoading.value = false
+
+        return response
+    }
 
     const getReportAnalyzes = async (reportId: number) => {
         isLoading.value = true
@@ -53,18 +63,11 @@ export default function useAnalyzes() {
 
         return response
     }
-    const getUserAnalyzes = async (reportId: number) => {
-        isLoading.value = true
-        const response = await analyzesService.getUserAnalyzes(reportId)
-        if (Array.isArray(response)) state.userAnalyzes = response
-        isLoading.value = false
 
-        return response
-    }
-
-    const createAnalyze = async (newAnalyze: Analyzes) => {
+    const createAnalyze = async (newAnalyze: Analyzes, fileId: number) => {
         isLoading.value = true
-        const response = await analyzesService.createAnalyze(newAnalyze)
+        const response = await analyzesService.createAnalyze(newAnalyze, fileId)
+        if (Array.isArray(response)) state.associationRules = response
         isLoading.value = false
 
         return response
@@ -78,9 +81,9 @@ export default function useAnalyzes() {
         return response
     }
 
-    const deleteAnalyze = async (reportId: number) => {
+    const deleteAnalyze = async (analyzeId: number) => {
         isLoading.value = true
-        const response = await analyzesService.deleteAnalyze(reportId)
+        const response = await analyzesService.deleteAnalyze(analyzeId)
         isLoading.value = false
 
         return response
@@ -90,8 +93,8 @@ export default function useAnalyzes() {
         resetAnalyzes,
         getAnalyzes,
         getAnalyzeById,
+        downloadAnalyze,
         getReportAnalyzes,
-        getUserAnalyzes,
         createAnalyze,
         updateAnalyze,
         deleteAnalyze,

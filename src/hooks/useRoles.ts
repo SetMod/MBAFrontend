@@ -34,6 +34,13 @@ export default function useRoles() {
 
         return response
     }
+    const getRoleByName = async (roleName: string) => {
+        isLoading.value = true
+        const response = await rolesService.getRoleByName(roleName)
+        isLoading.value = false
+
+        return response
+    }
 
     const createRole = async (newRole: Roles) => {
         isLoading.value = true
@@ -71,6 +78,7 @@ export default function useRoles() {
     return {
         getRoles,
         getRoleById,
+        getRoleByName,
         createRole,
         updateRole,
         deleteRole,
