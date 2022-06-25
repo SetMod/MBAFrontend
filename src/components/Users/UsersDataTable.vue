@@ -22,8 +22,14 @@
         <Column field="userEmail" header="Email" :sortable="true"></Column>
         <Column field="userPhone" header="Phone"></Column>
         <Column field="userUsername" header="Username" :sortable="true"></Column>
-        <Column field="userPassword" header="Password"></Column>
-        <Column field="userCreateDate" header="CreateDate" :sortable="true"></Column>
+        <!-- <Column field="userPassword" header="Password"></Column> -->
+        <Column field="userCreateDate" header="CreateDate" :sortable="true">
+            <template #body="slotProps">
+                <div>
+                    {{ new Date(slotProps.data.userCreateDate).toLocaleDateString() }}
+                </div>
+            </template>
+        </Column>
         <Column header="Role">
             <template #body="slotProps">
                 <span>{{ props.roles.find((role) => role.roleId == slotProps.data.roleId)?.roleName }}</span>
