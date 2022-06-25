@@ -13,8 +13,6 @@
         </div>
         <div class="field">
             <label for="description">Data</label>
-            <!-- <Textarea id="description" v-model="v$.reportData.$model" required="true" rows="3" cols="20"
-                    :class="{ 'p-invalid': v$.reportData.$invalid }" /> -->
             <Editor v-model="v$.reportData.$model" editor-style="height: 320px"
                 :class="{ 'p-invalid': v$.reportData.$invalid }" />
             <small v-if="v$.reportData.required.$invalid" class="p-error">Data is required.</small>
@@ -23,10 +21,21 @@
             <small v-else-if="v$.reportData.maxLength.$invalid" class="p-error">Data is to
                 long.</small>
         </div>
+        <div class="field">
+            <label for="description">Create date</label>
+            <div>{{ new Date(report.reportCreateDate).toLocaleDateString() }}</div>
+        </div>
+        <div class="field">
+            <h3 class="mt-6">Visualizations:</h3>
+            <ReportsVisualizationsDataViewVue :edit="true" :report="report" />
+            <h3 class="mt-6">Analyzes:</h3>
+            <ReportsAnalyzesDataViewVue :edit="true" :report="report" />
+        </div>
 
         <template #footer>
-            <Button label="Cancel" icon="pi pi-times" class="p-button-text" @click="() => closeDialog()" />
-            <Button label="Save" icon="pi pi-check" class="p-button-text" @click="() => submitDialog()" />
+            <Button label="Cancel" icon="pi pi-times" class="p-button p-button-secondary"
+                @click="() => closeDialog()" />
+            <Button label="Save" icon="pi pi-check" class="p-button p-button-success" @click="() => submitDialog()" />
         </template>
     </Dialog>
 </template>
@@ -36,8 +45,14 @@ import { defineComponent } from "vue"
 import { maxLength, minLength, required } from "@vuelidate/validators"
 import useVuelidate from "@vuelidate/core"
 import Reports from "../../models/ReportsModel"
+import ReportsAnalyzesDataViewVue from './ReportsAnalyzesDataView.vue'
+import ReportsVisualizationsDataViewVue from "./ReportsVisualizationsDataView.vue"
 
 export default defineComponent({
+    components: {
+        ReportsAnalyzesDataViewVue,
+        ReportsVisualizationsDataViewVue
+    },
     props: {
         display: {
             type: Boolean,
@@ -64,7 +79,7 @@ export default defineComponent({
         const v$ = useVuelidate(rules, props.report)
         return {
             v$,
-            props
+            props,
         }
     }
 })
