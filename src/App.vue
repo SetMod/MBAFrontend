@@ -31,6 +31,10 @@ import useNavBar from "./hooks/useNavBar";
 import useFiles from "./hooks/useFiles";
 import useOrganizations from "./hooks/useOrganizations";
 import useRedirect from "./hooks/useRedirect";
+import useReports from "./hooks/useReports";
+import useAnalyzes from "./hooks/useAnalyzes";
+import useOrganizationRoles from "./hooks/useOrganizationRoles";
+import useVisualizations from "./hooks/useVisualizations";
 
 export default defineComponent({
   components: {
@@ -46,17 +50,25 @@ export default defineComponent({
     const toast = useToast();
     const { items } = useNavBar()
     const { resetRoles } = useRoles()
-    const { user, isLoggedIn, resetUsers } = useUsers()
     const { resetFiles } = useFiles()
-    const { resetOrganizations } = useOrganizations()
+    const { resetReports } = useReports()
+    const { resetAnalyzes } = useAnalyzes()
+    const { resetVisualizations } = useVisualizations()
     const { redirectSignIn } = useRedirect()
+    const { resetOrganizations } = useOrganizations()
+    const { user, isLoggedIn, resetUsers } = useUsers()
+    const { resetOrganizationRoles } = useOrganizationRoles()
 
     const logOutWithToast = () => {
-      resetUsers()
       resetRoles()
-      resetFiles()
+      resetOrganizationRoles()
+      resetUsers()
       resetOrganizations()
-      toast.add({ severity: 'info', summary: 'Logged out!', detail: 'You have logged out', life: 3000 });
+      resetFiles()
+      resetReports()
+      resetAnalyzes()
+      resetVisualizations()
+      toast.add({ severity: 'info', summary: 'Logged out', detail: 'logged out', life: 3000 });
       redirectSignIn()
     }
 
