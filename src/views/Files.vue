@@ -3,6 +3,7 @@
     <FileDeleteDialogVue :display="displayDelete" :close-dialog="closeDialog" :submit-dialog="confirmDelete" />
     <FileEditDialogVue v-if="selectedFile" :display="displayUpdate" :file="selectedFile" :close-dialog="closeDialog"
         :submit-dialog="confirmEdit" />
+    <Message v-if="!organization" severity="warn">Select organization in profile</Message>
     <FileUploadVue :on-upload="onUpload" />
 
     <div v-if="isFilesLoading" class="mt-8">
@@ -40,14 +41,18 @@ export default defineComponent({
     },
     setup() {
         onMounted(() => {
-            if (isLoggedIn.value && user.value) getUserFiles(user.value.userId)
+            if (isLoggedIn.value && user.value) {
+                getUserFiles(user.value.userId)
+                getUserOrganizations(user.value.userId)
+                getUsers()
+            }
         })
         const toast = useToast();
-        const { user, isLoggedIn } = useUsers()
-        const { organization } = useOrganizations()
+        const { user, isLoggedIn, getUsers } = useUsers()
+        const { organization, getUserOrganizations } = useOrganizations()
         const { userFiles: files, isFilesLoading, getUserFiles, createFile, deleteFile, updateFile, downloadFile } = useFiles()
         const selectedFile = ref<Files>()
-
+        const csvFile = ref()
         const displayDelete = ref(false)
         const displayUpdate = ref(false)
 
@@ -72,7 +77,8 @@ export default defineComponent({
             if (!organization.value) return toast.add({ severity: 'warn', summary: 'Warning', detail: 'Select organization in your profile', life: 3000 });
 
             const form = new FormData();
-            form.append('file', event.files[0])
+            csvFile.value = event.files[0]
+            form.append('file', csvFile.value)
             newFile.userId = user.value.userId
             newFile.organizationId = organization.value.organizationId
             const response = await createFile(newFile, form)
@@ -82,6 +88,14 @@ export default defineComponent({
 
             refreshFiles()
         }
+        // const onPreview = (event: FileUploadRemoveEvent) => {
+        //     csvFile.value = event.files[0]
+        //     console.log(csvFile.value);
+        // }
+        // const onView = () => {
+        //     // if (csvFile.value) return
+        //     console.log(csvFile.value);
+        // }
         const confirmEdit = async () => {
             if (!selectedFile.value) return toast.add({ severity: 'warn', summary: 'Warning', detail: 'Select a file to edit', life: 3000 })
 
@@ -114,6 +128,7 @@ export default defineComponent({
 
         return {
             files,
+            organization,
             displayUpdate,
             displayDelete,
             isFilesLoading,

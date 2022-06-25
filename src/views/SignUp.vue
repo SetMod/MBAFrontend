@@ -1,98 +1,70 @@
 <template>
-  <Dialog v-model:visible="showMessage" :breakpoints="{ '960px': '80vw' }" :style="{ width: '30vw' }" position="top">
-    <div class="flex align-items-center flex-column pt-6 px-3">
-      <i class="mb-3 pi" :class="isSuccess ? 'pi-check-circle' : 'pi-exclamation-circle'"
-        :style="{ fontSize: '5rem', color: isSuccess ? 'var(--green-500)' : 'var(--red-500)' }"></i>
-      <h5>{{ message }}</h5>
-    </div>
-    <template #footer>
-      <div class="flex justify-content-center">
-        <Button label="OK" class="p-button-text" @click="toggleDialog" />
-      </div>
-    </template>
-  </Dialog>
-
+  <Toast />
   <section class="flex justify-content-center align-items-center">
     <div class="p-card w-30rem mt-8">
       <h3 class="p-card-title">Sign Up</h3>
 
-      <form class="p-card-body text-left" @submit.prevent="handleSubmit(!v$.$invalid)">
-        <div>
-          <div class="field flex flex-column align-content-center">
-            <label for="firstName">First name:</label>
-
-            <InputText v-model="v$.userFirstName.$model"
-              :class="{ 'p-invalid': v$.userFirstName.$invalid && submitted }" placeholder="first name" />
-          </div>
-
+      <div class="p-card-body text-left">
+        <div class="field flex flex-column align-content-center">
+          <label for="firstName">First name:</label>
+          <InputText v-model="v$.userFirstName.$model" :class="{ 'p-invalid': v$.userFirstName.$invalid && submitted }"
+            placeholder="first name" />
           <small v-if="(v$.userFirstName.$invalid && submitted) || v$.userFirstName.$pending" class="p-error">{{
               v$.userFirstName.required.$message.replace('Value', 'First name')
           }}</small>
         </div>
 
-        <div>
-          <div class="field flex flex-column align-content-center">
-            <label for="secondName" class="flex align-items-center">Second name:</label>
 
-            <InputText v-model="v$.userSecondName.$model"
-              :class="{ 'p-invalid': v$.userSecondName.$invalid && submitted }" placeholder="second name" />
-          </div>
-
+        <div class="field flex flex-column align-content-center">
+          <label for="secondName" class="flex align-items-center">Second name:</label>
+          <InputText v-model="v$.userSecondName.$model"
+            :class="{ 'p-invalid': v$.userSecondName.$invalid && submitted }" placeholder="second name" />
           <small v-if="(v$.userSecondName.$invalid && submitted) || v$.userSecondName.$pending" class="p-error">{{
               v$.userSecondName.required.$message.replace('Value', 'Second name')
           }}</small>
         </div>
 
-        <div>
-          <div class="field flex flex-column align-content-center">
-            <label for="email">E-mail:</label>
-            <InputText v-model="v$.userEmail.$model" :class="{ 'p-invalid': v$.userEmail.$invalid && submitted }"
-              placeholder="email@example.com" type="email" />
-          </div>
 
+        <div class="field flex flex-column align-content-center">
+          <label for="email">E-mail:</label>
+          <InputText v-model="v$.userEmail.$model" :class="{ 'p-invalid': v$.userEmail.$invalid && submitted }"
+            placeholder="email@example.com" type="email" />
           <span v-if="v$.userEmail.$error && submitted">
             <span v-for="(error, index) of v$.userEmail.$errors" id="email-error" :key="index">
               <small class="p-error">{{ error.$message }}</small>
             </span>
           </span>
-
           <small v-else-if="(v$.userEmail.$invalid && submitted) || v$.userEmail.$pending" class="p-error">{{
               v$.userEmail.required.$message.replace('Value', 'E-mail')
           }}</small>
         </div>
 
-        <div>
-          <div class="field flex flex-column align-content-center">
-            <label for="username">Username:</label>
-            <InputText v-model="v$.userUsername.$model" :class="{ 'p-invalid': v$.userUsername.$invalid && submitted }"
-              placeholder="username" />
-          </div>
 
+        <div class="field flex flex-column align-content-center">
+          <label for="username">Username:</label>
+          <InputText v-model="v$.userUsername.$model" :class="{ 'p-invalid': v$.userUsername.$invalid && submitted }"
+            placeholder="username" />
           <small v-if="(v$.userUsername.$invalid && submitted) || v$.userUsername.$pending" class="p-error">{{
               v$.userUsername.required.$message.replace('Value', 'Username')
           }}</small>
         </div>
 
-        <div>
-          <div class="field flex flex-column align-content-center">
-            <label for="password">Password:</label>
-            <Password v-model="v$.userPassword.$model" class="w-fit"
-              :class="{ 'p-invalid': v$.userPassword.$invalid && submitted }" placeholder="password" toggle-mask />
-          </div>
 
+        <div class="field flex flex-column align-content-center">
+          <label for="password">Password:</label>
+          <Password v-model="v$.userPassword.$model" class="w-fit"
+            :class="{ 'p-invalid': v$.userPassword.$invalid && submitted }" placeholder="password" toggle-mask />
           <small v-if="(v$.userPassword.required.$invalid && submitted) || v$.userPassword.$pending" class="p-error">{{
               v$.userPassword.required.$message.replace('Value', 'Password')
           }}</small>
         </div>
 
-        <div>
-          <div class="field flex flex-column align-content-center">
-            <label for="confirmPassword">Confirm password:</label>
-            <Password v-model="v$.userConfirmPassword.$model" class="w-fit"
-              :class="{ 'p-invalid': v$.userConfirmPassword.$invalid && submitted }" placeholder="confirm password"
-              :feedback="false" />
-          </div>
 
+        <div class="field flex flex-column align-content-center">
+          <label for="confirmPassword">Confirm password:</label>
+          <Password v-model="v$.userConfirmPassword.$model" class="w-fit"
+            :class="{ 'p-invalid': v$.userConfirmPassword.$invalid && submitted }" placeholder="confirm password"
+            :feedback="false" />
           <small v-if="v$.userConfirmPassword.required.$invalid && submitted" class="p-error">{{
               v$.userConfirmPassword.required.$message.replace('Value', 'Confirm password')
           }}</small>
@@ -101,15 +73,10 @@
             class="p-error">Confirm password must be qual to password</small>
         </div>
 
-        <div>
-          <div class="field flex flex-column align-content-center">
-            <label for="phone">Phone number:</label>
-            <!-- <InputText v-model="v$.userPhone.$model" :class="{ 'p-invalid': v$.userPhone.$invalid && submitted }"
-              placeholder="+38012345678" type="tel" /> -->
-            <!-- <InputMask v-model="v$.userPhone.$model" mask="+99 (999) 999-9999" placeholder="+ 99 (999) 999-9999" /> -->
-            <InputMask v-model="v$.userPhone.$model" mask="+99 (999) 999-9999" placeholder="+ 99 (999) 999-9999" />
-          </div>
 
+        <div class="field flex flex-column align-content-center">
+          <label for="phone">Phone number:</label>
+          <InputMask v-model="v$.userPhone.$model" mask="+99 (999) 999-9999" placeholder="+ 99 (999) 999-9999" />
           <small v-if="(v$.userPhone.required.$invalid && submitted) || v$.userPhone.$pending" class="p-error">{{
               v$.userPhone.required.$message.replace('Value', 'Phone number')
           }}</small>
@@ -121,7 +88,7 @@
           }}</small>
         </div>
 
-        <div>
+        <!-- <div>
           <div class="field flex flex-column align-content-center">
             <label for="role">Role:</label>
             <Dropdown v-model="selectedRole" :options="roles" option-label="roleName" placeholder="Select a role"
@@ -129,19 +96,19 @@
           </div>
 
           <small v-if="!selectedRole && submitted" class="p-error">Role is required</small>
-        </div>
+        </div> -->
 
         <div class="p-card-footer flex justify-content-around align-content-center">
-          <Button type="submit">Submit</Button>
+          <Button @click="submitSignUp">Submit</Button>
           <Button class="p-button-secondary" @click="redirectSignIn">Sign In</Button>
         </div>
-      </form>
+      </div>
     </div>
   </section>
 </template>
 
 <script lang="ts">
-import { reactive, ref, defineComponent, onMounted, computed } from "vue";
+import { reactive, ref, defineComponent, computed } from "vue";
 import { useVuelidate } from '@vuelidate/core';
 import { required, email, minLength, maxLength, sameAs } from "@vuelidate/validators";
 import useRoles from "../hooks/useRoles";
@@ -149,24 +116,16 @@ import Users from "../models/UsersModel";
 import useUsers from "../hooks/useUsers";
 import useRedirect from "../hooks/useRedirect";
 import Roles from "../models/RolesModel";
+import { useToast } from "primevue/usetoast";
 
 export default defineComponent({
   setup() {
-    onMounted(async () => {
-      await getRoles()
-    })
-
-    const { roles, getRoles } = useRoles()
+    const { getRoleByName } = useRoles()
     const { signUp } = useUsers()
     const { redirectSignIn } = useRedirect()
-
+    const toast = useToast()
     const confirmPassword = ref("")
-    const newUser = reactive(new Users())
     const submitted = ref(false);
-    const showMessage = ref(false);
-    const selectedRole = ref<Roles>()
-    const message = ref<String>('Sign in successful!')
-    const isSuccess = ref(true)
 
     const state = reactive({
       userFirstName: '',
@@ -190,65 +149,32 @@ export default defineComponent({
       userConfirmPassword: { required, sameAsPassword: sameAs(userPassword) },
       userPhone: { required, minLength: minLength(18), maxLength: maxLength(18) },
     }
-
     const v$ = useVuelidate(rules, state)
 
-    const handleSubmit = async (isFormValid: boolean) => {
+    const submitSignUp = async () => {
       submitted.value = true;
+      if (v$.value.$invalid) return toast.add({ severity: 'warn', summary: 'Warning', detail: 'Validate all fields', life: 3000 });
 
-      if (!isFormValid) {
-        return;
-      }
-
-
+      const newUser = new Users()
+      const role = await getRoleByName('User')
       newUser.userFirstName = state.userFirstName
       newUser.userSecondName = state.userSecondName
       newUser.userEmail = state.userEmail
       newUser.userUsername = state.userUsername
       newUser.userPassword = state.userPassword
       newUser.userPhone = state.userPhone
-      newUser.roleId = state.roleId
-      const result = await signUp(newUser)
-      if (typeof result !== 'string') {
-        message.value = 'Sign Up successful!'
-        isSuccess.value = true
-      }
-      else {
-        isSuccess.value = false
-        message.value = result
-      }
-      toggleDialog();
+      newUser.roleId = role instanceof Roles ? role.roleId : 1
+      const response = await signUp(newUser)
+      if (response instanceof String) return toast.add({ severity: 'error', summary: 'Failed', detail: response, life: 3000 });
+      toast.add({ severity: 'success', summary: 'Success', detail: 'Signed Up', life: 3000 });
+      redirectSignIn();
     }
-    const toggleDialog = () => {
-      showMessage.value = !showMessage.value;
-      if (!showMessage.value) resetForm();
-    }
-    const resetForm = () => {
-      newUser.userFirstName = ''
-      newUser.userSecondName = ''
-      newUser.userEmail = ''
-      newUser.userUsername = ''
-      newUser.userPassword = ''
-      newUser.userPhone = ''
-      newUser.roleId = 0
-      submitted.value = false;
-    }
-    const submit = () => {
-
-    }
-
     return {
-      roles,
       confirmPassword,
       state,
       v$,
-      showMessage,
-      isSuccess,
       submitted,
-      message,
-      selectedRole,
-      toggleDialog,
-      handleSubmit,
+      submitSignUp,
       redirectSignIn
     };
   },

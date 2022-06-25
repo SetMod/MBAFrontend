@@ -1,4 +1,6 @@
 <template>
+    <ReportViewDialogVue v-if="selectedReport" :report="selectedReport" :display="displayView"
+        :close-dialog="closeDialog" :submit-download="submitDownload" />
     <ReportCreateDialogVue :display="displayCreate" :close-dialog="closeDialog" :submit-dialog="submitCreate" />
     <ReportEditDialogVue v-if="selectedReport" :report="selectedReport" :display="displayEdit"
         :close-dialog="closeDialog" :submit-dialog="submitEdit" />
@@ -13,7 +15,7 @@
         <Button label="Refresh" icon="pi pi-refresh" class="h-2rem" @click="refreshTable" />
     </div>
     <ReportsDataTableVue v-else :reports="reports" :refresh-table="refreshTable" :open-delete="openDelete"
-        :open-edit="openEdit" />
+        :open-edit="openEdit" :open-view="openView" />
 </template>
 
 <script lang="ts">
@@ -28,14 +30,17 @@ import ReportsDataTableVue from '../components/Reports/ReportsDataTable.vue';
 import ReportDeleteDialogVue from '../components/Reports/ReportDeleteDialog.vue'
 import ReportEditDialogVue from '../components/Reports/ReportEditDialog.vue';
 import ReportCreateDialogVue from '../components/Reports/ReportCreateDialog.vue';
-
+import ReportViewDialogVue from '../components/Reports/ReportViewDialog.vue';
+import useAnalyzes from '../hooks/useAnalyzes';
+import useVisualizations from '../hooks/useVisualizations';
 export default defineComponent({
     components: {
         ReportsToolbarVue,
         ReportCreateDialogVue,
         ReportEditDialogVue,
         ReportsDataTableVue,
-        ReportDeleteDialogVue
+        ReportDeleteDialogVue,
+        ReportViewDialogVue
     },
     setup() {
         onMounted(async () => {
@@ -47,8 +52,11 @@ export default defineComponent({
         const { user, isLoggedIn } = useUsers()
         const { organization } = useOrganizations()
         const { userReports: reports, isReportsLoading, createReport, updateReport, deleteReport, getUserReports } = useReports()
+        const { reportAnalyzes, getReportAnalyzes, downloadAnalyze } = useAnalyzes()
+        const { reportVisualizations, getReportVisualizations } = useVisualizations()
         const selectedReport = ref<Reports>();
 
+        const displayView = ref(false);
         const displayCreate = ref(false);
         const displayEdit = ref(false);
         const displayDelete = ref(false);
@@ -58,9 +66,18 @@ export default defineComponent({
         }
         const closeDialog = () => {
             displayCreate.value = false;
+            displayView.value = false;
             displayEdit.value = false;
             displayDelete.value = false;
             selectedReport.value = undefined
+        };
+        const openView = (report: Reports) => {
+            selectedReport.value = report
+            displayView.value = true;
+            reportAnalyzes.value = undefined
+            reportVisualizations.value = undefined
+            getReportAnalyzes(report.reportId)
+            getReportVisualizations(report.reportId)
         };
         const openCreate = () => {
             displayCreate.value = true;
@@ -68,6 +85,10 @@ export default defineComponent({
         const openEdit = (report: Reports) => {
             selectedReport.value = report
             displayEdit.value = true;
+            reportAnalyzes.value = undefined
+            reportVisualizations.value = undefined
+            getReportAnalyzes(report.reportId)
+            getReportVisualizations(report.reportId)
         };
         const openDelete = (report: Reports) => {
             selectedReport.value = report;
@@ -96,7 +117,7 @@ export default defineComponent({
             refreshTable()
         }
         const submitDelete = async () => {
-            if (!selectedReport.value) return
+            if (!selectedReport.value) return toast.add({ severity: 'warn', summary: 'Warning', detail: 'Select a report to delete', life: 3000 })
             const response = await deleteReport(selectedReport.value.reportId)
             if (response instanceof String) return toast.add({ severity: 'error', summary: 'Failed to Delete', detail: response, life: 3000 });
             toast.add({ severity: 'success', summary: 'Successful', detail: 'Report Deleted', life: 3000 });
@@ -105,6 +126,15 @@ export default defineComponent({
             await getUserReports(user.value.userId)
             closeDialog()
         };
+        const submitDownload = async (analyzeId: number) => {
+
+            const response = await downloadAnalyze(analyzeId)
+            console.log(response instanceof String);
+            console.log(response);
+            if (response instanceof String) return toast.add({ severity: 'error', summary: 'Error', detail: response, life: 3000 })
+            toast.add({ severity: 'success', summary: 'Success', detail: 'Analyze downloaded', life: 1500 })
+
+        }
         const exportCSV = (event: MouseEvent) => {
             dt.value.exportCSV();
         };
@@ -113,14 +143,17 @@ export default defineComponent({
             dt,
             reports,
             displayCreate,
+            displayView,
             displayEdit,
             displayDelete,
             selectedReport,
             isReportsLoading,
             openCreate,
+            openView,
             closeDialog,
             submitEdit,
             submitCreate,
+            submitDownload,
             openEdit,
             openDelete,
             submitDelete,
