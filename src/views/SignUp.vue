@@ -1,12 +1,12 @@
 <template>
   <Toast />
-  <section class="flex justify-content-center align-items-center">
-    <div class="p-card w-30rem mt-8">
-      <h3 class="p-card-title">Sign Up</h3>
+  <div class="p-card w-29rem mt-8 mx-auto">
+    <h3 class="p-card-title">Sign Up</h3>
 
-      <div class="p-card-body text-left">
-        <div class="field flex flex-column align-content-center">
-          <label for="firstName">First name:</label>
+    <div class="p-card-body text-left">
+      <div class="p-fluid text-left">
+        <div class="field">
+          <label>First name:</label>
           <InputText v-model="v$.userFirstName.$model" :class="{ 'p-invalid': v$.userFirstName.$invalid && submitted }"
             placeholder="first name" />
           <small v-if="(v$.userFirstName.$invalid && submitted) || v$.userFirstName.$pending" class="p-error">{{
@@ -14,9 +14,8 @@
           }}</small>
         </div>
 
-
-        <div class="field flex flex-column align-content-center">
-          <label for="secondName" class="flex align-items-center">Second name:</label>
+        <div class="field">
+          <label>Second name:</label>
           <InputText v-model="v$.userSecondName.$model"
             :class="{ 'p-invalid': v$.userSecondName.$invalid && submitted }" placeholder="second name" />
           <small v-if="(v$.userSecondName.$invalid && submitted) || v$.userSecondName.$pending" class="p-error">{{
@@ -24,9 +23,8 @@
           }}</small>
         </div>
 
-
-        <div class="field flex flex-column align-content-center">
-          <label for="email">E-mail:</label>
+        <div class="field">
+          <label>E-mail:</label>
           <InputText v-model="v$.userEmail.$model" :class="{ 'p-invalid': v$.userEmail.$invalid && submitted }"
             placeholder="email@example.com" type="email" />
           <span v-if="v$.userEmail.$error && submitted">
@@ -39,52 +37,38 @@
           }}</small>
         </div>
 
-
-        <div class="field flex flex-column align-content-center">
-          <label for="username">Username:</label>
-          <InputText v-model="v$.userUsername.$model" :class="{ 'p-invalid': v$.userUsername.$invalid && submitted }"
-            placeholder="username" />
-          <small v-if="(v$.userUsername.$invalid && submitted) || v$.userUsername.$pending" class="p-error">{{
-              v$.userUsername.required.$message.replace('Value', 'Username')
-          }}</small>
-        </div>
-
-
-        <div class="field flex flex-column align-content-center">
-          <label for="password">Password:</label>
-          <Password v-model="v$.userPassword.$model" class="w-fit"
-            :class="{ 'p-invalid': v$.userPassword.$invalid && submitted }" placeholder="password" toggle-mask />
-          <small v-if="(v$.userPassword.required.$invalid && submitted) || v$.userPassword.$pending" class="p-error">{{
-              v$.userPassword.required.$message.replace('Value', 'Password')
-          }}</small>
-        </div>
-
-
-        <div class="field flex flex-column align-content-center">
-          <label for="confirmPassword">Confirm password:</label>
-          <Password v-model="v$.userConfirmPassword.$model" class="w-fit"
-            :class="{ 'p-invalid': v$.userConfirmPassword.$invalid && submitted }" placeholder="confirm password"
-            :feedback="false" />
-          <small v-if="v$.userConfirmPassword.required.$invalid && submitted" class="p-error">{{
-              v$.userConfirmPassword.required.$message.replace('Value', 'Confirm password')
-          }}</small>
-          <small
-            v-else-if="(v$.userConfirmPassword.sameAsPassword.$invalid && submitted) || v$.userConfirmPassword.$pending"
-            class="p-error">Confirm password must be qual to password</small>
-        </div>
-
-
-        <div class="field flex flex-column align-content-center">
-          <label for="phone">Phone number:</label>
+        <div class="field">
+          <label>Phone number:</label>
           <InputMask v-model="v$.userPhone.$model" mask="+99 (999) 999-9999" placeholder="+ 99 (999) 999-9999" />
           <small v-if="(v$.userPhone.required.$invalid && submitted) || v$.userPhone.$pending" class="p-error">{{
               v$.userPhone.required.$message.replace('Value', 'Phone number')
           }}</small>
-          <small v-else-if="v$.userPhone.minLength.$invalid" class="p-error">{{
+          <small v-else-if="v$.userPhone.minLength.$invalid && submitted" class="p-error">{{
               v$.userPhone.minLength.$message.replace('Value', 'Phone number')
           }}</small>
-          <small v-else-if="v$.userPhone.maxLength.$invalid" class="p-error">{{
+          <small v-else-if="v$.userPhone.maxLength.$invalid && submitted" class="p-error">{{
               v$.userPhone.maxLength.$message.replace('Value', 'Phone number')
+          }}</small>
+        </div>
+
+        <div class="field">
+          <label>Username:</label>
+          <InputText v-model="v$.userUsername.$model" :class="{ 'p-invalid': v$.userUsername.$invalid && submitted }"
+            placeholder="username" />
+          <small v-if="v$.userUsername.required.$invalid && submitted" class="p-error">{{
+              v$.userUsername.required.$message.replace('Value', 'Username')
+          }}</small>
+          <small v-else-if="v$.userUsername.minLength.$invalid && submitted" class="p-error">{{
+              v$.userUsername.minLength.$message.replace('This field', 'Username')
+          }}</small>
+        </div>
+
+        <div class="field">
+          <label>Password:</label>
+          <Password v-model="v$.userPassword.$model" :class="{ 'p-invalid': v$.userPassword.$invalid && submitted }"
+            placeholder="password" toggle-mask :feedback="submitted" />
+          <small v-if="(v$.userPassword.required.$invalid && submitted) || v$.userPassword.$pending" class="p-error">{{
+              v$.userPassword.required.$message.replace('Value', 'Password')
           }}</small>
         </div>
 
@@ -97,14 +81,15 @@
 
           <small v-if="!selectedRole && submitted" class="p-error">Role is required</small>
         </div> -->
+      </div>
 
-        <div class="p-card-footer flex justify-content-around align-content-center">
-          <Button @click="submitSignUp">Submit</Button>
-          <Button class="p-button-secondary" @click="redirectSignIn">Sign In</Button>
-        </div>
+
+      <div class="p-card-footer flex justify-content-around align-items-center">
+        <Button @click="submitSignUp">Submit</Button>
+        <Button class="p-button-secondary" @click="redirectSignIn">Sign In</Button>
       </div>
     </div>
-  </section>
+  </div>
 </template>
 
 <script lang="ts">
