@@ -14,7 +14,13 @@
         <Column field="organizationDescription" header="Description" :sortable="true"></Column>
         <Column field="organizationEmail" header="Email" :sortable="true"></Column>
         <Column field="organizationPhone" header="Phone"></Column>
-        <Column field="organizationCreateDate" header="Created" :sortable="true"></Column>
+        <Column field="organizationCreateDate" header="Created" :sortable="true">
+            <template #body="slotProps">
+                <div>
+                    {{ new Date(slotProps.data.organizationCreateDate).toLocaleDateString() }}
+                </div>
+            </template>
+        </Column>
         <Column header="Actions" header-style="width: 4rem; text-align: center" body-style="overflow: visible;">
             <template #body="slotProps">
                 <div class="flex justify-content-around align-content-center">

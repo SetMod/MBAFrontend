@@ -114,7 +114,9 @@ export default defineComponent({
             organization.value = selectedOrganization
         }
         const submitCreate = async (newOrganization: Organizations) => {
-            const response = await createOrganization(newOrganization)
+            if (!user.value) return toast.add({ severity: 'error', summary: 'Failed to Create', detail: 'User not specified', life: 3000 });
+
+            const response = await createOrganization(newOrganization, user.value.userId)
             if (response instanceof String) return toast.add({ severity: 'error', summary: 'Failed to Create', detail: response, life: 3000 });
             toast.add({ severity: 'success', summary: 'Created', detail: 'Organization created', life: 1500 });
 
