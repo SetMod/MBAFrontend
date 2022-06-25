@@ -68,13 +68,12 @@ export default class AnalyzesService {
         }
     }
     async downloadAnalyzeById(analyzeId: number) {
-        const errorMessage = new String('Failed to download the analyze file')
+        const errorMessage = new String('Failed to download analyze file')
         try {
             const analyze = await this.getAnalyzeById(analyzeId)
             if (analyze instanceof String) return analyze
 
             const response = await axios.get(`${config.baseUrl}/analyzes/download/${analyzeId}`, { responseType: 'blob' })
-
             const blob = new Blob([response.data], { type: response.data.type })
             const link = document.createElement('a')
             link.href = URL.createObjectURL(blob)
@@ -86,6 +85,8 @@ export default class AnalyzesService {
 
         } catch (error) {
             console.error(error);
+            if (error instanceof AxiosError)
+                if (error.response?.data && typeof error.response?.data === 'string') return new String(error.response?.data)
             return errorMessage
         }
     }
@@ -115,7 +116,6 @@ export default class AnalyzesService {
             const dataAnalyze = this.mapAnalyzeToData(analyze)
             // const response = await axios.post(`${config.baseUrl}/analyzes/`, { ...dataAnalyze, file_id: fileId })
             const response = await axios.post(`${config.baseUrl}/analyzes/?file_id=${fileId}`, dataAnalyze)
-            // console.log(response);
 
             if (response.data instanceof String) return response.data
             if (Array.isArray(response.data) == false) return errorMessage
