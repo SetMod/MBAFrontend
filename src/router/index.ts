@@ -36,12 +36,12 @@ export const routes: Array<RouteRecordRaw> = [
     beforeEnter: (to, from) => isLoggedIn.value,
     component: Analyze
   },
-  {
-    path: '/visualizations',
-    name: 'Visualizations',
-    beforeEnter: (to, from) => isLoggedIn.value,
-    component: () => import('../views/Visualizations.vue')
-  },
+  // {
+  //   path: '/visualizations',
+  //   name: 'Visualizations',
+  //   beforeEnter: (to, from) => isLoggedIn.value,
+  //   component: () => import('../views/Visualizations.vue')
+  // },
   {
     path: '/profile',
     name: 'Profile',
