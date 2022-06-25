@@ -22,6 +22,9 @@ import Password from "primevue/password";
 import Tooltip from 'primevue/tooltip';
 import ScrollPanel from 'primevue/scrollpanel';
 import ScrollTop from 'primevue/scrolltop';
+import ProgressSpinner from 'primevue/progressspinner';
+import DataView from 'primevue/dataview';
+import DataViewLayoutOptions from 'primevue/dataviewlayoutoptions'
 
 const app = createApp(App);
 
@@ -36,6 +39,8 @@ app.component('Chart', Chart);
 app.component('Column', Column);
 app.component('Dialog', Dialog);
 app.component('DataTable', DataTable);
+app.component('DataView', DataView);
+app.component('DataViewLayoutOptions', DataViewLayoutOptions);
 app.component('Dropdown', Dropdown);
 app.component('Editor', Editor);
 app.component('FileUpload', FileUpload);
@@ -49,5 +54,6 @@ app.component('InputNumber', InputNumber);
 app.component('Password', Password);
 app.component('ScrollPanel', ScrollPanel);
 app.component('ScrollTop', ScrollTop);
+app.component('ProgressSpinner', ProgressSpinner);
 
 app.mount('#app')
