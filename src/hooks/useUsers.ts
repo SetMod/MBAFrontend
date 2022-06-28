@@ -85,10 +85,10 @@ export default function useUsers() {
     const updateUser = async (updatedUser: Users) => {
         // isLoading.value = true
         const response = await userService.updateUser(updatedUser)
-        if (response instanceof Users) {
-            state.user = response
-            localStorage.setItem('user', JSON.stringify(response))
-        }
+        // if (response instanceof Users) {
+        //     state.user = response
+        //     localStorage.setItem('user', JSON.stringify(response))
+        // }
         // isLoading.value = false
 
         return response

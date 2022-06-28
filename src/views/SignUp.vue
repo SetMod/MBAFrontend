@@ -66,10 +66,24 @@
         <div class="field">
           <label>Password:</label>
           <Password v-model="v$.userPassword.$model" :class="{ 'p-invalid': v$.userPassword.$invalid && submitted }"
-            placeholder="password" toggle-mask :feedback="submitted" />
+            placeholder="password" toggle-mask />
           <small v-if="(v$.userPassword.required.$invalid && submitted) || v$.userPassword.$pending" class="p-error">{{
               v$.userPassword.required.$message.replace('Value', 'Password')
           }}</small>
+        </div>
+
+        <div class="field">
+          <label>Confirm password:</label>
+          <Password v-model="v$.userConfirmPassword.$model"
+            :class="{ 'p-invalid': v$.userConfirmPassword.$invalid && submitted }" placeholder="password" toggle-mask
+            :feedback="submitted" />
+          <small v-if="(v$.userConfirmPassword.required.$invalid && submitted) || v$.userConfirmPassword.$pending"
+            class="p-error">{{
+                v$.userConfirmPassword.required.$message.replace('Value', 'Password')
+            }}</small>
+          <small
+            v-else-if="(v$.userConfirmPassword.sameAsPassword.$invalid && submitted) || v$.userConfirmPassword.$pending"
+            class="p-error">Password doesn't match</small>
         </div>
 
         <!-- <div>
