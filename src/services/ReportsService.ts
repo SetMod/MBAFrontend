@@ -3,10 +3,10 @@ import config from "../config";
 import Reports from "../models/ReportsModel";
 
 interface ReportsResponse {
-    report_id: number
-    report_name: string
-    report_data: string
-    report_create_date: Date
+    id: number
+    name: string
+    data_points: string
+    create_date: Date
     user_id: number
     organization_id: number
 }
@@ -142,20 +142,20 @@ export default class ReportsService {
     }
     mapDataToReport(data: ReportsResponse) {
         const report = new Reports()
-        report.reportId = data.report_id
-        report.reportName = data.report_name
-        report.reportData = data.report_data
-        report.reportCreateDate = data.report_create_date
+        report.reportId = data.id
+        report.reportName = data.name
+        report.reportData = data.data_points
+        report.reportCreateDate = data.create_date
         report.userId = data.user_id
         report.organizationId = data.organization_id
         return report
     }
     mapReportToData(report: Reports) {
         return <ReportsResponse>{
-            report_id: report.reportId,
-            report_name: report.reportName,
-            report_data: report.reportData,
-            report_create_date: report.reportCreateDate,
+            id: report.reportId,
+            name: report.reportName,
+            data_points: report.reportData,
+            create_date: report.reportCreateDate,
             user_id: report.userId,
             organization_id: report.organizationId,
         }

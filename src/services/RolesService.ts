@@ -3,9 +3,9 @@ import config from "../config";
 import Roles from "../models/RolesModel";
 
 interface RolesResponse {
-    role_id: number
-    role_name: string
-    role_description: string
+    id: number
+    name: string
+    description: string
 }
 
 export default class RolesService {
@@ -117,15 +117,15 @@ export default class RolesService {
     }
     mapDataToRole(data: RolesResponse) {
         const role = new Roles()
-        role.roleId = data.role_id
-        role.roleName = data.role_name
-        role.roleDescription = data.role_description
+        role.roleId = data.id
+        role.roleName = data.name
+        role.roleDescription = data.description
         return role
     }
     mapRoleToData(role: Roles) {
         return {
-            role_name: role.roleName,
-            role_description: role.roleDescription,
+            name: role.roleName,
+            description: role.roleDescription,
         }
     }
 }

@@ -4,15 +4,15 @@ import Analyzes from "../models/AnalyzesModel";
 import AssociationRules from "../models/AssociationRulesModel";
 
 export interface AnalyzeResponse {
-    analyze_id: number
-    analyze_name: string
-    analyze_description: string
-    analyze_support: number
-    analyze_lift: number
-    analyze_confidence: number
-    analyze_rules_length: number
-    analyze_file_path: string
-    analyze_create_date: string
+    id: number
+    name: string
+    description: string
+    support: number
+    lift: number
+    confidence: number
+    rules_length: number
+    file_path: string
+    create_date: string
     report_id: number
 }
 export interface AssociationRulesResponse {
@@ -114,8 +114,8 @@ export default class AnalyzesService {
         const errorMessage = new String('Failed to create an analyze')
         try {
             const dataAnalyze = this.mapAnalyzeToData(analyze)
-            // const response = await axios.post(`${config.baseUrl}/analyzes/`, { ...dataAnalyze, file_id: fileId })
-            const response = await axios.post(`${config.baseUrl}/analyzes/?file_id=${fileId}`, dataAnalyze)
+            // const response = await axios.post(`${config.baseUrl}/analyzes/`, { ...dataAnalyze, id: fileId })
+            const response = await axios.post(`${config.baseUrl}/analyzes/?id=${fileId}`, dataAnalyze)
 
             if (response.data instanceof String) return response.data
             if (Array.isArray(response.data) == false) return errorMessage
@@ -169,15 +169,15 @@ export default class AnalyzesService {
     }
     mapDataToAnalyze(data: AnalyzeResponse) {
         const analyze = new Analyzes()
-        analyze.analyzeId = data.analyze_id
-        analyze.analyzeName = data.analyze_name
-        analyze.analyzeDescription = data.analyze_description
-        analyze.analyzeSupport = data.analyze_support
-        analyze.analyzeLift = data.analyze_lift
-        analyze.analyzeConfidence = data.analyze_confidence
-        analyze.analyzeRulesLength = data.analyze_rules_length
-        analyze.analyzeFilePath = data.analyze_file_path
-        analyze.analyzeCreateDate = new Date(data.analyze_create_date)
+        analyze.analyzeId = data.id
+        analyze.analyzeName = data.name
+        analyze.analyzeDescription = data.description
+        analyze.analyzeSupport = data.support
+        analyze.analyzeLift = data.lift
+        analyze.analyzeConfidence = data.confidence
+        analyze.analyzeRulesLength = data.rules_length
+        analyze.analyzeFilePath = data.file_path
+        analyze.analyzeCreateDate = new Date(data.create_date)
         analyze.reportId = data.report_id
         return analyze
     }
@@ -196,15 +196,15 @@ export default class AnalyzesService {
     }
     mapAnalyzeToData(analyze: Analyzes) {
         return <AnalyzeResponse>{
-            analyze_id: analyze.analyzeId,
-            analyze_name: analyze.analyzeName,
-            analyze_description: analyze.analyzeDescription,
-            analyze_support: analyze.analyzeSupport,
-            analyze_lift: analyze.analyzeLift,
-            analyze_confidence: analyze.analyzeConfidence,
-            analyze_rules_length: analyze.analyzeRulesLength,
-            analyze_file_path: analyze.analyzeFilePath,
-            analyze_create_date: analyze.analyzeCreateDate.toJSON(),
+            id: analyze.analyzeId,
+            name: analyze.analyzeName,
+            description: analyze.analyzeDescription,
+            support: analyze.analyzeSupport,
+            lift: analyze.analyzeLift,
+            confidence: analyze.analyzeConfidence,
+            rules_length: analyze.analyzeRulesLength,
+            file_path: analyze.analyzeFilePath,
+            create_date: analyze.analyzeCreateDate.toJSON(),
             report_id: analyze.reportId,
         }
     }

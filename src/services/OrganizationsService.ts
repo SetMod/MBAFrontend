@@ -5,23 +5,23 @@ import UserOrganizations from "../models/UserOrganizationsModel"
 import UsersOrganizations from "../models/UsersOrganizationsModel"
 
 interface OrganizationsResponse {
-    organization_id: number
-    organization_name: string
-    organization_description: string
-    organization_email: string
-    organization_phone: string
-    organization_create_date: Date
+    id: number
+    name: string
+    description: string
+    email: string
+    phone: string
+    create_date: Date
 }
 interface UserOrganizationsResponse {
     organization_id: number
-    organization_name: string
-    organization_description: string
-    organization_email: string
-    organization_phone: string
-    organization_create_date: Date
-    organization_role_description: string
+    name: string
+    description: string
+    email: string
+    phone: string
+    create_date: Date
+    description: string
     organization_role_id: number
-    organization_role_name: string
+    name: string
 }
 interface UsersOrganizationsResponse {
     user_id: number
@@ -176,33 +176,33 @@ export default class OrganizationsService {
     }
     mapDataToOrganization(data: OrganizationsResponse) {
         const organization = new Organizations()
-        organization.organizationId = data.organization_id
-        organization.organizationName = data.organization_name
-        organization.organizationDescription = data.organization_description
-        organization.organizationEmail = data.organization_email
-        organization.organizationPhone = data.organization_phone
-        organization.organizationCreateDate = data.organization_create_date
+        organization.organizationId = data.id
+        organization.organizationName = data.name
+        organization.organizationDescription = data.description
+        organization.organizationEmail = data.email
+        organization.organizationPhone = data.phone
+        organization.organizationCreateDate = data.create_date
         return organization
     }
     mapDataToUserOrganization(data: UserOrganizationsResponse) {
         const userOrganization = new UserOrganizations()
         userOrganization.organizationId = data.organization_id
-        userOrganization.organizationName = data.organization_name
-        userOrganization.organizationDescription = data.organization_description
-        userOrganization.organizationEmail = data.organization_email
-        userOrganization.organizationPhone = data.organization_phone
-        userOrganization.organizationCreateDate = data.organization_create_date
-        userOrganization.organizationRoleId = data.organization_role_id
-        userOrganization.organizationRoleName = data.organization_role_name
+        userOrganization.organizationName = data.name
+        userOrganization.organizationDescription = data.description
+        userOrganization.organizationEmail = data.email
+        userOrganization.organizationPhone = data.phone
+        userOrganization.organizationCreateDate = data.create_date
+        userOrganization.organizationRoleId = data.id
+        userOrganization.organizationRoleName = data.name
         return userOrganization
     }
     mapOrganizationToData(organization: Organizations) {
         return <OrganizationsResponse>{
-            organization_name: organization.organizationName,
-            organization_description: organization.organizationDescription,
-            organization_email: organization.organizationEmail,
-            organization_phone: organization.organizationPhone,
-            organization_create_date: organization.organizationCreateDate
+            name: organization.organizationName,
+            description: organization.organizationDescription,
+            email: organization.organizationEmail,
+            phone: organization.organizationPhone,
+            create_date: organization.organizationCreateDate
         }
     }
     mapUserOrganizationToData(userOrganization: UsersOrganizations) {

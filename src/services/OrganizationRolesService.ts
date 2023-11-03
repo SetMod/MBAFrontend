@@ -3,9 +3,9 @@ import config from "../config"
 import OrganizationRoles from "../models/OrganizationRolesModel"
 
 export interface OrganizationRolesResponse {
-    organization_role_id: number
-    organization_role_name: string
-    organization_role_description: string
+    id: number
+    name: string
+    description: string
 }
 
 export default class OrganizationRolesService {
@@ -45,16 +45,16 @@ export default class OrganizationRolesService {
     }
     mapDataToOrganizationRole(data: OrganizationRolesResponse) {
         const organizationRole = new OrganizationRoles()
-        organizationRole.organizationRoleId = data.organization_role_id
-        organizationRole.organizationRoleName = data.organization_role_name
-        organizationRole.organizationRoleDescription = data.organization_role_description
+        organizationRole.organizationRoleId = data.id
+        organizationRole.organizationRoleName = data.name
+        organizationRole.organizationRoleDescription = data.description
         return organizationRole
     }
     mapOrganizationRoleToData(organizationRole: OrganizationRoles) {
         return <OrganizationRolesResponse>{
-            organization_role_id: organizationRole.organizationRoleId,
-            organization_role_description: organizationRole.organizationRoleName,
-            organization_role_name: organizationRole.organizationRoleDescription,
+            id: organizationRole.organizationRoleId,
+            description: organizationRole.organizationRoleName,
+            name: organizationRole.organizationRoleDescription,
         }
     }
 }

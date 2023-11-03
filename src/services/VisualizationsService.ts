@@ -3,10 +3,10 @@ import config from "../config";
 import Visualizations from "../models/VisualizationsModel";
 
 export interface VisualizationResponse {
-    visualization_id: number
-    visualization_name: string
-    visualization_image_path: string
-    visualization_create_date: string
+    id: number
+    name: string
+    image_file_path: string
+    create_date: string
     report_id: number
 }
 export interface TopSupportDataResponse {
@@ -148,8 +148,8 @@ export default class VisualizationsService {
         const errorMessage = new String('Failed to create visualization')
         try {
             const dataAnalyze = this.mapVisualizationToData(visualization)
-            // const response = await axios.post(`${config.baseUrl}/visualizations/`, { ...dataAnalyze, file_id: fileId })
-            const response = await axios.post(`${config.baseUrl}/visualizations/?file_id=${fileId}`, dataAnalyze)
+            // const response = await axios.post(`${config.baseUrl}/visualizations/`, { ...dataAnalyze, id: fileId })
+            const response = await axios.post(`${config.baseUrl}/visualizations/?id=${fileId}`, dataAnalyze)
             // console.log(response);
 
             if (response.data instanceof String) return response.data
@@ -204,19 +204,19 @@ export default class VisualizationsService {
     }
     mapDataToVisualization(data: VisualizationResponse) {
         const visualization = new Visualizations()
-        visualization.visualizationId = data.visualization_id
-        visualization.visualizationName = data.visualization_name
-        visualization.visualizationImagePath = data.visualization_image_path
-        visualization.visualizationCreateDate = new Date(data.visualization_create_date)
+        visualization.visualizationId = data.id
+        visualization.visualizationName = data.name
+        visualization.visualizationImagePath = data.image_file_path
+        visualization.visualizationCreateDate = new Date(data.create_date)
         visualization.reportId = data.report_id
         return visualization
     }
     mapVisualizationToData(visualization: Visualizations) {
         return <VisualizationResponse>{
-            visualization_id: visualization.visualizationId,
-            visualization_name: visualization.visualizationName,
-            visualization_image_path: visualization.visualizationImagePath,
-            visualization_create_date: visualization.visualizationCreateDate.toJSON(),
+            id: visualization.visualizationId,
+            name: visualization.visualizationName,
+            image_file_path: visualization.visualizationImagePath,
+            create_date: visualization.visualizationCreateDate.toJSON(),
             report_id: visualization.reportId,
         }
     }

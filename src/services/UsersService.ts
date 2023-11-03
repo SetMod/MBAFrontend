@@ -3,16 +3,16 @@ import config from "../config";
 import Users from "../models/UsersModel";
 
 interface UsersResponse {
-    user_id: number
-    user_first_name: string
-    user_second_name: string
-    user_email: string
-    user_phone: string
-    user_create_date: string
-    user_username: string
-    user_password: string
+    id: number
+    first_name: string
+    second_name: string
+    email: string
+    phone: string
+    create_date: string
+    username: string
+    password: string
     role_id: number
-    role_name: string
+    name: string
 }
 
 
@@ -62,8 +62,8 @@ export default class UsersService {
         const errorMessage: String = 'Sign In failed'
         try {
             const response = await axios.post(`${config.baseUrl}/users/login`, {
-                user_username: userUsername,
-                user_password: userPassword
+                username: userUsername,
+                password: userPassword
             })
 
             if (response.data instanceof String) return response.data
@@ -138,28 +138,28 @@ export default class UsersService {
     }
     mapDataToUser(data: UsersResponse) {
         const user = new Users()
-        user.userId = data.user_id
-        user.userFirstName = data.user_first_name
-        user.userSecondName = data.user_second_name
-        user.userEmail = data.user_email
-        user.userPhone = data.user_phone
-        user.userUsername = data.user_username
-        user.userPassword = data.user_password
-        user.userCreateDate = new Date(data.user_create_date)
+        user.userId = data.id
+        user.userFirstName = data.first_name
+        user.userSecondName = data.second_name
+        user.userEmail = data.email
+        user.userPhone = data.phone
+        user.userUsername = data.username
+        user.userPassword = data.password
+        user.userCreateDate = new Date(data.create_date)
         user.roleId = data.role_id
-        user.roleName = data.role_name
+        user.roleName = data.name
         return user
     }
     mapUserToData(user: Users) {
         return <UsersResponse>{
-            user_id: user.userId,
-            user_first_name: user.userFirstName,
-            user_second_name: user.userSecondName,
-            user_email: user.userEmail,
-            user_create_date: user.userCreateDate?.toJSON(),
-            user_phone: user.userPhone,
-            user_username: user.userUsername,
-            user_password: user.userPassword,
+            id: user.userId,
+            first_name: user.userFirstName,
+            second_name: user.userSecondName,
+            email: user.userEmail,
+            create_date: user.userCreateDate?.toJSON(),
+            phone: user.userPhone,
+            username: user.userUsername,
+            password: user.userPassword,
             role_id: user.roleId,
         }
     }

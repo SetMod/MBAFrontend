@@ -3,9 +3,9 @@ import config from "../config";
 import Files from "../models/FilesModel";
 
 export interface FilesResponse {
-    file_id: number
-    file_name: string
-    file_create_date: string
+    id: number
+    name: string
+    create_date: string
     file_path: string
     user_id: number
     organization_id: number
@@ -95,7 +95,7 @@ export default class FilesService {
         const errorMessage: String = 'Filed adding the file'
         try {
             // const dataFile = this.mapFileToData(file)
-            const response = await axios.post(`${config.baseUrl}/files/upload?file_name=${file.fileName ? file.fileName : 'Untitled'}&user_id=${file.userId}&organization_id=${file.organizationId}`, form, {
+            const response = await axios.post(`${config.baseUrl}/files/upload?name=${file.fileName ? file.fileName : 'Untitled'}&user_id=${file.userId}&organization_id=${file.organizationId}`, form, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
@@ -144,9 +144,9 @@ export default class FilesService {
     }
     mapDataToFile(data: FilesResponse) {
         const file = new Files()
-        file.fileId = data.file_id
-        file.fileName = data.file_name
-        file.fileCreateDate = new Date(data.file_create_date)
+        file.fileId = data.id
+        file.fileName = data.name
+        file.fileCreateDate = new Date(data.create_date)
         file.filePath = data.file_path
         file.userId = data.user_id
         file.organizationId = data.organization_id
@@ -154,9 +154,9 @@ export default class FilesService {
     }
     mapFileToData(file: Files) {
         return <FilesResponse>{
-            file_id: file.fileId,
-            file_name: file.fileName,
-            file_create_date: file.fileCreateDate.toJSON(),
+            id: file.fileId,
+            name: file.fileName,
+            create_date: file.fileCreateDate.toJSON(),
             file_path: file.filePath,
             user_id: file.userId,
             organization_id: file.organizationId,
