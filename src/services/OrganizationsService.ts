@@ -19,9 +19,9 @@ interface UserOrganizationsResponse {
     email: string
     phone: string
     create_date: Date
-    description: string
-    organization_role_id: number
-    name: string
+    role_description: string
+    role_id: number
+    role_name: string
 }
 interface UsersOrganizationsResponse {
     user_id: number
@@ -192,8 +192,8 @@ export default class OrganizationsService {
         userOrganization.organizationEmail = data.email
         userOrganization.organizationPhone = data.phone
         userOrganization.organizationCreateDate = data.create_date
-        userOrganization.organizationRoleId = data.id
-        userOrganization.organizationRoleName = data.name
+        userOrganization.organizationRoleId = data.role_id
+        userOrganization.organizationRoleName = data.role_name
         return userOrganization
     }
     mapOrganizationToData(organization: Organizations) {
