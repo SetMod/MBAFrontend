@@ -1,6 +1,6 @@
 version: "3.8"
 
-# docker run -it --rm --name frontend -v ".:/app" -w "/app" node:20.9.0-alpine3.18 sh
+# docker run -it --rm --name frontend -v ".:/app" -w "/app" -p 3000:3000 node:20.9.0-alpine3.18 sh
 
 # docker compose build
 # docker compose up
