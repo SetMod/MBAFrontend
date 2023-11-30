@@ -5,65 +5,65 @@
         <div class="p-card-body  text-left">
             <div class="field flex flex-column flex flex-column">
                 <label for="name">Name:</label>
-                <InputText id="name" v-model.trim="v$.analyzeName.$model" required="true" autofocus
-                    :class="{ 'p-invalid': v$.analyzeName.$invalid }" />
-                <small v-if="v$.analyzeName.required.$invalid" class="p-error">Name is required.</small>
-                <small v-else-if="v$.analyzeName.minLength.$invalid" class="p-error">Name is to
+                <InputText id="name" v-model.trim="v$.name.$model" required="true" autofocus
+                    :class="{ 'p-invalid': v$.name.$invalid }" />
+                <small v-if="v$.name.required.$invalid" class="p-error">Name is required.</small>
+                <small v-else-if="v$.name.minLength.$invalid" class="p-error">Name is to
                     short.</small>
-                <small v-else-if="v$.analyzeName.maxLength.$invalid" class="p-error">Name is to
+                <small v-else-if="v$.name.maxLength.$invalid" class="p-error">Name is to
                     long.</small>
             </div>
             <div class="field flex flex-column">
                 <label for="name">Description:</label>
-                <Textarea id="name" v-model.trim="v$.analyzeDescription.$model" required="true" autofocus
-                    :auto-resize="true" rows="3" :class="{ 'p-invalid': v$.analyzeDescription.$invalid }" />
-                <small v-if="v$.analyzeDescription.required.$invalid" class="p-error">Description is required.</small>
-                <small v-else-if="v$.analyzeDescription.minLength.$invalid" class="p-error">Description is to
+                <Textarea id="name" v-model.trim="v$.description.$model" required="true" autofocus
+                    :auto-resize="true" rows="3" :class="{ 'p-invalid': v$.description.$invalid }" />
+                <small v-if="v$.description.required.$invalid" class="p-error">Description is required.</small>
+                <small v-else-if="v$.description.minLength.$invalid" class="p-error">Description is to
                     short.</small>
-                <small v-else-if="v$.analyzeDescription.maxLength.$invalid" class="p-error">Description is to
+                <small v-else-if="v$.description.maxLength.$invalid" class="p-error">Description is to
                     long.</small>
             </div>
             <div class="field flex flex-column">
                 <label for="name">Support:</label>
-                <InputNumber id="name" v-model.number="v$.analyzeSupport.$model" required="true" autofocus
-                    :class="v$.analyzeSupport.$invalid ? 'p-invalid' : ''" :min="0.01" :max="1" :step="0.1" />
-                <small v-if="v$.analyzeSupport.required.$invalid" class="p-error">Support is required.</small>
-                <small v-else-if="v$.analyzeSupport.between.$invalid" class="p-error">{{
-                        v$.analyzeSupport.between.$message.replace('The value', 'Support')
+                <InputNumber id="name" v-model.number="v$.support.$model" required="true" autofocus
+                    :class="v$.support.$invalid ? 'p-invalid' : ''" :min="0.01" :max="1" :step="0.1" />
+                <small v-if="v$.support.required.$invalid" class="p-error">Support is required.</small>
+                <small v-else-if="v$.support.between.$invalid" class="p-error">{{
+                        v$.support.between.$message.replace('The value', 'Support')
                 }}</small>
             </div>
             <div class="field flex flex-column">
                 <label for="name">Lift:</label>
-                <InputNumber id="name" v-model.number="v$.analyzeLift.$model" required="true" autofocus
-                    :class="v$.analyzeLift.$invalid ? 'p-invalid' : ''" :min="0.01" :max="1" :step="0.1" />
-                <small v-if="v$.analyzeLift.required.$invalid" class="p-error">Lift is required.</small>
-                <small v-else-if="v$.analyzeLift.between.$invalid" class="p-error">{{
-                        v$.analyzeLift.between.$message.replace('The value', 'Lift')
+                <InputNumber id="name" v-model.number="v$.lift.$model" required="true" autofocus
+                    :class="v$.lift.$invalid ? 'p-invalid' : ''" :min="0.01" :max="1" :step="0.1" />
+                <small v-if="v$.lift.required.$invalid" class="p-error">Lift is required.</small>
+                <small v-else-if="v$.lift.between.$invalid" class="p-error">{{
+                        v$.lift.between.$message.replace('The value', 'Lift')
                 }}</small>
             </div>
             <div class="field flex flex-column">
                 <label for="name">Confidence:</label>
-                <InputNumber id="name" v-model.number="v$.analyzeConfidence.$model" required="true" autofocus
-                    :class="v$.analyzeConfidence.$invalid ? 'p-invalid' : ''" :min="0.01" :max="1" :step="0.1" />
-                <small v-if="v$.analyzeConfidence.required.$invalid" class="p-error">Confidence is required.</small>
-                <small v-else-if="v$.analyzeConfidence.between.$invalid" class="p-error">{{
-                        v$.analyzeConfidence.between.$message.replace('The value', 'Confidence')
+                <InputNumber id="name" v-model.number="v$.confidence.$model" required="true" autofocus
+                    :class="v$.confidence.$invalid ? 'p-invalid' : ''" :min="0.01" :max="1" :step="0.1" />
+                <small v-if="v$.confidence.required.$invalid" class="p-error">Confidence is required.</small>
+                <small v-else-if="v$.confidence.between.$invalid" class="p-error">{{
+                        v$.confidence.between.$message.replace('The value', 'Confidence')
                 }}</small>
             </div>
             <div class="field flex flex-column">
                 <label for="name">Rules length:</label>
-                <InputNumber id="name" v-model.number="v$.analyzeRulesLength.$model" required="true" autofocus
-                    :class="v$.analyzeRulesLength.$invalid ? 'p-invalid' : ''" :min="1" :max="10" />
-                <small v-if="v$.analyzeRulesLength.required.$invalid" class="p-error">Rules length is required.</small>
-                <small v-else-if="v$.analyzeRulesLength.between.$invalid" class="p-error">{{
-                        v$.analyzeRulesLength.between.$message.replace('The value', 'Rules length')
+                <InputNumber id="name" v-model.number="v$.rulesLength.$model" required="true" autofocus
+                    :class="v$.rulesLength.$invalid ? 'p-invalid' : ''" :min="1" :max="10" />
+                <small v-if="v$.rulesLength.required.$invalid" class="p-error">Rules length is required.</small>
+                <small v-else-if="v$.rulesLength.between.$invalid" class="p-error">{{
+                        v$.rulesLength.between.$message.replace('The value', 'Rules length')
                 }}</small>
             </div>
 
             <div class="field flex flex-column">
                 <label for="File" class="flex align-items-center">File:</label>
                 <Dropdown v-if="!userFiles || !isReportsLoading" v-model="selectedFile" :options="userFiles"
-                    option-label="fileName" placeholder="Select a file" :filter="true" filter-placeholder="Find file"
+                    option-label="name" placeholder="Select a file" :filter="true" filter-placeholder="Find file"
                     :loading="isFilesLoading" />
                 <Button v-else label="Add file" class="p-button-link" @click="redirectFiles" />
             </div>
@@ -92,7 +92,7 @@ import useFiles from "../../hooks/useFiles"
 import useRedirect from "../../hooks/useRedirect"
 import useReports from "../../hooks/useReports"
 import Analyzes from "../../models/AnalyzesModel"
-import Files from "../../models/FilesModel"
+import Files from "../../models/FileDatasourcesModel"
 import Reports from "../../models/ReportsModel"
 
 export default defineComponent({
@@ -113,24 +113,24 @@ export default defineComponent({
         const selectedFile = ref<Files>()
         const selectedReport = ref<Reports>()
         const state = reactive<Analyzes>({
-            analyzeId: 0,
-            analyzeName: '',
-            analyzeDescription: '',
-            analyzeSupport: 0.1,
-            analyzeLift: 0.1,
-            analyzeConfidence: 0.1,
-            analyzeRulesLength: 1,
+            id: 0,
+            name: '',
+            description: '',
+            support: 0.1,
+            lift: 0.1,
+            confidence: 0.1,
+            rulesLength: 1,
             analyzeCreateDate: new Date(),
-            analyzeFilePath: '',
+            filePath: '',
             reportId: 0
         })
         const rules = {
-            analyzeName: { required, minLength: minLength(2), maxLength: maxLength(200) },
-            analyzeDescription: { required, minLength: minLength(10), maxLength: maxLength(2000) },
-            analyzeSupport: { required, decimal, between: between(0.01, 1) },
-            analyzeLift: { required, decimal, between: between(0.01, 1) },
-            analyzeConfidence: { required, decimal, between: between(0.01, 1) },
-            analyzeRulesLength: { required, decimal, between: between(1, 10) },
+            name: { required, minLength: minLength(2), maxLength: maxLength(200) },
+            description: { required, minLength: minLength(10), maxLength: maxLength(2000) },
+            support: { required, decimal, between: between(0.01, 1) },
+            lift: { required, decimal, between: between(0.01, 1) },
+            confidence: { required, decimal, between: between(0.01, 1) },
+            rulesLength: { required, decimal, between: between(1, 10) },
         }
         const v$ = useVuelidate(rules, state)
         return {

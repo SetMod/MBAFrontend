@@ -29,7 +29,7 @@ import useUsers from "../../hooks/useUsers";
 import useOrganizations from "../../hooks/useOrganizations";
 import useOrganizationRoles from "../../hooks/useOrganizationRoles";
 import Organizations from "../../models/OrganizationsModel";
-import UsersOrganizations from "../../models/UsersOrganizationsModel";
+import OrganizationMembers from "../../models/OrganizationMembersModel";
 import OrganizationsDataTableVue from "./OrganizationsDataTable.vue";
 import OrganizationToolbarVue from "./OrganizationToolbar.vue";
 import OrganizationLeaveDialogVue from "./OrganizationLeaveDialog.vue"
@@ -137,7 +137,7 @@ export default defineComponent({
         const submitJoin = async (selectedOrganization: Organizations) => {
             if (!user.value || !selectedOrganization) return toast.add({ severity: 'warn', summary: 'Warning', detail: 'Select organization', life: 1500 })
 
-            const userOrganization = new UsersOrganizations()
+            const userOrganization = new OrganizationMembers()
             userOrganization.userId = user.value.userId
             userOrganization.organizationId = selectedOrganization.organizationId
             userOrganization.organizationRoleId = 1
@@ -151,7 +151,7 @@ export default defineComponent({
             if (!user.value) return
             if (!selectedOrganization.value) return toast.add({ severity: 'warn', summary: 'Warning', detail: 'Select organization to leave', life: 3000 })
 
-            const userOrganization = new UsersOrganizations()
+            const userOrganization = new OrganizationMembers()
             userOrganization.userId = user.value.userId
             userOrganization.organizationId = selectedOrganization.value.organizationId
             userOrganization.organizationRoleId = 1
@@ -203,5 +203,4 @@ export default defineComponent({
 });
 </script>
 
-<style>
-</style>
+<style></style>

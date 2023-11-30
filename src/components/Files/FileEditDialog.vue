@@ -23,7 +23,7 @@
 import { defineComponent } from "vue"
 import { maxLength, minLength, required } from "@vuelidate/validators"
 import useVuelidate from "@vuelidate/core"
-import Files from "../../models/FilesModel"
+import Files from "../../models/FileDatasourcesModel"
 
 export default defineComponent({
     props: {
