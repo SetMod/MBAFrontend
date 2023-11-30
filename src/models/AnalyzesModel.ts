@@ -1,4 +1,4 @@
-import GenericModel from "./GenericModel"
+import GenericModel, { GenericResponse } from "./GenericModel"
 
 enum AnalyzeStatus {
     SCHEDULED = "scheduled",
@@ -20,4 +20,30 @@ export default class Analyzes extends GenericModel {
     started_date: Date = new Date()
     finished_date: Date = new Date()
     reportId: number = 0
+}
+
+export interface AnalyzeResponse extends GenericResponse {
+    name: string
+    description: string
+    support: number
+    lift: number
+    confidence: number
+    rules_length: number
+    file_path: string
+    status: string
+    started_date: Date
+    finished_date: Date
+    report_id: number
+}
+
+export interface AssociationRulesResponse {
+    "antecedent support": number
+    antecedents: Array<String>
+    confidence: number
+    "consequent support": number
+    consequents: Array<String>
+    conviction: number
+    leverage: number
+    lift: number
+    support: number
 }
