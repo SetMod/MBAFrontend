@@ -1,11 +1,11 @@
 import { reactive, ref, toRefs } from "vue";
-import Files from "../models/FilesModel"
-import FilesService from "../services/FilesService";
+import FileDatasourcesModel from "../models/FileDatasourcesModel"
+import FilesService from "../services/FileDatasourcesService";
 
 export interface IFilesState {
-    file: Files | undefined
-    files: Files[] | undefined
-    userFiles: Files[] | undefined
+    file: FileDatasourcesModel | undefined
+    files: FileDatasourcesModel[] | undefined
+    userFiles: FileDatasourcesModel[] | undefined
 }
 
 const state = reactive<IFilesState>({
@@ -26,7 +26,7 @@ export default function useFiles() {
 
     const getFiles = async () => {
         isLoading.value = true
-        const response = await filesService.getFiles()
+        const response = await filesService.getAll()
         if (Array.isArray(response)) state.files = response
         isLoading.value = false
 
@@ -34,7 +34,7 @@ export default function useFiles() {
     }
     const getFileById = async (fileId: number) => {
         isLoading.value = true
-        const response = await filesService.getFileById(fileId)
+        const response = await filesService.getById(fileId)
         isLoading.value = false
 
         return response
@@ -53,23 +53,23 @@ export default function useFiles() {
         // isLoading.value = false
         return response
     }
-    const createFile = async (file: Files, form: FormData) => {
+    const createFile = async (file: FileDatasourcesModel, form: FormData) => {
         isLoading.value = true
         const response = await filesService.createFile(file, form)
         isLoading.value = false
 
         return response
     }
-    const updateFile = async (file: Files) => {
+    const updateFile = async (file: FileDatasourcesModel) => {
         isLoading.value = true
-        const response = await filesService.updateFile(file)
+        const response = await filesService.update(file)
         isLoading.value = false
 
         return response
     }
     const deleteFile = async (fileId: number) => {
         isLoading.value = true
-        const response = await filesService.deleteFile(fileId)
+        const response = await filesService.delete(fileId)
         isLoading.value = false
 
         return response
