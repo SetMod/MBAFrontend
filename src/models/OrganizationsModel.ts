@@ -1,8 +1,15 @@
-export default class Organizations {
-    organizationId: number = 0
-    organizationName: string = ''
-    organizationDescription: string = ''
-    organizationEmail: string = ''
-    organizationPhone: string = ''
-    organizationCreateDate: Date = new Date()
+import GenericModel, { GenericResponse } from "./GenericModel"
+
+export default class Organizations extends GenericModel {
+    name: string = ''
+    description: string = ''
+    email: string = ''
+    phone: string = ''
+}
+
+export interface OrganizationsResponse extends GenericResponse {
+    name: string
+    description: string
+    email: string
+    phone: string
 }

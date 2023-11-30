@@ -1,5 +1,11 @@
-export default class OrganizationRoles {
-    organizationRoleId: number | undefined
-    organizationRoleName: string | undefined
-    organizationRoleDescription: string | undefined
+import GenericModel, { GenericResponse } from "./GenericModel"
+
+export default class OrganizationRoles extends GenericModel {
+    name: string | undefined
+    description: string | undefined
+}
+
+export interface OrganizationRolesResponse extends GenericResponse {
+    name: string
+    description: string
 }
