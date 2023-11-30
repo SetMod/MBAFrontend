@@ -1,169 +1,104 @@
 import axios, { AxiosError } from "axios";
 import config from "../config";
-import Users from "../models/UsersModel";
+import Users, { UsersResponse } from "../models/UsersModel";
+import GenericService from "./GenericService";
 
-interface UsersResponse {
-    id: number
-    first_name: string
-    second_name: string
-    email: string
-    phone: string
-    create_date: string
-    username: string
-    password: string
-    role_id: number
-    name: string
-}
+export default class UsersService extends GenericService<Users, UsersResponse> {
 
-
-export default class UsersService {
-
-    async getUsers() {
-        const errorMessage: String = 'Failed to get users'
-        try {
-            const response = await axios.get(`${config.baseUrl}/users`)
-
-            if (response.data instanceof String) return response.data
-            if (Array.isArray(response.data) == false) return errorMessage
-
-            const users: Users[] = response.data.map((user: UsersResponse) => {
-                return this.mapDataToUser(user)
-            })
-            console.log(users)
-            return users
-        } catch (error) {
-            console.error(error);
-            if (error instanceof AxiosError)
-                if (error.response?.data && typeof error.response?.data === 'string') return new String(error.response?.data)
-            return errorMessage
-        }
+    constructor() {
+        super()
+        this.setEndpoint(`${config.baseUrl}/users`)
     }
-    async getUserById(userId: number) {
-        const errorMessage: String = 'Failed to get user'
-        try {
-            const response = await axios.get(`${config.baseUrl}/users/${userId}`)
 
-            if (response.data instanceof String) return response.data
-            if (Object.keys(response.data).length === 0) return errorMessage
+    mapJSONToModel(data: UsersResponse | UsersResponse[]): Users | Users[] {
+        function map(userJson: UsersResponse) {
+            const user = new Users()
+            user.id = userJson.id
+            user.firstName = userJson.first_name
+            user.secondName = userJson.second_name
+            user.email = userJson.email
+            user.phone = userJson.phone
+            user.passwordHash = userJson.password_hash
+            user.active = userJson.active
+            user.lastLoginDate = userJson.last_login_date
+            user.createdDate = userJson.created_date
+            user.updatedDate = userJson.updated_date
+            user.deletedDate = userJson.deleted_date
+            user.softDeleted = userJson.soft_deleted
 
-            console.log(response.data);
-
-            const user: Users = this.mapDataToUser(response.data)
-            console.log(user)
             return user
-        } catch (error) {
-            console.error(error)
-            if (error instanceof AxiosError)
-                if (error.response?.data && typeof error.response?.data === 'string') return new String(error.response?.data)
-            return errorMessage
+        }
+        if (data instanceof Array) {
+            let users = new Array<Users>()
+            for (let userJson of data) {
+                users.push(map(userJson))
+            }
+            return users
+        } else {
+            return map(data)
         }
     }
-    async sigInUser(userUsername: string, userPassword: string) {
-        const errorMessage: String = 'Sign In failed'
+
+    mapModelToJSON(user: Users | Users[]): UsersResponse | UsersResponse[] {
+        function map(user: Users) {
+            return <UsersResponse>{
+                id: user.id,
+                first_name: user.firstName,
+                second_name: user.secondName,
+                email: user.email,
+                phone: user.phone,
+                password_hash: user.passwordHash,
+                active: user.active,
+                last_login_date: user.lastLoginDate,
+                created_date: user.createdDate,
+                updated_date: user.updatedDate,
+                deleted_date: user.deletedDate,
+                soft_deleted: user.softDeleted,
+            }
+        }
+        if (user instanceof Array) {
+            let data = new Array<UsersResponse>()
+            for (var val of user) {
+                data.push(map(val))
+            }
+            return data
+        } else {
+            return map(user)
+        }
+    }
+
+    async login(userUsername: string, userPassword: string) {
         try {
-            const response = await axios.post(`${config.baseUrl}/users/login`, {
+            const res = await axios.post(`${this.endpoint}/login`, {
                 username: userUsername,
                 password: userPassword
             })
+            console.log(res);
 
-            if (response.data instanceof String) return response.data
-            if (Object.keys(response.data).length === 0) return errorMessage
-
-            const user = this.mapDataToUser(response.data)
+            const user = this.mapJSONToModel(res.data)
             console.log(user);
+
             return user
         } catch (error) {
+            const errorMessage = 'Login failed'
             console.error(error);
-            if (error instanceof AxiosError)
-                if (error.response?.data && typeof error.response?.data === 'string') return new String(error.response?.data)
-            // if (error instanceof AxiosError) {
-            //     alert(error.response?.data)
-            // }
-            return errorMessage
-        }
-
-    }
-    async createUser(user: Users) {
-        const errorMessage: String = 'Sign Up failed'
-        try {
-            const dataUser = this.mapUserToData(user)
-            const response = await axios.post(`${config.baseUrl}/users/`, dataUser)
-
-            if (response.data instanceof String) return response.data
-
-            const newUser: Users = this.mapDataToUser(response.data)
-            console.log(newUser)
-            return newUser
-        } catch (error) {
-            console.error(error);
-            if (error instanceof AxiosError)
-                if (error.response?.data && typeof error.response?.data === 'string') return new String(error.response?.data)
-            return errorMessage
+            if (error instanceof AxiosError && typeof error.response?.data === 'string')
+                throw new Error(error.response?.data)
+            throw new Error(errorMessage)
         }
     }
-    async updateUser(user: Users) {
-        const errorMessage: String = 'User update failed'
-        try {
-            const dataUser = this.mapUserToData(user)
-            const response = await axios.put(`${config.baseUrl}/users/${user.userId}`, dataUser)
 
-            if (response.data instanceof String) return response.data
-
-            const updatedUser: Users = this.mapDataToUser(response.data)
-            console.log(updatedUser)
-            return updatedUser
-        } catch (error) {
-            console.error(error);
-            if (error instanceof AxiosError)
-                if (error.response?.data && typeof error.response?.data === 'string') return new String(error.response?.data)
-            return errorMessage
-        }
+    async getOrganizations(id: number) {
+        throw new Error("Not implemented")
     }
-    async deleteUser(userId: number) {
-        const errorMessage: String = 'Failed to delete a user'
-        try {
-            const response = await axios.delete(`${config.baseUrl}/users/${userId}`)
 
-            if (response.data instanceof String) return response.data
+    async getDatasources(id: number) {
+        throw new Error("Not implemented")
+    }
 
-            const user: Users = this.mapDataToUser(response.data)
-            console.log(user)
-            return user
-        } catch (error) {
-            console.error(error);
-            if (error instanceof AxiosError)
-                if (error.response?.data && typeof error.response?.data === 'string') return new String(error.response?.data)
-            return errorMessage
-        }
-    }
-    mapDataToUser(data: UsersResponse) {
-        const user = new Users()
-        user.userId = data.id
-        user.userFirstName = data.first_name
-        user.userSecondName = data.second_name
-        user.userEmail = data.email
-        user.userPhone = data.phone
-        user.userUsername = data.username
-        user.userPassword = data.password
-        user.userCreateDate = new Date(data.create_date)
-        user.roleId = data.role_id
-        user.roleName = data.name
-        return user
-    }
-    mapUserToData(user: Users) {
-        return <UsersResponse>{
-            id: user.userId,
-            first_name: user.userFirstName,
-            second_name: user.userSecondName,
-            email: user.userEmail,
-            create_date: user.userCreateDate?.toJSON(),
-            phone: user.userPhone,
-            username: user.userUsername,
-            password: user.userPassword,
-            role_id: user.roleId,
-        }
+    async getReports(id: number) {
+        throw new Error("Not implemented")
     }
 }
 
-const userService = new UsersService()
-export { userService }
+export const userService = new UsersService()

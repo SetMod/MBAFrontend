@@ -1,82 +1,35 @@
 import axios, { AxiosError } from "axios";
 import config from "../config";
-import Visualizations from "../models/VisualizationsModel";
+import Visualizations, { TopRulesDataResponse, TopSupportDataResponse, TopTransactionsDataResponse, TotalCostItemDataResponse, VisualizationResponse } from "../models/VisualizationsModel";
+import GenericService from "./GenericService";
 
-export interface VisualizationResponse {
-    id: number
-    name: string
-    image_file_path: string
-    create_date: string
-    report_id: number
-}
-export interface TopSupportDataResponse {
-    itemsets: { [key: number]: string }
-    support: { [key: number]: number }
-}
-export interface TopRulesDataResponse {
-    'antecedent support': { [key: number]: number }
-    antecedents: { [key: number]: string }
-    confidence: { [key: number]: number }
-    'consequent support': { [key: number]: number }
-    consequents: { [key: number]: string }
-    conviction: { [key: number]: number }
-    leverage: { [key: number]: number }
-    lift: { [key: number]: number }
-    support: { [key: number]: number }
-}
-export interface TopTransactionsDataResponse {
-    TransactionId: { [key: number]: number }
-}
-export interface TotalCostItemDataResponse {
-    total_cost_item: { [key: number]: number }
-}
-export default class VisualizationsService {
+export default class VisualizationsService extends GenericService<Visualizations, VisualizationResponse> {
 
-    async getVisualizations() {
-        const errorMessage = new String('Failed to get visualizations')
-        try {
-            const response = await axios.get(`${config.baseUrl}/visualizations/`)
-
-            if (response.data instanceof String) return response.data
-            if (Array.isArray(response.data) == false) return errorMessage
-
-            const visualizations: Visualizations[] = response.data.map((val: VisualizationResponse) => {
-                return this.mapDataToVisualization(val)
-            })
-            console.log(visualizations)
-            return visualizations
-        } catch (error) {
-            console.error(error);
-            if (error instanceof AxiosError)
-                if (error.response?.data && typeof error.response?.data === 'string') return new String(error.response?.data)
-            return errorMessage
-        }
+    constructor() {
+        super();
+        this.setEndpoint(`${config.baseUrl}/visualizations`)
     }
-    async getVisualizationById(visualizationId: number) {
-        const errorMessage = new String('Failed to get visualization')
-        try {
-            const response = await axios.get(`${config.baseUrl}/visualizations/${visualizationId}`)
 
-            if (response.data instanceof String) return response.data
-            if (Object.keys(response.data).length === 0) return errorMessage
-
-            const visualization: Visualizations = this.mapDataToVisualization(response.data)
-            console.log(visualization)
-            return visualization
-        } catch (error) {
-            console.error(error);
-            if (error instanceof AxiosError)
-                if (error.response?.data && typeof error.response?.data === 'string') return new String(error.response?.data)
-            return errorMessage
-        }
+    isTopSupportData = (obj: any): obj is TopSupportDataResponse => {
+        return 'itemsets' in obj && 'support' in obj;
     }
-    async getVisualizationData(analyzeId: number) {
+    isTopRulesData = (obj: any): obj is TopRulesDataResponse => {
+        return 'antecedent support' in obj && 'antecedents' in obj && 'confidence' in obj && 'consequent support' in obj && 'consequents' in obj && 'conviction' in obj && 'leverage' in obj && 'lift' in obj && 'support' in obj;
+    }
+    isTopTransactionsData = (obj: any): obj is TopTransactionsDataResponse => {
+        return 'TransactionId' in obj;
+    }
+    isTotalCostItemData = (obj: any): obj is TotalCostItemDataResponse => {
+        return 'total_cost_item' in obj;
+    }
+
+    async getVisualizationData(id: number) {
         const errorMessage = new String('Failed to download the visualization file')
         try {
-            const visualization = await this.getVisualizationById(analyzeId)
+            const visualization = await this.getById(id)
             if (visualization instanceof String) return visualization
 
-            const response = await axios.get(`${config.baseUrl}/visualizations/data/${analyzeId}`)
+            const response = await axios.get(`${config.baseUrl}/visualizations/data/${id}`)
             if (response.data instanceof String) return response.data
             console.log(response.data)
 
@@ -90,40 +43,31 @@ export default class VisualizationsService {
             return errorMessage
         }
     }
-    isTopSupportData = (obj: any): obj is TopSupportDataResponse => {
-        return 'itemsets' in obj && 'support' in obj;
-    }
-    isTopRulesData = (obj: any): obj is TopRulesDataResponse => {
-        return 'antecedent support' in obj && 'antecedents' in obj && 'confidence' in obj && 'consequent support' in obj && 'consequents' in obj && 'conviction' in obj && 'leverage' in obj && 'lift' in obj && 'support' in obj;
-    }
-    isTopTransactionsData = (obj: any): obj is TopTransactionsDataResponse => {
-        return 'TransactionId' in obj;
-    }
-    isTotalCostItemData = (obj: any): obj is TotalCostItemDataResponse => {
-        return 'total_cost_item' in obj;
-    }
+
     async downloadVisualizationById(visualizationId: number) {
-        const errorMessage = new String('Failed to download the visualization file')
         try {
-            const visualization = await this.getVisualizationById(visualizationId)
-            if (visualization instanceof String) return visualization
+            const visualization = await this.getById(visualizationId)
 
-            const response = await axios.get(`${config.baseUrl}/visualizations/download/${visualizationId}`, { responseType: 'blob' })
+            if (visualization instanceof Array) throw new Error()
 
-            const blob = new Blob([response.data], { type: response.data.type })
+            const res = await axios.get(`${this.endpoint}/download/${visualizationId}`, { responseType: 'blob' })
+
+            const blob = new Blob([res.data], { type: res.data.type })
             const link = document.createElement('a')
             link.href = URL.createObjectURL(blob)
-
-            link.download = visualization.visualizationName ? visualization.visualizationName : 'Untitled'
-            // link.download = response.headers["content-disposition"].split("filename=")[1]
+            link.download = visualization.name ? visualization.name : 'Untitled'
+            // link.download = response.headers["content-disposition"].split("name=")[1]
             document.body.appendChild(link);
             link.click()
 
         } catch (error) {
+            const errorMessage = 'Failed to download the visualization file'
+            console.error(errorMessage);
             console.error(error);
-            return errorMessage
+            throw new Error(errorMessage)
         }
     }
+
     async getReportVisualizations(reportId: number) {
         const errorMessage = new String('Failed to get report visualizations')
         try {
@@ -144,6 +88,7 @@ export default class VisualizationsService {
             return errorMessage
         }
     }
+
     async createVisualization(visualization: Visualizations, fileId: number) {
         const errorMessage = new String('Failed to create visualization')
         try {
@@ -167,11 +112,12 @@ export default class VisualizationsService {
             return errorMessage
         }
     }
+
     async updateVisualization(visualization: Visualizations) {
         const errorMessage = new String('Failed to update visualization')
         try {
             const dataVisualization = this.mapVisualizationToData(visualization)
-            const response = await axios.put(`${config.baseUrl}/visualizations/${visualization.visualizationId}`, dataVisualization)
+            const response = await axios.put(`${config.baseUrl}/visualizations/${visualization.id}`, dataVisualization)
 
             if (response.data instanceof String) return response.data
 
@@ -185,10 +131,11 @@ export default class VisualizationsService {
             return errorMessage
         }
     }
-    async deleteVisualization(analyzeId: number) {
+
+    async deleteVisualization(id: number) {
         const errorMessage = new String('Failed to delete visualization')
         try {
-            const response = await axios.delete(`${config.baseUrl}/visualizations/${analyzeId}`)
+            const response = await axios.delete(`${config.baseUrl}/visualizations/${id}`)
 
             if (response.data instanceof String) return response.data
 
@@ -202,6 +149,7 @@ export default class VisualizationsService {
             return errorMessage
         }
     }
+
     mapDataToVisualization(data: VisualizationResponse) {
         const visualization = new Visualizations()
         visualization.visualizationId = data.id
@@ -211,6 +159,7 @@ export default class VisualizationsService {
         visualization.reportId = data.report_id
         return visualization
     }
+
     mapVisualizationToData(visualization: Visualizations) {
         return <VisualizationResponse>{
             id: visualization.visualizationId,

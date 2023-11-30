@@ -1,163 +1,103 @@
 import axios, { AxiosError } from "axios";
 import config from "../config";
-import Reports from "../models/ReportsModel";
+import Reports, { ReportsResponse } from "../models/ReportsModel";
+import GenericService from "./GenericService";
 
-interface ReportsResponse {
-    id: number
-    name: string
-    data_points: string
-    create_date: Date
-    user_id: number
-    organization_id: number
-}
+export default class ReportsService extends GenericService<Reports, ReportsResponse> {
 
-export default class ReportsService {
-
-    async getReports() {
-        const errorMessage: String = 'Failed to get reports'
-        try {
-            const response = await axios.get(`${config.baseUrl}/reports/`)
-
-            if (response.data instanceof String) return response.data
-            if (Array.isArray(response.data) == false) return errorMessage
-
-            const reports: Reports[] = response.data.map((val: ReportsResponse) => {
-                return this.mapDataToReport(val)
-            })
-            console.log(reports)
-            return reports
-        } catch (error) {
-            console.error(error);
-            if (error instanceof AxiosError)
-                if (error.response?.data && typeof error.response?.data === 'string') return new String(error.response?.data)
-            return errorMessage
-        }
+    constructor() {
+        super()
+        this.setEndpoint(`${config.baseUrl}/reports`)
     }
-    async getReportById(reportId: number) {
-        const errorMessage: String = 'Failed to get report'
-        try {
-            const response = await axios.get(`${config.baseUrl}/reports/${reportId}`)
 
-            if (response.data instanceof String) return response.data
-            if (Object.keys(response.data).length === 0) return errorMessage
+    mapJSONToModel(data: ReportsResponse | ReportsResponse[]): Reports | Reports[] {
+        function map(reportJson: ReportsResponse) {
+            const report = new Reports()
+            report.id = reportJson.id
+            report.name = reportJson.name
+            report.type = reportJson.type
+            report.userId = reportJson.user_id
+            report.organizationId = reportJson.organization_id
+            report.createdDate = reportJson.created_date
+            report.updatedDate = reportJson.updated_date
+            report.deletedDate = reportJson.deleted_date
+            report.softDeleted = reportJson.soft_deleted
 
-            const report: Reports = this.mapDataToReport(response.data)
-            console.log(report)
             return report
-        } catch (error) {
-            console.error(error);
-            if (error instanceof AxiosError)
-                if (error.response?.data && typeof error.response?.data === 'string') return new String(error.response?.data)
-            return errorMessage
         }
-    }
-    async getReportAnalyzes(reportId: number) {
-        const errorMessage: String = 'Failed to get report analyzes'
-        try {
-            const response = await axios.get(`${config.baseUrl}/reports/${reportId}.analyzes`)
-
-            if (response.data instanceof String) return response.data
-            if (Object.keys(response.data).length === 0) return errorMessage
-
-            const report: Reports = this.mapDataToReport(response.data)
-            console.log(report)
-            return report
-        } catch (error) {
-            console.error(error);
-            if (error instanceof AxiosError)
-                if (error.response?.data && typeof error.response?.data === 'string') return new String(error.response?.data)
-            return errorMessage
-        }
-    }
-    async getUserReports(userId: number) {
-        const errorMessage: String = 'Failed to get report'
-        try {
-            const response = await axios.get(`${config.baseUrl}/users/${userId}/reports`)
-
-            if (response.data instanceof String) return response.data
-            if (Object.keys(response.data).length === 0) return errorMessage
-
-            const reports: Reports[] = response.data.map((val: ReportsResponse) => {
-                return this.mapDataToReport(val)
-            })
-            console.log(reports)
+        if (data instanceof Array) {
+            let reports = new Array<Reports>()
+            for (let reportJson of data) {
+                reports.push(map(reportJson))
+            }
             return reports
-        } catch (error) {
-            console.error(error);
-            if (error instanceof AxiosError)
-                if (error.response?.data && typeof error.response?.data === 'string') return new String(error.response?.data)
-            return errorMessage
+        } else {
+            return map(data)
         }
     }
-    async createReport(report: Reports) {
-        const errorMessage: String = 'Failed to create an reports'
-        try {
-            const dataReport = this.mapReportToData(report)
-            const response = await axios.post(`${config.baseUrl}/reports/`, dataReport)
 
-            if (response.data instanceof String) return response.data
-
-            const newReport: Reports = this.mapDataToReport(response.data)
-            console.log(newReport)
-            return newReport
-        } catch (error) {
-            console.error(error);
-            if (error instanceof AxiosError)
-                if (error.response?.data && typeof error.response?.data === 'string') return new String(error.response?.data);
-            return errorMessage
+    mapModelToJSON(report: Reports | Reports[]): ReportsResponse | ReportsResponse[] {
+        function map(report: Reports) {
+            return <ReportsResponse>{
+                id: report.id,
+                name: report.name,
+                type: report.type,
+                user_id: report.userId,
+                organization_id: report.organizationId,
+                created_date: report.createdDate,
+                updated_date: report.updatedDate,
+                deleted_date: report.deletedDate,
+                soft_deleted: report.softDeleted,
+            }
+        }
+        if (report instanceof Array) {
+            let data = new Array<ReportsResponse>()
+            for (var val of report) {
+                data.push(map(val))
+            }
+            return data
+        } else {
+            return map(report)
         }
     }
-    async updateReport(report: Reports) {
-        const errorMessage: String = 'Failed to update report'
-        try {
-            const dataReport = this.mapReportToData(report)
-            const response = await axios.put(`${config.baseUrl}/reports/${report.reportId}`, dataReport)
 
-            if (response.data instanceof String) return response.data
+    // async getReportAnalyzes(reportId: number) {
+    //     const errorMessage: String = 'Failed to get report analyzes'
+    //     try {
+    //         const response = await axios.get(`${config.baseUrl}/reports/${reportId}.analyzes`)
 
-            const updatedReport: Reports = this.mapDataToReport(response.data)
-            console.log(updatedReport)
-            return updatedReport
-        } catch (error) {
-            console.error(error);
-            return errorMessage
-        }
-    }
-    async deleteReport(roleId: number) {
-        const errorMessage: String = 'Failed to delete report'
-        try {
-            const response = await axios.delete(`${config.baseUrl}/reports/${roleId}`)
+    //         if (response.data instanceof String) return response.data
+    //         if (Object.keys(response.data).length === 0) return errorMessage
 
-            if (response.data instanceof String) return response.data
+    //         const report: Reports = this.mapDataToReport(response.data)
+    //         console.log(report)
+    //         return report
+    //     } catch (error) {
+    //         console.error(error);
+    //         if (error instanceof AxiosError)
+    //             if (error.response?.data && typeof error.response?.data === 'string') return new String(error.response?.data)
+    //         return errorMessage
+    //     }
+    // }
+    // async getUserReports(userId: number) {
+    //     const errorMessage: String = 'Failed to get report'
+    //     try {
+    //         const response = await axios.get(`${config.baseUrl}/users/${userId}/reports`)
 
-            const deletedReport: Reports = this.mapDataToReport(response.data)
-            console.log(deletedReport)
-            return deletedReport
-        } catch (error) {
-            console.error(error);
-            if (error instanceof AxiosError)
-                if (error.response?.data && typeof error.response?.data === 'string') return new String(error.response?.data)
-            return errorMessage
-        }
-    }
-    mapDataToReport(data: ReportsResponse) {
-        const report = new Reports()
-        report.reportId = data.id
-        report.reportName = data.name
-        report.reportData = data.data_points
-        report.reportCreateDate = data.create_date
-        report.userId = data.user_id
-        report.organizationId = data.organization_id
-        return report
-    }
-    mapReportToData(report: Reports) {
-        return <ReportsResponse>{
-            id: report.reportId,
-            name: report.reportName,
-            data_points: report.reportData,
-            create_date: report.reportCreateDate,
-            user_id: report.userId,
-            organization_id: report.organizationId,
-        }
-    }
+    //         if (response.data instanceof String) return response.data
+    //         if (Object.keys(response.data).length === 0) return errorMessage
+
+    //         const reports: Reports[] = response.data.map((val: ReportsResponse) => {
+    //             return this.mapDataToReport(val)
+    //         })
+    //         console.log(reports)
+    //         return reports
+    //     } catch (error) {
+    //         console.error(error);
+    //         if (error instanceof AxiosError)
+    //             if (error.response?.data && typeof error.response?.data === 'string') return new String(error.response?.data)
+    //         return errorMessage
+    //     }
+    // }
+
 }

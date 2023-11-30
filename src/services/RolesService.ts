@@ -1,134 +1,60 @@
-import axios, { AxiosError } from "axios";
 import config from "../config";
-import Roles from "../models/RolesModel";
+import Roles, { RolesResponse } from "../models/RolesModel";
+import GenericService from "./GenericService";
 
-interface RolesResponse {
-    id: number
-    name: string
-    description: string
-}
+export default class RolesService extends GenericService<Roles, RolesResponse> {
 
-export default class RolesService {
+    constructor() {
+        super()
+        this.setEndpoint(`${config.baseUrl}/roles`)
+    }
 
-    async getRoles() {
-        const errorMessage = new String('Failed to get roles')
-        try {
-            const response = await axios.get(`${config.baseUrl}/roles/`)
+    mapJSONToModel(data: RolesResponse | RolesResponse[]): Roles | Roles[] {
+        function map(roleJson: RolesResponse) {
+            const role = new Roles()
+            role.id = roleJson.id
+            role.name = roleJson.name
+            role.description = roleJson.description
+            role.createdDate = roleJson.created_date
+            role.updatedDate = roleJson.updated_date
+            role.deletedDate = roleJson.deleted_date
+            role.softDeleted = roleJson.soft_deleted
 
-            if (response.data instanceof String) return response.data
-            if (Array.isArray(response.data) == false) return errorMessage
-
-            const roles: Roles[] = response.data.map((val: RolesResponse) => {
-                return this.mapDataToRole(val)
-            })
-            console.log(roles)
+            return role
+        }
+        if (data instanceof Array) {
+            let roles = new Array<Roles>()
+            for (let roleJson of data) {
+                roles.push(map(roleJson))
+            }
             return roles
-        } catch (error) {
-            if (error instanceof AxiosError)
-                if (error.response?.data && typeof error.response?.data === 'string') return new String(error.response?.data)
-            return errorMessage
+        } else {
+            return map(data)
         }
     }
 
-    async getRoleById(roleId: number) {
-        const errorMessage = new String('Failed to get role')
-        try {
-            const response = await axios.get(`${config.baseUrl}/roles/${roleId}`)
-
-            if (response.data instanceof String) return response.data
-            if (Object.keys(response.data).length === 0) return errorMessage
-
-            const roles: Roles = this.mapDataToRole(response.data)
-            console.log(roles)
-            return roles
-        } catch (error) {
-            if (error instanceof AxiosError)
-                if (error.response?.data && typeof error.response?.data === 'string') return new String(error.response?.data)
-            return errorMessage
+    mapModelToJSON(role: Roles | Roles[]): RolesResponse | RolesResponse[] {
+        function map(role: Roles) {
+            return <RolesResponse>{
+                id: role.id,
+                name: role.name,
+                description: role.description,
+                created_date: role.createdDate,
+                updated_date: role.updatedDate,
+                deleted_date: role.deletedDate,
+                soft_deleted: role.softDeleted,
+            }
         }
-    }
-    async getRoleByName(roleName: string) {
-        const errorMessage = new String('Failed to get role')
-        try {
-            const response = await axios.get(`${config.baseUrl}/roles/${roleName}`)
-
-            if (response.data instanceof String) return response.data
-            if (Object.keys(response.data).length === 0) return errorMessage
-
-            const roles: Roles = this.mapDataToRole(response.data)
-            console.log(roles)
-            return roles
-        } catch (error) {
-            if (error instanceof AxiosError)
-                if (error.response?.data && typeof error.response?.data === 'string') return new String(error.response?.data)
-            return errorMessage
-        }
-    }
-
-    async createRole(role: Roles) {
-        const errorMessage = new String('Failed to create an role')
-        try {
-            const dataRole = this.mapRoleToData(role)
-            const response = await axios.post(`${config.baseUrl}/roles/`, dataRole)
-
-            if (response.data instanceof String) return response.data
-
-            const newRole = this.mapDataToRole(response.data)
-            console.log(newRole);
-            return newRole
-        } catch (error) {
-            if (error instanceof AxiosError)
-                if (error.response?.data && typeof error.response?.data === 'string') return new String(error.response?.data)
-            return errorMessage
-        }
-    }
-    async updateRole(role: Roles) {
-        const errorMessage = new String('Failed to update role')
-        try {
-            const dataRole = this.mapRoleToData(role)
-            const response = await axios.put(`${config.baseUrl}/roles/${role.roleId}`, dataRole)
-
-            if (response.data instanceof String) return response.data
-
-            const updatedRole: Roles = this.mapDataToRole(response.data)
-            console.log(updatedRole)
-            return updatedRole
-        } catch (error) {
-            if (error instanceof AxiosError)
-                if (error.response?.data && typeof error.response?.data === 'string') return new String(error.response?.data)
-            return errorMessage
-        }
-    }
-    async deleteRole(roleId: number) {
-        const errorMessage = new String('Failed to delete a role')
-        try {
-            const response = await axios.delete(`${config.baseUrl}/users/${roleId}`)
-
-            if (response.data instanceof String) return response.data
-
-            const deletedRole: Roles = this.mapDataToRole(response.data)
-            console.log(deletedRole)
-            return deletedRole
-        } catch (error) {
-            if (error instanceof AxiosError)
-                if (error.response?.data && typeof error.response?.data === 'string') return new String(error.response?.data)
-            return errorMessage
-        }
-    }
-    mapDataToRole(data: RolesResponse) {
-        const role = new Roles()
-        role.roleId = data.id
-        role.roleName = data.name
-        role.roleDescription = data.description
-        return role
-    }
-    mapRoleToData(role: Roles) {
-        return {
-            name: role.roleName,
-            description: role.roleDescription,
+        if (role instanceof Array) {
+            let data = new Array<RolesResponse>()
+            for (var val of role) {
+                data.push(map(val))
+            }
+            return data
+        } else {
+            return map(role)
         }
     }
 }
 
-const roleService = new RolesService()
-export { roleService }
+export const rolesService = new RolesService()

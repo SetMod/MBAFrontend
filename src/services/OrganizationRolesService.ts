@@ -1,63 +1,61 @@
-import axios from "axios"
 import config from "../config"
-import OrganizationRoles from "../models/OrganizationRolesModel"
+import OrganizationRoles, { OrganizationRolesResponse } from "../models/OrganizationRolesModel";
+import GenericService from "./GenericService";
 
-export interface OrganizationRolesResponse {
-    id: number
-    name: string
-    description: string
+export default class OrganizationRolesService extends GenericService<OrganizationRoles, OrganizationRolesResponse> {
+    orgId: number = 0
+
+    constructor() {
+        super()
+        this.setEndpoint(`${config.baseUrl}/organizations/${this.orgId}/roles`)
+    }
+
+    mapJSONToModel(data: OrganizationRolesResponse | OrganizationRolesResponse[]): OrganizationRoles | OrganizationRoles[] {
+        function map(organizationRoleJson: OrganizationRolesResponse) {
+            const organizationRole = new OrganizationRoles()
+            organizationRole.id = organizationRoleJson.id
+            organizationRole.name = organizationRoleJson.name
+            organizationRole.description = organizationRoleJson.description
+            organizationRole.createdDate = organizationRoleJson.created_date
+            organizationRole.updatedDate = organizationRoleJson.updated_date
+            organizationRole.deletedDate = organizationRoleJson.deleted_date
+            organizationRole.softDeleted = organizationRoleJson.soft_deleted
+
+            return organizationRole
+        }
+        if (data instanceof Array) {
+            let organizationRoles = new Array<OrganizationRoles>()
+            for (let organizationRoleJson of data) {
+                organizationRoles.push(map(organizationRoleJson))
+            }
+            return organizationRoles
+        } else {
+            return map(data)
+        }
+    }
+
+    mapModelToJSON(organizationRole: OrganizationRoles | OrganizationRoles[]): OrganizationRolesResponse | OrganizationRolesResponse[] {
+        function map(organizationRole: OrganizationRoles) {
+            return <OrganizationRolesResponse>{
+                id: organizationRole.id,
+                name: organizationRole.name,
+                description: organizationRole.description,
+                created_date: organizationRole.createdDate,
+                updated_date: organizationRole.updatedDate,
+                deleted_date: organizationRole.deletedDate,
+                soft_deleted: organizationRole.softDeleted,
+            }
+        }
+        if (organizationRole instanceof Array) {
+            let data = new Array<OrganizationRolesResponse>()
+            for (var val of organizationRole) {
+                data.push(map(val))
+            }
+            return data
+        } else {
+            return map(organizationRole)
+        }
+    }
 }
 
-export default class OrganizationRolesService {
-    async getAllOrganizationRoles() {
-        try {
-            const data = await axios.get(`${config.baseUrl}/organization_roles/`)
-
-            if (data.data.length == 0) return null
-            if (typeof data.data == 'string') return data.data
-
-            const organizationRoles: OrganizationRoles[] = data.data.map((val: OrganizationRolesResponse) => {
-                return this.mapDataToOrganizationRole(val)
-            })
-            console.log(organizationRoles);
-            return organizationRoles
-        } catch (error) {
-            console.log(error)
-            return null
-        }
-    }
-    async getOrganizationRoleById(organizationRoleId: number) {
-        try {
-            const data = await axios.get(`${config.baseUrl}/organization_roles/${organizationRoleId}`)
-
-            if (Object.keys(data.data).length === 0) return null
-            if (typeof data.data == 'string') return data.data
-
-            const organizationRoles: OrganizationRoles[] = data.data.map((val: OrganizationRolesResponse) => {
-                return this.mapDataToOrganizationRole(val)
-            })
-            console.log(organizationRoles);
-            return organizationRoles
-        } catch (error) {
-            console.log(error)
-            return null
-        }
-    }
-    mapDataToOrganizationRole(data: OrganizationRolesResponse) {
-        const organizationRole = new OrganizationRoles()
-        organizationRole.organizationRoleId = data.id
-        organizationRole.organizationRoleName = data.name
-        organizationRole.organizationRoleDescription = data.description
-        return organizationRole
-    }
-    mapOrganizationRoleToData(organizationRole: OrganizationRoles) {
-        return <OrganizationRolesResponse>{
-            id: organizationRole.organizationRoleId,
-            description: organizationRole.organizationRoleName,
-            name: organizationRole.organizationRoleDescription,
-        }
-    }
-}
-
-const organizationRolesService = new OrganizationRolesService()
-export { organizationRolesService }
+export const organizationRolesService = new OrganizationRolesService()
