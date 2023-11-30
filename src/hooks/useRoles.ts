@@ -1,7 +1,7 @@
 import { reactive, ref, toRefs } from "vue"
 import Roles from "../models/RolesModel"
 import Users from "../models/UsersModel";
-import RolesService from "../services/RolesService";
+import { rolesService } from "../services/RolesService";
 
 interface RolesState {
     roles: Roles[] | undefined
@@ -11,7 +11,6 @@ const state = reactive<RolesState>({
 })
 
 export default function useRoles() {
-    const rolesService = reactive(new RolesService())
     const isLoading = ref(false)
 
     const resetRoles = () => {
@@ -20,7 +19,7 @@ export default function useRoles() {
 
     const getRoles = async () => {
         isLoading.value = true
-        const response = await rolesService.getRoles()
+        const response = await rolesService.getAll()
         if (Array.isArray(response)) state.roles = response
         isLoading.value = false
 
@@ -29,14 +28,14 @@ export default function useRoles() {
 
     const getRoleById = async (roleId: number) => {
         isLoading.value = true
-        const response = await rolesService.getRoleById(roleId)
+        const response = await rolesService.getById(roleId)
         isLoading.value = false
 
         return response
     }
     const getRoleByName = async (roleName: string) => {
         isLoading.value = true
-        const response = await rolesService.getRoleByName(roleName)
+        const response = await rolesService.getByField("name", roleName)
         isLoading.value = false
 
         return response
@@ -44,7 +43,7 @@ export default function useRoles() {
 
     const createRole = async (newRole: Roles) => {
         isLoading.value = true
-        const response = await rolesService.createRole(newRole)
+        const response = await rolesService.create(newRole)
         isLoading.value = false
 
         return response
@@ -52,7 +51,7 @@ export default function useRoles() {
 
     const updateRole = async (updatedRole: Roles) => {
         isLoading.value = true
-        const response = await rolesService.updateRole(updatedRole)
+        const response = await rolesService.update(updatedRole.id, updatedRole)
         isLoading.value = false
 
         return response
@@ -60,7 +59,7 @@ export default function useRoles() {
 
     const deleteRole = async (roleId: number) => {
         isLoading.value = true
-        const response = await rolesService.deleteRole(roleId)
+        const response = await rolesService.delete(roleId)
         isLoading.value = false
 
         return response
@@ -71,8 +70,8 @@ export default function useRoles() {
 
         if (!state.roles) return
 
-        const role = state.roles.find((role) => role.roleId === user.roleId)
-        return role ? role.roleName : 'User'
+        const role = state.roles.find((role) => role.id === user.roleId)
+        return role ? role.name : 'User'
     }
 
     return {
