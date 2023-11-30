@@ -17,7 +17,7 @@ import useReports from "../hooks/useReports";
 import useUsers from "../hooks/useUsers";
 import { useToast } from "primevue/usetoast";
 import Analyzes from "../models/AnalyzesModel";
-import Files from "../models/FilesModel";
+import Files from "../models/FileDatasourcesModel";
 import Reports from "../models/ReportsModel";
 import AnalyzeCreateVue from "../components/Analyzes/AnalyzeCreate.vue";
 import AssociationRulesDataTableVue from "../components/Analyzes/AssociationRulesDataTable.vue";

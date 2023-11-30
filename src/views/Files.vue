@@ -26,7 +26,7 @@ import useUsers from "../hooks/useUsers"
 import { useToast } from "primevue/usetoast";
 import useOrganizations from "../hooks/useOrganizations";
 import { FileUploadRemoveEvent } from "primevue/fileupload"
-import Files from "../models/FilesModel";
+import Files from "../models/FileDatasourcesModel";
 import FileDeleteDialogVue from "../components/Files/FileDeleteDialog.vue";
 import FileEditDialogVue from "../components/Files/FileEditDialog.vue";
 import FileUploadVue from "../components/Files/FileUpload.vue";
