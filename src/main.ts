@@ -28,6 +28,8 @@ import Tooltip from 'primevue/tooltip';
 import ScrollPanel from 'primevue/scrollpanel';
 import ScrollTop from 'primevue/scrolltop';
 import ProgressSpinner from 'primevue/progressspinner';
+import Sidebar from 'primevue/sidebar';
+import Breadcrumb from 'primevue/breadcrumb';
 
 const app = createApp(App);
 
@@ -38,6 +40,7 @@ app.use(ToastService)
 app.directive('tooltip', Tooltip);
 
 app.component('Button', Button);
+app.component('Breadcrumb', Breadcrumb);
 app.component('Chart', Chart);
 app.component('Column', Column);
 app.component('Dialog', Dialog);
@@ -60,6 +63,7 @@ app.component('InputNumber', InputNumber);
 app.component('Password', Password);
 app.component('ScrollPanel', ScrollPanel);
 app.component('ScrollTop', ScrollTop);
+app.component('Sidebar', Sidebar);
 app.component('ProgressSpinner', ProgressSpinner);
 
 app.mount('#app')
