@@ -32,24 +32,24 @@ export default function useAnalyzes() {
 
     const getAnalyzes = async () => {
         isLoading.value = true
-        const response = await analyzesService.getAnalyzes()
+        const response = await analyzesService.getAll()
         if (Array.isArray(response)) state.analyzes = response
         isLoading.value = false
 
         return response
     }
 
-    const getAnalyzeById = async (analyzeId: number) => {
+    const getAnalyzeById = async (id: number) => {
         isLoading.value = true
-        const response = await analyzesService.getAnalyzeById(analyzeId)
+        const response = await analyzesService.getById(id)
         if (response instanceof Analyzes) state.analyze = response
         isLoading.value = false
 
         return response
     }
-    const downloadAnalyze = async (analyzeId: number) => {
+    const downloadAnalyze = async (id: number) => {
         isLoading.value = true
-        const response = await analyzesService.downloadAnalyzeById(analyzeId)
+        const response = await analyzesService.downloadAnalyzeById(id)
         isLoading.value = false
 
         return response
@@ -81,9 +81,9 @@ export default function useAnalyzes() {
         return response
     }
 
-    const deleteAnalyze = async (analyzeId: number) => {
+    const deleteAnalyze = async (id: number) => {
         isLoading.value = true
-        const response = await analyzesService.deleteAnalyze(analyzeId)
+        const response = await analyzesService.deleteAnalyze(id)
         isLoading.value = false
 
         return response
