@@ -1,72 +1,24 @@
 <template>
-  <div class="h-screen">
-    <Toast />
-    <Menubar :model="items">
-      <template #end>
-        <div v-if="isLoggedIn" class="flex align-items-center">
-          <span class="mr-3">Hello {{ user?.userUsername || 'user' }}!</span>
-          <Button class="p-button-outlined mr-3 pi pi-sign-out fw" @click="logOutWithToast" />
-          <!-- <InputText placeholder="Search" type="text" /> -->
-        </div>
-      </template>
-    </Menubar>
+  <Navbar />
+  <Container>
+    <Sidebar />
     <Suspense>
       <router-view />
     </Suspense>
-  </div>
+  </Container>
+  <Footer />
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue";
-import { routes } from "./router/index"
-import useUsers from "./hooks/useUsers";
-import useRoles from "./hooks/useRoles";
-import { useToast } from 'primevue/usetoast'
-import useNavBar from "./hooks/useNavBar";
-import useFiles from "./hooks/useFiles";
-import useOrganizations from "./hooks/useOrganizations";
-import useRedirect from "./hooks/useRedirect";
-import useReports from "./hooks/useReports";
-import useAnalyzes from "./hooks/useAnalyzes";
-import useOrganizationRoles from "./hooks/useOrganizationRoles";
-import useVisualizations from "./hooks/useVisualizations";
+<script setup lang="ts">
+import Navbar from './components/Navbar.vue'
+import Sidebar from './components/Sidebar.vue'
+import Footer from './components/Footer.vue'
+import Container from './components/Container.vue'
+import { rolesService } from "./services/RolesService"
 
-export default defineComponent({
-  setup() {
-    const toast = useToast();
-    const { items } = useNavBar()
-    const { resetRoles } = useRoles()
-    const { resetFiles } = useFiles()
-    const { resetReports } = useReports()
-    const { resetAnalyzes } = useAnalyzes()
-    const { resetVisualizations } = useVisualizations()
-    const { redirectSignIn } = useRedirect()
-    const { resetOrganizations } = useOrganizations()
-    const { user, isLoggedIn, resetUsers } = useUsers()
-    const { resetOrganizationRoles } = useOrganizationRoles()
-
-    const logOutWithToast = () => {
-      resetRoles()
-      resetOrganizationRoles()
-      resetUsers()
-      resetOrganizations()
-      resetFiles()
-      resetReports()
-      resetAnalyzes()
-      resetVisualizations()
-      toast.add({ severity: 'info', summary: 'Logged out', detail: 'logged out', life: 3000 });
-      redirectSignIn()
-    }
-
-    return {
-      items,
-      routes,
-      user,
-      isLoggedIn,
-      logOutWithToast
-    }
-  },
-});
+rolesService.getAll().then((v) => {
+  console.log(v)
+})
 </script>
 
 <style>
