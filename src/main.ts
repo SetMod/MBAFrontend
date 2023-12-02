@@ -14,6 +14,7 @@ import FileUpload from 'primevue/fileupload';
 import Fieldset from 'primevue/fieldset';
 import Message from 'primevue/message';
 import Menubar from "primevue/menubar"
+import MegaMenu from "primevue/megamenu"
 import PrimeVue from 'primevue/config'
 import Toolbar from 'primevue/toolbar'
 import Textarea from 'primevue/textarea'
@@ -56,6 +57,7 @@ app.component('Textarea', Textarea);
 app.component('Toast', Toast);
 app.component('Toolbar', Toolbar);
 app.component('Message', Message);
+app.component('MegaMenu', MegaMenu);
 app.component('Menubar', Menubar);
 app.component('InputText', InputText);
 app.component('InputMask', InputMask);
