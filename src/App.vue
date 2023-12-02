@@ -1,25 +1,23 @@
-<template>
-  <Navbar />
-  <Container>
-    <Sidebar />
-    <Suspense>
-      <router-view />
-    </Suspense>
-  </Container>
-  <Footer />
-</template>
-
 <script setup lang="ts">
 import Navbar from './components/Navbar.vue'
 import Sidebar from './components/Sidebar.vue'
 import Footer from './components/Footer.vue'
 import Container from './components/Container.vue'
-import { rolesService } from "./services/RolesService"
-
-rolesService.getAll().then((v) => {
-  console.log(v)
-})
 </script>
+
+<template>
+  <Navbar />
+  <div class="flex justify-content-center min-w-screen h-screen">
+    <Sidebar />
+    <Container>
+      <Suspense>
+        <router-view />
+      </Suspense>
+    </Container>
+  </div>
+  <Footer />
+</template>
+
 
 <style>
 @import "primevue/resources/themes/saga-blue/theme.css ";
