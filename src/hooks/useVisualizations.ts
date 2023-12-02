@@ -1,6 +1,6 @@
 import { reactive, ref, toRefs } from "vue"
-import Visualizations, { ChardData } from "../models/VisualizationsModel"
-import VisualizationsService, { TopSupportDataResponse, TopTransactionsDataResponse, TotalCostItemDataResponse, TopRulesDataResponse } from "../services/VisualizationsService"
+import Visualizations, { ChardData, TopSupportDataResponse, TopTransactionsDataResponse, TotalCostItemDataResponse, TopRulesDataResponse } from "../models/VisualizationsModel"
+import VisualizationsService from "../services/VisualizationsService"
 
 export interface VisualizationsState {
     visualization: Visualizations | undefined
@@ -29,7 +29,7 @@ export default function useAnalyzes() {
 
     const getVisualizations = async () => {
         isLoading.value = true
-        const response = await visualizationsService.getVisualizations()
+        const response = await visualizationsService.getAll()
         if (Array.isArray(response)) state.visualizations = response
         isLoading.value = false
 
@@ -38,7 +38,7 @@ export default function useAnalyzes() {
 
     const getVisualizationById = async (visualizationId: number) => {
         isLoading.value = true
-        const response = await visualizationsService.getVisualizationById(visualizationId)
+        const response = await visualizationsService.getById(visualizationId)
         if (response instanceof Visualizations) state.visualization = response
         isLoading.value = false
 
@@ -65,7 +65,7 @@ export default function useAnalyzes() {
         if (Array.isArray(response)) {
             state.reportVisualizations = response
             state.reportVisualizations.forEach(async (visualization) => {
-                const response = await getVisualizationData(visualization.visualizationId)
+                const response = await getVisualizationData(visualization.id)
 
                 if (visualizationsService.isTopSupportData(response)) visualization.visualizationData = toTopSupportChartData(response)
                 else if (visualizationsService.isTopRulesData(response)) visualization.visualizationData = toTopRulesDataChartData(response)
