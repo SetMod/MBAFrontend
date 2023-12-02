@@ -9,12 +9,12 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import useUsers from "../hooks/useUsers";
-import useRedirect from "../hooks/useRedirect";
+import useRoutes from "../hooks/useRoutes";
 
 export default defineComponent({
   setup() {
     const { isLoggedIn } = useUsers()
-    const { redirectSignIn, redirectFiles } = useRedirect()
+    const { redirectSignIn, redirectFiles } = useRoutes()
     const getStarted = () => {
       isLoggedIn.value ? redirectFiles() : redirectSignIn()
     }
