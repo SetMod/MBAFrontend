@@ -15,8 +15,8 @@
             </div>
             <div class="field flex flex-column">
                 <label for="name">Description:</label>
-                <Textarea id="name" v-model.trim="v$.description.$model" required="true" autofocus
-                    :auto-resize="true" rows="3" :class="{ 'p-invalid': v$.description.$invalid }" />
+                <Textarea id="name" v-model.trim="v$.description.$model" required="true" autofocus :auto-resize="true"
+                    rows="3" :class="{ 'p-invalid': v$.description.$invalid }" />
                 <small v-if="v$.description.required.$invalid" class="p-error">Description is required.</small>
                 <small v-else-if="v$.description.minLength.$invalid" class="p-error">Description is to
                     short.</small>
@@ -29,7 +29,7 @@
                     :class="v$.support.$invalid ? 'p-invalid' : ''" :min="0.01" :max="1" :step="0.1" />
                 <small v-if="v$.support.required.$invalid" class="p-error">Support is required.</small>
                 <small v-else-if="v$.support.between.$invalid" class="p-error">{{
-                        v$.support.between.$message.replace('The value', 'Support')
+                    v$.support.between.$message.replace('The value', 'Support')
                 }}</small>
             </div>
             <div class="field flex flex-column">
@@ -38,7 +38,7 @@
                     :class="v$.lift.$invalid ? 'p-invalid' : ''" :min="0.01" :max="1" :step="0.1" />
                 <small v-if="v$.lift.required.$invalid" class="p-error">Lift is required.</small>
                 <small v-else-if="v$.lift.between.$invalid" class="p-error">{{
-                        v$.lift.between.$message.replace('The value', 'Lift')
+                    v$.lift.between.$message.replace('The value', 'Lift')
                 }}</small>
             </div>
             <div class="field flex flex-column">
@@ -47,7 +47,7 @@
                     :class="v$.confidence.$invalid ? 'p-invalid' : ''" :min="0.01" :max="1" :step="0.1" />
                 <small v-if="v$.confidence.required.$invalid" class="p-error">Confidence is required.</small>
                 <small v-else-if="v$.confidence.between.$invalid" class="p-error">{{
-                        v$.confidence.between.$message.replace('The value', 'Confidence')
+                    v$.confidence.between.$message.replace('The value', 'Confidence')
                 }}</small>
             </div>
             <div class="field flex flex-column">
@@ -56,7 +56,7 @@
                     :class="v$.rulesLength.$invalid ? 'p-invalid' : ''" :min="1" :max="10" />
                 <small v-if="v$.rulesLength.required.$invalid" class="p-error">Rules length is required.</small>
                 <small v-else-if="v$.rulesLength.between.$invalid" class="p-error">{{
-                        v$.rulesLength.between.$message.replace('The value', 'Rules length')
+                    v$.rulesLength.between.$message.replace('The value', 'Rules length')
                 }}</small>
             </div>
 
@@ -89,10 +89,10 @@ import useVuelidate from "@vuelidate/core"
 import { maxLength, minLength, required, decimal, between } from "@vuelidate/validators"
 import { defineComponent, reactive, ref } from "vue"
 import useFiles from "../../hooks/useFiles"
-import useRedirect from "../../hooks/useRedirect"
+import useRoutes from "../../hooks/useRoutes"
 import useReports from "../../hooks/useReports"
-import Analyzes from "../../models/AnalyzesModel"
-import Files from "../../models/FileDatasourcesModel"
+import Analyzes, { AnalyzeStatus } from "../../models/AnalyzesModel"
+import { FileDatasourcesModel } from "../../models/DatasourcesModel"
 import Reports from "../../models/ReportsModel"
 
 export default defineComponent({
@@ -109,8 +109,8 @@ export default defineComponent({
     setup(props) {
         const { userFiles, isFilesLoading } = useFiles()
         const { userReports, isReportsLoading } = useReports()
-        const { redirectFiles, redirectReports } = useRedirect()
-        const selectedFile = ref<Files>()
+        const { redirectFiles, redirectReports } = useRoutes()
+        const selectedFile = ref<FileDatasourcesModel>()
         const selectedReport = ref<Reports>()
         const state = reactive<Analyzes>({
             id: 0,
@@ -120,7 +120,13 @@ export default defineComponent({
             lift: 0.1,
             confidence: 0.1,
             rulesLength: 1,
-            analyzeCreateDate: new Date(),
+            createdDate: new Date(),
+            updatedDate: new Date(),
+            deletedDate: new Date(),
+            softDeleted: false,
+            status: AnalyzeStatus.STARTED,
+            startedDate: new Date(),
+            finishedDate: new Date(),
             filePath: '',
             reportId: 0
         })
@@ -150,5 +156,4 @@ export default defineComponent({
 })
 </script>
 
-<style>
-</style>
+<style></style>

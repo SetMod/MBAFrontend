@@ -149,7 +149,7 @@ export default defineComponent({
         }
         const submitEdit = async () => {
             if (v$.value.$invalid) return toast.add({ severity: 'warn', summary: 'Warning', detail: 'Validate all fields', life: 3000 });
-            if (!user.value) return toast.add({ severity: 'warn', summary: 'Warning', detail: 'Sign In', life: 3000 });
+            if (!user.value) return toast.add({ severity: 'warn', summary: 'Warning', detail: 'Login', life: 3000 });
 
             const updatedUser = new Users()
             updatedUser.userId = state.userId || user.value.userId

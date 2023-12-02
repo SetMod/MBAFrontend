@@ -1,3 +1,32 @@
+
+<script setup lang="ts">
+import { onMounted, ref, defineComponent } from "vue"
+import Users, { Roles } from "../../models/UsersModel"
+
+const props = defineComponent({
+    display: {
+        type: Boolean,
+        required: true
+
+    },
+    user: {
+        type: Users,
+        required: true
+    },
+    closeDialog: {
+        type: Function,
+        required: true
+    },
+    submitDialog: {
+        type: Function,
+        required: true
+    }
+})
+// onMounted(() => {
+// })
+const selectedRole = ref<Roles>()
+</script>
+
 <template>
     <Dialog v-model:visible="props.display" header="Organization" :modal="true" class="p-fluid w-29rem">
         <div class="p-fluid text-left">
@@ -40,53 +69,10 @@
         </div>
         <template #footer>
             <Button label="Cancel" icon="pi pi-times" class="p-button-text" @click="() => props.closeDialog()" />
-            <Button label="Save" icon="pi pi-check" class="p-button-text"
-                @click="() => props.submitDialog(selectedRole)" />
+            <Button label="Save" icon="pi pi-check" class="p-button-text" @click="() => props.submitDialog(selectedRole)" />
         </template>
     </Dialog>
 </template>
 
-<script lang="ts">
-import { defineComponent, onMounted, ref } from "vue"
-import useRoles from "../../hooks/useRoles"
-import Roles from "../../models/RolesModel"
-import Users from "../../models/UsersModel"
 
-export default defineComponent({
-    props: {
-        display: {
-            type: Boolean,
-            required: true
-
-        },
-        user: {
-            type: Users,
-            required: true
-        },
-        closeDialog: {
-            type: Function,
-            required: true
-        },
-        submitDialog: {
-            type: Function,
-            required: true
-        }
-    },
-    setup(props) {
-        onMounted(() => {
-            getRoles()
-        })
-        const selectedRole = ref<Roles>()
-        const { roles, isRolesLoading, getRoles } = useRoles()
-        return {
-            selectedRole,
-            roles,
-            isRolesLoading,
-            props
-        }
-    }
-})
-</script>
-
-<style>
-</style>
+<style></style>
