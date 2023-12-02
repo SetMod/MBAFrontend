@@ -13,18 +13,19 @@ enum DatasourceTypes {
 export default class Datasources extends GenericModel {
     name: string = ''
     type: DatasourceTypes = DatasourceTypes.FILE
-    userId: number = 0
-    organizationId: number = 0
+    creatorId: number = 0
 }
 
-export class FileDatasourcesModel extends GenericModel {
-    name: string = ''
+export class FileDatasourcesModel extends Datasources {
     filePath: string = ''
-    datasourceId: number = 0
 }
 
-export interface FileDatasourcesResponse extends GenericResponse {
+export interface DatasourcesResponse extends GenericResponse {
     name: string
+    type: DatasourceTypes
+    creator_id: number
+}
+
+export interface FileDatasourcesResponse extends DatasourcesResponse {
     file_path: string
-    datasource_id: number
 }

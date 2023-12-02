@@ -19,7 +19,7 @@ export default class Analyzes extends GenericModel {
     status: AnalyzeStatus = AnalyzeStatus.STARTED
     startedDate: Date = new Date()
     finishedDate: Date = new Date()
-    reportId: number = 0
+    datasourceId: number = 0
 }
 
 export class AssociationRules {
@@ -42,10 +42,10 @@ export interface AnalyzeResponse extends GenericResponse {
     confidence: number
     rules_length: number
     file_path: string
-    status: string
+    status: AnalyzeStatus
     started_date: Date
     finished_date: Date
-    report_id: number
+    datasource_id: number
 }
 
 export interface AssociationRulesResponse {
