@@ -1,17 +1,22 @@
-export default class OrganizationMembers {
-    userId: number = 0
-    organizationId: number = 0
-    organizationRoleId: number = 0
-    active: boolean = true
-    createdDate: Date = new Date()
-    updatedDate: Date = new Date()
+import GenericModel, { GenericResponse } from "./GenericModel"
+
+export enum OrganizationRoles {
+    OWNER = "Owner",
+    ADMIN = "Admin",
+    EDITOR = "EDITOR",
+    VIEWER = "Viewer",
 }
 
-export interface OrganizationMembersResponse {
+export default class OrganizationMembers extends GenericModel {
+    userId: number = 0
+    organizationId: number = 0
+    active: boolean = true
+    role: OrganizationRoles = OrganizationRoles.VIEWER
+}
+
+export interface OrganizationMembersResponse extends GenericResponse {
     user_id: number
     organization_id: number
-    organization_role_id: number
     active: boolean
-    created_date: Date
-    updated_date: Date
+    role: OrganizationRoles
 }

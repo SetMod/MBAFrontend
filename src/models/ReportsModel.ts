@@ -1,12 +1,13 @@
 import GenericModel, { GenericResponse } from "./GenericModel"
 
 enum ReportTypes {
-    GENERIC = "generic"
+    // GENERIC = "generic",
+    STANDARD = "Standard"
 }
 
 export default class Reports extends GenericModel {
     name: string = ''
-    type: ReportTypes = ReportTypes.GENERIC
+    type: ReportTypes = ReportTypes.STANDARD
     userId: number = 0
     organizationId: number = 0
 }

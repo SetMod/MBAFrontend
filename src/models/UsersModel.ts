@@ -1,5 +1,10 @@
 import GenericModel, { GenericResponse } from "./GenericModel"
 
+export enum Roles {
+    ADMIN = "Admin",
+    USER = "User"
+}
+
 export default class Users extends GenericModel {
     firstName: string = ''
     secondName: string = ''
@@ -9,7 +14,7 @@ export default class Users extends GenericModel {
     passwordHash: string = ''
     active: boolean = true
     lastLoginDate: Date = new Date()
-    roleId: number = 0
+    role: Roles = Roles.USER
 }
 
 export interface UsersResponse extends GenericResponse {
@@ -21,7 +26,7 @@ export interface UsersResponse extends GenericResponse {
     password_hash: string
     active: boolean
     last_login_date: Date
-    roleId: number
+    role: Roles
 }
 
 // export interface UserOrganizationsResponse extends GenericResponse {

@@ -1,6 +1,6 @@
 import GenericModel, { GenericResponse } from "./GenericModel"
 
-enum AnalyzeStatus {
+export enum AnalyzeStatus {
     SCHEDULED = "scheduled",
     STARTED = "started",
     IN_PROGRESS = "in progress",
@@ -17,9 +17,21 @@ export default class Analyzes extends GenericModel {
     rulesLength: number = 0
     filePath: string = ''
     status: AnalyzeStatus = AnalyzeStatus.STARTED
-    started_date: Date = new Date()
-    finished_date: Date = new Date()
+    startedDate: Date = new Date()
+    finishedDate: Date = new Date()
     reportId: number = 0
+}
+
+export class AssociationRules {
+    antecedentSupport: number = 0
+    antecedents: Array<String> = []
+    confidence: number = 0
+    consequentSupport: number = 0
+    consequents: Array<String> = []
+    conviction: number = 0
+    leverage: number = 0
+    lift: number = 0
+    support: number = 0
 }
 
 export interface AnalyzeResponse extends GenericResponse {

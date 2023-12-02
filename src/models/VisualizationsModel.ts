@@ -11,6 +11,30 @@ export default class Visualizations extends GenericModel {
     reportId: number = 0
 }
 
+export class FileVisualizations extends Visualizations {
+    filePath: string = ''
+    visualizationId: number = 0
+}
+
+export class DataVisualizations extends GenericModel {
+    name: string = ''
+    filePath: string = ''
+    dataPoints: ChardData | undefined = undefined
+    visualizationId: number = 0
+}
+
+export interface ChartDataset {
+    type: string | undefined,
+    label: string | undefined,
+    backgroundColor: string | undefined,
+    data: number[]
+}
+
+export interface ChardData {
+    labels: Array<string>
+    datasets: Array<ChartDataset>
+}
+
 export interface VisualizationResponse extends GenericResponse {
     name: string
     type: VisualizationTypes
