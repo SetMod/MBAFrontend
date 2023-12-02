@@ -3,8 +3,8 @@ import Home from '../views/Home.vue'
 import Files from '../views/Files.vue'
 import Analyze from '../views/Analyze.vue'
 import Profile from '../views/Profile.vue'
-import SignIn from '../views/SignIn.vue'
-import SignUp from '../views/SignUp.vue'
+import Login from '../views/Login.vue'
+import Register from '../views/Register.vue'
 import Admin from '../views/Admin.vue'
 import About from '../views/About.vue'
 import Reports from '../views/Reports.vue'
@@ -61,16 +61,16 @@ export const routes: Array<RouteRecordRaw> = [
     // component: () => import('../views/About.vue')
   },
   {
-    path: '/signin',
-    name: 'Sign In',
-    beforeEnter: (to, from) => !isLoggedIn.value,
-    component: SignIn
+    path: '/login',
+    name: 'Login',
+    // beforeEnter: (to, from) => !isLoggedIn.value,
+    component: Login
   },
   {
-    path: '/signup',
-    name: 'Sign Un',
-    beforeEnter: (to, from) => !isLoggedIn.value,
-    component: SignUp
+    path: '/register',
+    name: 'Register',
+    // beforeEnter: (to, from) => !isLoggedIn.value,
+    component: Register
   },
 ]
 

@@ -1,3 +1,61 @@
+<script setup lang="ts">
+import { reactive, ref, computed } from "vue";
+import { useVuelidate } from '@vuelidate/core';
+import { required, email, minLength, maxLength, sameAs } from "@vuelidate/validators";
+import Users, { Roles } from "../models/UsersModel";
+import useUsers from "../hooks/useUsers";
+import useRoutes from "../hooks/useRoutes";
+import { useToast } from "primevue/usetoast";
+
+const { register } = useUsers()
+const { redirectSignIn } = useRoutes()
+const toast = useToast()
+const confirmPassword = ref("")
+const submitted = ref(false);
+
+const state = reactive({
+  userFirstName: '',
+  userSecondName: '',
+  userEmail: '',
+  userUsername: '',
+  userPassword: '',
+  userConfirmPassword: '',
+  userPhone: '',
+  role: Roles.USER,
+})
+const userPassword = computed(() => {
+  return state.userPassword
+})
+const rules = {
+  userFirstName: { required },
+  userSecondName: { required },
+  userEmail: { required, email },
+  userUsername: { required, minLength: minLength(4) },
+  userPassword: { required, minLength: minLength(6) },
+  userConfirmPassword: { required, sameAsPassword: sameAs(userPassword) },
+  userPhone: { required, minLength: minLength(18), maxLength: maxLength(18) },
+}
+const v$ = useVuelidate(rules, state)
+
+const submitSignUp = async () => {
+  submitted.value = true;
+  if (v$.value.$invalid) return toast.add({ severity: 'warn', summary: 'Warning', detail: 'Validate all fields', life: 3000 });
+
+  const newUser = new Users()
+  newUser.firstName = state.userFirstName
+  newUser.secondName = state.userSecondName
+  newUser.email = state.userEmail
+  newUser.username = state.userUsername
+  newUser.passwordHash = state.userPassword
+  newUser.username = state.userPhone
+  newUser.role = state.role
+  const response = await register(newUser)
+  if (response instanceof String) return toast.add({ severity: 'error', summary: 'Failed', detail: response, life: 3000 });
+  toast.add({ severity: 'success', summary: 'Success', detail: 'Signed Up', life: 3000 });
+  redirectSignIn();
+}
+</script>
+
 <template>
   <Toast />
   <div class="p-card w-29rem mt-8 mx-auto">
@@ -10,16 +68,16 @@
           <InputText v-model="v$.userFirstName.$model" :class="{ 'p-invalid': v$.userFirstName.$invalid && submitted }"
             placeholder="first name" />
           <small v-if="(v$.userFirstName.$invalid && submitted) || v$.userFirstName.$pending" class="p-error">{{
-              v$.userFirstName.required.$message.replace('Value', 'First name')
+            v$.userFirstName.required.$message.replace('Value', 'First name')
           }}</small>
         </div>
 
         <div class="field">
           <label>Second name:</label>
-          <InputText v-model="v$.userSecondName.$model"
-            :class="{ 'p-invalid': v$.userSecondName.$invalid && submitted }" placeholder="second name" />
+          <InputText v-model="v$.userSecondName.$model" :class="{ 'p-invalid': v$.userSecondName.$invalid && submitted }"
+            placeholder="second name" />
           <small v-if="(v$.userSecondName.$invalid && submitted) || v$.userSecondName.$pending" class="p-error">{{
-              v$.userSecondName.required.$message.replace('Value', 'Second name')
+            v$.userSecondName.required.$message.replace('Value', 'Second name')
           }}</small>
         </div>
 
@@ -33,7 +91,7 @@
             </span>
           </span>
           <small v-else-if="(v$.userEmail.$invalid && submitted) || v$.userEmail.$pending" class="p-error">{{
-              v$.userEmail.required.$message.replace('Value', 'E-mail')
+            v$.userEmail.required.$message.replace('Value', 'E-mail')
           }}</small>
         </div>
 
@@ -41,13 +99,13 @@
           <label>Phone number:</label>
           <InputMask v-model="v$.userPhone.$model" mask="+99 (999) 999-9999" placeholder="+ 99 (999) 999-9999" />
           <small v-if="(v$.userPhone.required.$invalid && submitted) || v$.userPhone.$pending" class="p-error">{{
-              v$.userPhone.required.$message.replace('Value', 'Phone number')
+            v$.userPhone.required.$message.replace('Value', 'Phone number')
           }}</small>
           <small v-else-if="v$.userPhone.minLength.$invalid && submitted" class="p-error">{{
-              v$.userPhone.minLength.$message.replace('Value', 'Phone number')
+            v$.userPhone.minLength.$message.replace('Value', 'Phone number')
           }}</small>
           <small v-else-if="v$.userPhone.maxLength.$invalid && submitted" class="p-error">{{
-              v$.userPhone.maxLength.$message.replace('Value', 'Phone number')
+            v$.userPhone.maxLength.$message.replace('Value', 'Phone number')
           }}</small>
         </div>
 
@@ -56,10 +114,10 @@
           <InputText v-model="v$.userUsername.$model" :class="{ 'p-invalid': v$.userUsername.$invalid && submitted }"
             placeholder="username" />
           <small v-if="v$.userUsername.required.$invalid && submitted" class="p-error">{{
-              v$.userUsername.required.$message.replace('Value', 'Username')
+            v$.userUsername.required.$message.replace('Value', 'Username')
           }}</small>
           <small v-else-if="v$.userUsername.minLength.$invalid && submitted" class="p-error">{{
-              v$.userUsername.minLength.$message.replace('This field', 'Username')
+            v$.userUsername.minLength.$message.replace('This field', 'Username')
           }}</small>
         </div>
 
@@ -68,7 +126,7 @@
           <Password v-model="v$.userPassword.$model" :class="{ 'p-invalid': v$.userPassword.$invalid && submitted }"
             placeholder="password" toggle-mask />
           <small v-if="(v$.userPassword.required.$invalid && submitted) || v$.userPassword.$pending" class="p-error">{{
-              v$.userPassword.required.$message.replace('Value', 'Password')
+            v$.userPassword.required.$message.replace('Value', 'Password')
           }}</small>
         </div>
 
@@ -79,7 +137,7 @@
             :feedback="submitted" />
           <small v-if="(v$.userConfirmPassword.required.$invalid && submitted) || v$.userConfirmPassword.$pending"
             class="p-error">{{
-                v$.userConfirmPassword.required.$message.replace('Value', 'Password')
+              v$.userConfirmPassword.required.$message.replace('Value', 'Password')
             }}</small>
           <small
             v-else-if="(v$.userConfirmPassword.sameAsPassword.$invalid && submitted) || v$.userConfirmPassword.$pending"
@@ -100,85 +158,11 @@
 
       <div class="p-card-footer flex justify-content-around align-items-center">
         <Button @click="submitSignUp">Submit</Button>
-        <Button class="p-button-secondary" @click="redirectSignIn">Sign In</Button>
+        <Button class="p-button-secondary" @click="redirectSignIn">Login</Button>
       </div>
     </div>
   </div>
 </template>
 
-<script lang="ts">
-import { reactive, ref, defineComponent, computed } from "vue";
-import { useVuelidate } from '@vuelidate/core';
-import { required, email, minLength, maxLength, sameAs } from "@vuelidate/validators";
-import useRoles from "../hooks/useRoles";
-import Users from "../models/UsersModel";
-import useUsers from "../hooks/useUsers";
-import useRedirect from "../hooks/useRedirect";
-import Roles from "../models/RolesModel";
-import { useToast } from "primevue/usetoast";
 
-export default defineComponent({
-  setup() {
-    const { getRoleByName } = useRoles()
-    const { signUp } = useUsers()
-    const { redirectSignIn } = useRedirect()
-    const toast = useToast()
-    const confirmPassword = ref("")
-    const submitted = ref(false);
-
-    const state = reactive({
-      userFirstName: '',
-      userSecondName: '',
-      userEmail: '',
-      userUsername: '',
-      userPassword: '',
-      userConfirmPassword: '',
-      userPhone: '',
-      roleId: 0,
-    })
-    const userPassword = computed(() => {
-      return state.userPassword
-    })
-    const rules = {
-      userFirstName: { required },
-      userSecondName: { required },
-      userEmail: { required, email },
-      userUsername: { required, minLength: minLength(4) },
-      userPassword: { required, minLength: minLength(6) },
-      userConfirmPassword: { required, sameAsPassword: sameAs(userPassword) },
-      userPhone: { required, minLength: minLength(18), maxLength: maxLength(18) },
-    }
-    const v$ = useVuelidate(rules, state)
-
-    const submitSignUp = async () => {
-      submitted.value = true;
-      if (v$.value.$invalid) return toast.add({ severity: 'warn', summary: 'Warning', detail: 'Validate all fields', life: 3000 });
-
-      const newUser = new Users()
-      const role = await getRoleByName('User')
-      newUser.userFirstName = state.userFirstName
-      newUser.userSecondName = state.userSecondName
-      newUser.userEmail = state.userEmail
-      newUser.userUsername = state.userUsername
-      newUser.userPassword = state.userPassword
-      newUser.userPhone = state.userPhone
-      newUser.roleId = role instanceof Roles ? role.roleId : 1
-      const response = await signUp(newUser)
-      if (response instanceof String) return toast.add({ severity: 'error', summary: 'Failed', detail: response, life: 3000 });
-      toast.add({ severity: 'success', summary: 'Success', detail: 'Signed Up', life: 3000 });
-      redirectSignIn();
-    }
-    return {
-      confirmPassword,
-      state,
-      v$,
-      submitted,
-      submitSignUp,
-      redirectSignIn
-    };
-  },
-});
-</script>
-
-<style>
-</style>
+<style></style>
