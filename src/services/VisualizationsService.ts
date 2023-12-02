@@ -1,13 +1,11 @@
-import axios, { AxiosError } from "axios";
-import config from "../config";
+import { AxiosError } from "axios";
 import Visualizations, { TopRulesDataResponse, TopSupportDataResponse, TopTransactionsDataResponse, TotalCostItemDataResponse, VisualizationResponse } from "../models/VisualizationsModel";
 import GenericService from "./GenericService";
 
 export default class VisualizationsService extends GenericService<Visualizations, VisualizationResponse> {
 
     constructor() {
-        super();
-        this.setEndpoint(`${config.baseUrl}/visualizations`)
+        super("/visualizations");
     }
 
     isTopSupportData = (obj: any): obj is TopSupportDataResponse => {
@@ -24,13 +22,10 @@ export default class VisualizationsService extends GenericService<Visualizations
     }
 
     async getVisualizationData(id: number) {
-        const errorMessage = new String('Failed to download the visualization file')
         try {
             const visualization = await this.getById(id)
-            if (visualization instanceof String) return visualization
 
-            const response = await axios.get(`${config.baseUrl}/visualizations/data/${id}`)
-            if (response.data instanceof String) return response.data
+            const response = await this.api.get(`${this.url}/data/${id}`)
             console.log(response.data)
 
             if (this.isTopSupportData(response.data)) return response.data
@@ -39,18 +34,19 @@ export default class VisualizationsService extends GenericService<Visualizations
             else if (this.isTotalCostItemData(response.data)) return response.data
             // else return response.data
         } catch (error) {
+            let errorMessage = 'Failed to download the visualization file'
+
             console.error(error);
-            return errorMessage
+            throw new Error(errorMessage)
         }
     }
 
-    async downloadVisualizationById(visualizationId: number) {
+    async downloadVisualizationById(id: number) {
         try {
-            const visualization = await this.getById(visualizationId)
+            const visualization = await this.getById(id)
 
-            if (visualization instanceof Array) throw new Error()
-
-            const res = await axios.get(`${this.endpoint}/download/${visualizationId}`, { responseType: 'blob' })
+            const res = await this.api.get(`${this.url}/download/${id}`, { responseType: 'blob' })
+            console.log(res)
 
             const blob = new Blob([res.data], { type: res.data.type })
             const link = document.createElement('a')
@@ -61,112 +57,103 @@ export default class VisualizationsService extends GenericService<Visualizations
             link.click()
 
         } catch (error) {
-            const errorMessage = 'Failed to download the visualization file'
-            console.error(errorMessage);
+            let errorMessage = 'Failed to download the visualization file'
             console.error(error);
+
             throw new Error(errorMessage)
         }
     }
 
-    async getReportVisualizations(reportId: number) {
-        const errorMessage = new String('Failed to get report visualizations')
-        try {
-            const response = await axios.get(`${config.baseUrl}/reports/${reportId}/visualizations`)
-
-            if (response.data instanceof String) return response.data
-            if (Object.keys(response.data).length === 0) return errorMessage
-
-            const visualizations: Visualizations[] = response.data.map((val: VisualizationResponse) => {
-                return this.mapDataToVisualization(val)
-            })
-            console.log(visualizations)
-            return visualizations
-        } catch (error) {
-            console.error(error);
-            if (error instanceof AxiosError)
-                if (error.response?.data && typeof error.response?.data === 'string') return new String(error.response?.data)
-            return errorMessage
-        }
-    }
 
     async createVisualization(visualization: Visualizations, fileId: number) {
-        const errorMessage = new String('Failed to create visualization')
         try {
-            const dataAnalyze = this.mapVisualizationToData(visualization)
-            // const response = await axios.post(`${config.baseUrl}/visualizations/`, { ...dataAnalyze, id: fileId })
-            const response = await axios.post(`${config.baseUrl}/visualizations/?id=${fileId}`, dataAnalyze)
-            // console.log(response);
+            const dataAnalyze = this.mapModelToJSON(visualization)
+            // const res = await this.api.post(`${config.baseUrl}/visualizations/`, { ...dataAnalyze, id: fileId })
+            const res = await this.api.post(this.url, dataAnalyze, {
+                params: {
+                    "id": fileId
+                }
+            })
+            console.log(res);
 
-            if (response.data instanceof String) return response.data
-            if (Array.isArray(response.data) == false) return errorMessage
-
-            // const associationRules: AssociationRules[] = response.data.map((val: AssociationRulesResponse) => {
+            // const associationRules: AssociationRules[] = res.data.map((val: AssociationRulesResponse) => {
             //     return this.mapDataToAssociationRules(val)
             // })
             // // console.log(associationRules)
             // return associationRules
         } catch (error) {
+            let errorMessage = 'Failed to create visualization'
+
             console.error(error);
             if (error instanceof AxiosError)
-                if (error.response?.data && typeof error.response?.data === 'string') return new String(error.response?.data);
-            return errorMessage
+                if (error.response?.data && typeof error.response?.data === 'string') return error.response?.data
+            throw new Error(errorMessage)
         }
     }
 
     async updateVisualization(visualization: Visualizations) {
-        const errorMessage = new String('Failed to update visualization')
         try {
-            const dataVisualization = this.mapVisualizationToData(visualization)
-            const response = await axios.put(`${config.baseUrl}/visualizations/${visualization.id}`, dataVisualization)
+            const dataVisualization = this.mapModelToJSON(visualization)
+            const response = await this.api.put(`${this.url}/${visualization.id}`, dataVisualization)
 
-            if (response.data instanceof String) return response.data
-
-            const updatedVisualization: Visualizations = this.mapDataToVisualization(response.data)
+            const updatedVisualization: Visualizations = this.mapJSONToModel(response.data)
             console.log(updatedVisualization)
+
             return updatedVisualization
-        } catch (error) {
-            console.error(error);
-            if (error instanceof AxiosError)
-                if (error.response?.data && typeof error.response?.data === 'string') return new String(error.response?.data);
-            return errorMessage
+        } catch (err) {
+            let errorMessage = 'Failed to update visualization'
+            console.error(err);
+            if (err instanceof AxiosError) {
+                errorMessage += err.message
+            }
+
+            throw new Error(errorMessage)
         }
     }
 
     async deleteVisualization(id: number) {
-        const errorMessage = new String('Failed to delete visualization')
         try {
-            const response = await axios.delete(`${config.baseUrl}/visualizations/${id}`)
+            const response = await this.api.delete(`${this.url}/${id}`)
 
-            if (response.data instanceof String) return response.data
-
-            const deletedVisualization: Visualizations = this.mapDataToVisualization(response.data)
+            const deletedVisualization: Visualizations = this.mapJSONToModel(response.data)
             console.log(deletedVisualization)
+
             return deletedVisualization
-        } catch (error) {
-            console.error(error);
-            if (error instanceof AxiosError)
-                if (error.response?.data && typeof error.response?.data === 'string') return new String(error.response?.data)
-            return errorMessage
+        } catch (err) {
+            let errorMessage = 'Failed to delete visualization'
+            console.error(err);
+            if (err instanceof AxiosError) {
+                errorMessage += err.message
+            }
+
+            throw new Error(errorMessage)
         }
     }
 
-    mapDataToVisualization(data: VisualizationResponse) {
+    mapJSONToModel(visualizationJson: VisualizationResponse): Visualizations {
         const visualization = new Visualizations()
-        visualization.visualizationId = data.id
-        visualization.visualizationName = data.name
-        visualization.visualizationImagePath = data.image_file_path
-        visualization.visualizationCreateDate = new Date(data.create_date)
-        visualization.reportId = data.report_id
+        visualization.id = visualizationJson.id
+        visualization.name = visualizationJson.name
+        visualization.type = visualizationJson.type
+        visualization.reportId = visualizationJson.report_id
+        visualization.createdDate = visualizationJson.created_date
+        visualization.updatedDate = visualizationJson.updated_date
+        visualization.deletedDate = visualizationJson.deleted_date
+        visualization.softDeleted = visualizationJson.soft_deleted
+
         return visualization
     }
 
-    mapVisualizationToData(visualization: Visualizations) {
+    mapModelToJSON(visualization: Visualizations): VisualizationResponse {
         return <VisualizationResponse>{
-            id: visualization.visualizationId,
-            name: visualization.visualizationName,
-            image_file_path: visualization.visualizationImagePath,
-            create_date: visualization.visualizationCreateDate.toJSON(),
+            id: visualization.id,
+            name: visualization.name,
+            type: visualization.type,
             report_id: visualization.reportId,
+            created_date: visualization.createdDate,
+            updated_date: visualization.updatedDate,
+            deleted_date: visualization.deletedDate,
+            soft_deleted: visualization.softDeleted,
         }
     }
 }

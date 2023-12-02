@@ -1,14 +1,12 @@
 import axios from "axios";
-import config from "../config";
-import FileDatasourcesModel, { FileDatasourcesResponse } from "../models/FileDatasourcesModel";
+import FileDatasourcesModel, { FileDatasourcesResponse } from "../models/DatasourcesModel"
 import GenericService from "./GenericService";
 
 
 export default class FileDatasourcesService extends GenericService<FileDatasourcesModel, FileDatasourcesResponse> {
 
     constructor() {
-        super()
-        this.setEndpoint(`${config.baseUrl}/datasources`)
+        super("/datasources")
     }
 
     async downloadFileById(fileId: number) {
@@ -17,7 +15,7 @@ export default class FileDatasourcesService extends GenericService<FileDatasourc
 
             if (fileDatasource instanceof Array) throw new Error('Failed to download file')
 
-            const res = await axios.get(`${this.endpoint}/download/${fileId}`, { responseType: 'blob' })
+            const res = await axios.get(`/download/${fileId}`, { responseType: 'blob' })
             console.log(res)
 
             const blob = new Blob([res.data], { type: res.data.type })
@@ -33,20 +31,26 @@ export default class FileDatasourcesService extends GenericService<FileDatasourc
             const errorMessage = 'Failed to download the file'
             console.error(errorMessage)
             console.error(error)
+
             throw new Error(errorMessage)
         }
     }
     async createFile(file: FileDatasourcesModel, form: FormData) {
         try {
             // const dataFile = this.mapFileToData(file)
-            const res = await axios.post(`${this.endpoint}/upload?name=${file.name ? file.name : 'Untitled'}&datasource_id=${file.datasourceId}`, form, {
+            const res = await axios.post(`/upload`
+                , form, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
+                },
+                params: {
+                    "name": file.name ? file.name : 'Untitled',
+                    "id": file.id
                 }
             })
             console.log(res)
 
-            const newFileDatasource: FileDatasourcesModel = this.mapDataToFile(res.data)
+            const newFileDatasource: FileDatasourcesModel = this.mapJSONToModel(res.data)
             console.log(newFileDatasource)
 
             return newFileDatasource
@@ -54,7 +58,36 @@ export default class FileDatasourcesService extends GenericService<FileDatasourc
             const errorMessage = 'Filed adding the file'
             console.error(errorMessage)
             console.error(error)
+
             throw new Error(errorMessage)
+        }
+    }
+
+
+    mapJSONToModel(fileDatasourcesJson: FileDatasourcesResponse): FileDatasourcesModel {
+        const fileDatasource = new FileDatasourcesModel()
+        fileDatasource.id = fileDatasourcesJson.id
+        fileDatasource.name = fileDatasourcesJson.name
+        fileDatasource.type = fileDatasourcesJson.type
+        fileDatasource.creatorId = fileDatasourcesJson.creator_id
+        fileDatasource.createdDate = fileDatasourcesJson.created_date
+        fileDatasource.updatedDate = fileDatasourcesJson.updated_date
+        fileDatasource.deletedDate = fileDatasourcesJson.deleted_date
+        fileDatasource.softDeleted = fileDatasourcesJson.soft_deleted
+
+        return fileDatasource
+    }
+
+    mapModelToJSON(fileDatasource: FileDatasourcesModel): FileDatasourcesResponse {
+        return <FileDatasourcesResponse>{
+            id: fileDatasource.id,
+            name: fileDatasource.name,
+            type: fileDatasource.type,
+            creator_id: fileDatasource.creatorId,
+            created_date: fileDatasource.createdDate,
+            updated_date: fileDatasource.updatedDate,
+            deleted_date: fileDatasource.deletedDate,
+            soft_deleted: fileDatasource.softDeleted,
         }
     }
 }

@@ -1,90 +1,122 @@
-import axios, { AxiosError, AxiosResponse } from "axios"
+import { AxiosError, AxiosInstance, AxiosResponse } from "axios"
+import { api } from "../config";
 
 export default class GenericService<M, R> {
-    endpoint: string = ''
+    api: AxiosInstance;
+    url: string = ''
 
-    setEndpoint(endpoint: string) {
-        this.endpoint = endpoint
+    constructor(url: string) {
+        this.url = url
+        this.api = api
     }
 
-    mapJSONToModel(data: R | R[]): M | M[] {
+    mapJSONToModel(data: R): M {
         throw new Error('mapJSONToModel method must be implemented in subclasses')
     }
 
-    mapModelToJSON(model: M | M[]): R | R[] {
+    mapJSONToModels(data: R[]): M[] {
+        let models = new Array<M>()
+        for (let modelJson of data) {
+            models.push(this.mapJSONToModel(modelJson))
+        }
+        return models
+    }
+
+    mapModelToJSON(model: M): R {
         throw new Error('mapModelToJSON method must be implemented in subclasses')
+    }
+
+    mapModelsToJSON(models: M[]): R[] {
+        let data = new Array<R>()
+        for (var model of models) {
+            data.push(this.mapModelToJSON(model))
+        }
+        return data
     }
 
     async getAll() {
         try {
-            // const res = await axios.get<M[], AxiosResponse<R[]>>(`${this.endpoint}/`)
-            const res = await axios.get(`${this.endpoint}/`)
+            const res = await this.api.get(`${this.url}/`)
             console.log(res)
 
-            const models = this.mapJSONToModel(res.data)
+            const models = this.mapJSONToModels(res.data)
             console.log(models)
 
             return models
 
-        } catch (error) {
-            const errorMessage = "Failed to get all"
+        } catch (err) {
+            let errorMessage = "Failed to get all"
             console.error(errorMessage)
-            if (error instanceof AxiosError && typeof error.response?.data === 'string')
-                throw new Error(error.response?.data)
+            if (err instanceof AxiosError) {
+                errorMessage += `. ${err.message}`
+            }
+
             throw new Error(errorMessage)
         }
     }
 
     async getById(id: number) {
         try {
-            const res = await axios.get<M, AxiosResponse<R>>(`${this.endpoint}/${id}`)
+            const res = await this.api.get<M, AxiosResponse<R>>(`${this.url}/${id}`)
             console.log(res)
 
             const model = this.mapJSONToModel(res.data)
             console.log(model)
 
             return model
-        } catch (error) {
-            const errorMessage = 'Failed to get by id'
+        } catch (err) {
+            let errorMessage = 'Failed to get by id'
             console.error(errorMessage)
-            if (error instanceof AxiosError && typeof error.response?.data === 'string')
-                throw new Error(error.response?.data)
+            if (err instanceof AxiosError) {
+                errorMessage += `. ${err.message}`
+            }
+
             throw new Error(errorMessage)
         }
     }
 
     async getByField(fieldName: string, fieldValue: string) {
         try {
-            const res = await axios.get(`${this.endpoint}/?${fieldName}=${fieldValue}`)
+            const res = await this.api.get(`${this.url}/`, {
+                params: {
+                    [fieldName]: fieldValue
+                }
+            })
             console.log(res)
 
             const model = this.mapJSONToModel(res.data)
             console.log(model)
 
             return model
-        } catch (error) {
-            const errorMessage = 'Failed to get by field'
+        } catch (err) {
+            let errorMessage = 'Failed to get by field'
             console.error(errorMessage)
-            if (error instanceof AxiosError && typeof error.response?.data === 'string')
-                throw new Error(error.response?.data)
+            if (err instanceof AxiosError) {
+                errorMessage += `. ${err.message}`
+            }
+
             throw new Error(errorMessage)
         }
     }
 
     async getByFields(fields: Object) {
         try {
-            const res = await axios.get(`${this.endpoint}/${fields}`) // Re-do
+            const res = await this.api.get(`${this.url}/`, {
+                params: fields
+            })
             console.log(res)
 
-            const models = this.mapJSONToModel(res.data)
+            const models = this.mapJSONToModels(res.data)
             console.log(models)
 
             return models
-        } catch (error) {
-            const errorMessage = 'Failed to get by fields'
+        } catch (err) {
+            let errorMessage = 'Failed to get by fields'
             console.log(errorMessage)
-            if (error instanceof AxiosError && typeof error.response?.data === 'string')
-                throw new Error(error.response?.data)
+            if (err instanceof AxiosError) {
+                errorMessage += `. ${err.message}`
+            }
+
             throw new Error(errorMessage)
         }
     }
@@ -94,18 +126,20 @@ export default class GenericService<M, R> {
             const modelJson = this.mapModelToJSON(model)
             console.log(modelJson)
 
-            const res = await axios.post(`${this.endpoint}/`, modelJson)
+            const res = await this.api.post(`${this.url}/`, modelJson)
             console.log(res)
 
             const newModel = this.mapJSONToModel(res.data)
             console.log(newModel)
 
             return newModel
-        } catch (error) {
-            const errorMessage = 'Failed to create'
+        } catch (err) {
+            let errorMessage = 'Failed to create'
             console.log(errorMessage)
-            if (error instanceof AxiosError && typeof error.response?.data === 'string')
-                throw new Error(error.response?.data)
+            if (err instanceof AxiosError) {
+                errorMessage += `. ${err.message}`
+            }
+
             throw new Error(errorMessage)
         }
     }
@@ -115,53 +149,59 @@ export default class GenericService<M, R> {
             const modelJson = this.mapModelToJSON(model)
             console.log(modelJson)
 
-            const res = await axios.put(`${this.endpoint}/${id}`, modelJson)
+            const res = await this.api.put(`${this.url}/${id}`, modelJson)
             console.log(res)
 
             const updatedModel = this.mapJSONToModel(res.data)
             console.log(updatedModel)
 
             return updatedModel
-        } catch (error) {
-            const errorMessage = 'Failed to update'
+        } catch (err) {
+            let errorMessage = 'Failed to update'
             console.error(errorMessage)
-            if (error instanceof AxiosError && typeof error.response?.data === 'string')
-                throw new Error(error.response?.data)
+            if (err instanceof AxiosError) {
+                errorMessage += `. ${err.message}`
+            }
+
             throw new Error(errorMessage)
         }
     }
 
     async delete(id: number) {
         try {
-            const res = await axios.delete(`${this.endpoint}/${id}`)
+            const res = await this.api.delete(`${this.url}/${id}`)
             console.log(res)
 
             const deletedModel = this.mapJSONToModel(res.data)
             console.log(deletedModel)
 
             return deletedModel
-        } catch (error) {
-            const errorMessage = 'Failed to delete'
+        } catch (err) {
+            let errorMessage = 'Failed to delete'
             console.error(errorMessage)
-            if (error instanceof AxiosError && typeof error.response?.data === 'string')
-                throw new Error(error.response?.data)
+            if (err instanceof AxiosError) {
+                errorMessage += `. ${err.message}`
+            }
+
             throw new Error(errorMessage)
         }
     }
     async softDelete(id: number) {
         try {
-            const res = await axios.delete(`${this.endpoint}/soft/${id}`)
+            const res = await this.api.delete(`${this.url}/soft/${id}`)
             console.log(res)
 
             const deletedModel = this.mapJSONToModel(res.data)
             console.log(deletedModel)
 
             return deletedModel
-        } catch (error) {
-            const errorMessage = 'Failed to soft delete'
+        } catch (err) {
+            let errorMessage = 'Failed to soft delete'
             console.error(errorMessage)
-            if (error instanceof AxiosError && typeof error.response?.data === 'string')
-                throw new Error(error.response?.data)
+            if (err instanceof AxiosError) {
+                errorMessage += `. ${err.message}`
+            }
+
             throw new Error(errorMessage)
         }
     }
