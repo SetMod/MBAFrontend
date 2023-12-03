@@ -1,7 +1,6 @@
 import axios, { AxiosError } from "axios";
-import Users, { Roles, UsersResponse } from "../models/UsersModel";
+import Users, { UsersResponse } from "../models/UsersModel";
 import GenericService from "./GenericService";
-import { accessTokenKey } from "../config";
 
 export default class UsersService extends GenericService<Users, UsersResponse> {
 
@@ -9,22 +8,12 @@ export default class UsersService extends GenericService<Users, UsersResponse> {
         super("/users")
     }
 
-    // mapStringToRoles(roleString: string): Roles {
-    //     switch (roleString) {
-    //         case 'ADMIN':
-    //             return Roles.ADMIN;
-    //         case 'USER':
-    //             return Roles.USER;
-    //         default:
-    //             return Roles.USER;
-    //     }
-    // }
-
     mapJSONToModel(userJson: UsersResponse): Users {
         const user = new Users()
         user.id = userJson.id
         user.firstName = userJson.first_name
         user.secondName = userJson.second_name
+        user.username = userJson.username
         user.email = userJson.email
         user.phone = userJson.phone
         user.passwordHash = userJson.password_hash
@@ -44,11 +33,13 @@ export default class UsersService extends GenericService<Users, UsersResponse> {
             id: user.id,
             first_name: user.firstName,
             second_name: user.secondName,
+            username: user.username,
             email: user.email,
             phone: user.phone,
             password_hash: user.passwordHash,
             active: user.active,
             last_login_date: user.lastLoginDate,
+            role: user.role,
             created_date: user.createdDate,
             updated_date: user.updatedDate,
             deleted_date: user.deletedDate,
@@ -65,8 +56,6 @@ export default class UsersService extends GenericService<Users, UsersResponse> {
             console.log(res);
 
             const data: { message: string, access_token: string } = res.data
-            // Store the token in localStorage
-            localStorage.setItem(accessTokenKey, data.access_token);
 
             return data
             // const user = this.mapJSONToModel(res.data)
@@ -106,19 +95,16 @@ export default class UsersService extends GenericService<Users, UsersResponse> {
 
     async logout() {
         try {
-            const res = await axios.get(`${this.url}/auth/logout`)
+            const res = await this.api.get(`${this.url}/auth/logout`)
             console.log(res);
 
-            // Remove the token from localStorage
-            localStorage.removeItem(accessTokenKey);
             const data: { message: string } = res.data
-
             // const user = this.mapJSONToModel(res.data)
             // console.log(user);
 
             return data
         } catch (err) {
-            let errorMessage = 'Login failed'
+            let errorMessage = 'Logout failed'
             console.error(err);
             if (err instanceof AxiosError) {
                 errorMessage += `. ${err.message}`
