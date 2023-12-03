@@ -2,109 +2,120 @@ import { ref } from "vue"
 import { MenuItem } from "primevue/menuitem"
 import useUsers from "./useUsers"
 import { useRouter } from "vue-router"
+import {
+    HomeRoute,
+    LoginRoute,
+    RegisterRoute,
+    FilesDatasourcesRoute,
+    ReportsRoute,
+    AdminRoute,
+    OrganizationsRoute,
+    DatasourcesRoute,
+    AboutRoute,
+    ProfileRoute,
+    MembersRoute,
+    AnalyzeRoute,
+    SettingsRoute
+} from "../router"
 
 export default function useRoutes() {
     const router = useRouter()
-    const { isLoggedIn } = useUsers()
+    const { isLoggedIn, isAdmin } = useUsers()
 
     const redirectHome = () => {
         router.push({
-            path: '/'
+            path: HomeRoute.path
         })
     }
-    const redirectSignIn = () => {
+    const redirectLogin = () => {
         router.push({
-            path: '/login'
+            path: LoginRoute.path
         })
     }
-    const redirectSignUp = () => {
+    const redirectRegister = () => {
         router.push({
-            path: '/register'
+            path: RegisterRoute.path
         })
     }
     const redirectFiles = () => {
         router.push({
-            path: '/files'
+            path: FilesDatasourcesRoute.path
         })
     }
     const redirectReports = () => {
         router.push({
-            path: '/reports'
+            path: ReportsRoute.path
         })
     }
 
     const navBarRoutes = ref(new Array<MenuItem>(
         {
-            label: 'Home', to: '/', icon: 'pi pi-fw pi-home',
+            label: 'Home', to: HomeRoute.path, icon: 'pi pi-fw pi-home',
         },
         {
-            label: 'Admin', to: '/admin', icon: 'pi pi-fw pi-shield'
-            // visible: () => isLoggedIn.value // && isAdmin.value
+            label: 'Admin', to: AdminRoute.path, icon: 'pi pi-fw pi-shield',
+            visible: () => isLoggedIn.value && isAdmin.value
         },
         {
-            label: 'Organizations', to: '/organizations', icon: 'pi pi-fw pi-building',
+            label: 'My Organizations', to: OrganizationsRoute.path, icon: 'pi pi-fw pi-building',
         },
         {
-            label: 'About', to: '/about', icon: 'pi pi-fw pi-info-circle',
+            label: 'About', to: AboutRoute.path, icon: 'pi pi-fw pi-info-circle',
         },
         {
-            label: 'Profile', to: '/profile', icon: 'pi pi-fw pi-user',
+            label: 'Profile', to: ProfileRoute.path, icon: 'pi pi-fw pi-user',
             visible: () => isLoggedIn.value
         },
         {
-            label: 'Login', to: '/login', icon: 'pi pi-fw pi-sign-in',
+            label: 'Login', to: LoginRoute.path, icon: 'pi pi-fw pi-sign-in',
             visible: () => !isLoggedIn.value
         },
         {
-            label: 'Logout', to: '/logout', icon: 'pi pi-fw pi-sign-out',
-            visible: () => isLoggedIn.value
-        },
-        {
-            label: 'Register', to: '/register', icon: 'pi pi-fw pi-check-square',
+            label: 'Register', to: RegisterRoute.path, icon: 'pi pi-fw pi-check-square',
             visible: () => !isLoggedIn.value
         },
     ))
 
     const sideBarRoutes = ref(new Array<MenuItem>(
         {
-            label: 'Members', to: '/Members', icon: 'pi pi-fw pi-users',
-            // visible: () => isLoggedIn.value
+            label: 'Members', to: MembersRoute.path, icon: 'pi pi-fw pi-users',
+            visible: () => isLoggedIn.value
         },
         {
-            label: 'Datasources', to: '/datasources', icon: 'pi pi-fw pi-list',
-            // visible: () => isLoggedIn.value
+            label: 'Datasources', to: DatasourcesRoute.path, icon: 'pi pi-fw pi-list',
+            visible: () => isLoggedIn.value
         },
         {
-            label: 'Files', to: '/files', icon: 'pi pi-fw pi-file-excel',
-            // visible: () => isLoggedIn.value
+            label: 'Files', to: FilesDatasourcesRoute.path, icon: 'pi pi-fw pi-file-excel',
+            visible: () => isLoggedIn.value
         },
         {
-            label: 'Reports', to: '/reports', icon: 'pi pi-fw pi-list',
-            // visible: () => isLoggedIn.value
+            label: 'Reports', to: ReportsRoute.path, icon: 'pi pi-fw pi-list',
+            visible: () => isLoggedIn.value
         },
         // {
         //     label: 'Visualizations', to: '/visualizations', icon: 'pi pi-fw pi-image',
         //     visible: () => isLoggedIn.value
         // },
         {
-            label: 'Analyze', to: '/analyze', icon: 'pi pi-fw pi-check',
-            // visible: () => isLoggedIn.value
+            label: 'Analyze', to: AnalyzeRoute.path, icon: 'pi pi-fw pi-check',
+            visible: () => isLoggedIn.value
         },
 
         {
-            label: 'Settings', to: '/settings', icon: 'pi pi-fw pi-cog'
-            // visible: () => isLoggedIn.value // && (isOrganizationOwner.value || isOrganizationAdmin.value)
+            label: 'Settings', to: SettingsRoute.path, icon: 'pi pi-fw pi-cog',
+            visible: () => isLoggedIn.value // && (isOrganizationOwner.value || isOrganizationAdmin.value)
         },
     ))
 
 
     const breadCrumbRoutes = ref(new Array<MenuItem>(
         {
-            label: 'Home', to: '/', icon: 'pi pi-fw pi-home',
+            label: 'Home', to: HomeRoute.path, icon: 'pi pi-fw pi-home',
         },
         {
-            label: 'Members', to: '/Members', icon: 'pi pi-fw pi-users',
-            // visible: () => isLoggedIn.value
+            label: 'Members', to: MembersRoute.path, icon: 'pi pi-fw pi-users',
+            visible: () => isLoggedIn.value
         },
     ))
     return {
@@ -112,8 +123,8 @@ export default function useRoutes() {
         sideBarRoutes,
         breadCrumbRoutes,
         redirectHome,
-        redirectSignIn,
-        redirectSignUp,
+        redirectLogin,
+        redirectRegister,
         redirectFiles,
         redirectReports,
     }
