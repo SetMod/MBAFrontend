@@ -1,7 +1,24 @@
 import { AxiosError, AxiosInstance, AxiosResponse } from "axios"
 import { api } from "../config";
 
-export default class GenericService<M, R> {
+export interface IGenericService<M, R> {
+    api: AxiosInstance
+    url: string
+    mapJSONToModel(data: R): M
+    mapJSONToModels(data: R[]): M[]
+    mapModelToJSON(model: M): R
+    mapModelsToJSON(models: M[]): R[]
+    getAll(): Promise<M[]>
+    getById(id: number): Promise<M>
+    getByField(fieldName: string, fieldValue: string): Promise<M>
+    getByFields(fields: Object): Promise<M[]>
+    create(model: M): Promise<M>
+    update(id: number, model: M): Promise<M>
+    delete(id: number): Promise<M>
+    softDelete(id: number): Promise<M>
+}
+
+export default class GenericService<M, R> implements IGenericService<M, R> {
     api: AxiosInstance;
     url: string = ''
 
@@ -34,7 +51,7 @@ export default class GenericService<M, R> {
         return data
     }
 
-    async getAll() {
+    async getAll(): Promise<M[]> {
         try {
             const res = await this.api.get(`${this.url}/`)
             console.log(res)
@@ -55,7 +72,7 @@ export default class GenericService<M, R> {
         }
     }
 
-    async getById(id: number) {
+    async getById(id: number): Promise<M> {
         try {
             const res = await this.api.get<M, AxiosResponse<R>>(`${this.url}/${id}`)
             console.log(res)
@@ -75,7 +92,7 @@ export default class GenericService<M, R> {
         }
     }
 
-    async getByField(fieldName: string, fieldValue: string) {
+    async getByField(fieldName: string, fieldValue: string): Promise<M> {
         try {
             const res = await this.api.get(`${this.url}/`, {
                 params: {
@@ -99,7 +116,7 @@ export default class GenericService<M, R> {
         }
     }
 
-    async getByFields(fields: Object) {
+    async getByFields(fields: Object): Promise<M[]> {
         try {
             const res = await this.api.get(`${this.url}/`, {
                 params: fields
@@ -121,7 +138,7 @@ export default class GenericService<M, R> {
         }
     }
 
-    async create(model: M) {
+    async create(model: M): Promise<M> {
         try {
             const modelJson = this.mapModelToJSON(model)
             console.log(modelJson)
@@ -144,7 +161,7 @@ export default class GenericService<M, R> {
         }
     }
 
-    async update(id: number, model: M) {
+    async update(id: number, model: M): Promise<M> {
         try {
             const modelJson = this.mapModelToJSON(model)
             console.log(modelJson)
@@ -167,7 +184,7 @@ export default class GenericService<M, R> {
         }
     }
 
-    async delete(id: number) {
+    async delete(id: number): Promise<M> {
         try {
             const res = await this.api.delete(`${this.url}/${id}`)
             console.log(res)
@@ -186,7 +203,7 @@ export default class GenericService<M, R> {
             throw new Error(errorMessage)
         }
     }
-    async softDelete(id: number) {
+    async softDelete(id: number): Promise<M> {
         try {
             const res = await this.api.delete(`${this.url}/soft/${id}`)
             console.log(res)
