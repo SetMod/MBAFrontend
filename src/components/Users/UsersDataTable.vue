@@ -1,9 +1,40 @@
+<script setup lang="ts">
+import { FilterMatchMode } from "primevue/api";
+import { PropType, ref } from "vue";
+import Users, { Roles } from "../../models/UsersModel";
+
+const props = defineProps(
+    {
+        // https://forum.vuejs.org/t/specifying-array-type-of-prop-in-vue-3-0-with-typescript/103169
+        users: {
+            type: Array as PropType<Array<Users>>,
+            required: true
+        },
+        openEdit: {
+            type: Function,
+            required: true
+        },
+        openDelete: {
+            type: Function,
+            required: true
+        },
+        refreshTable: {
+            type: Function,
+            required: true
+        }
+    }
+)
+const filters = ref({
+    global: { value: undefined, matchMode: FilterMatchMode.CONTAINS },
+});
+</script>
+
+
 <template>
     <DataTable :value="props.users" removable-sort responsive-layout="scroll" :filters="filters" :paginator="true"
         :rows="10"
         paginator-template="CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
-        :rows-per-page-options="[10, 25, 50]"
-        current-page-report-template="Showing {first} to {last} of {totalRecords}">
+        :rows-per-page-options="[10, 25, 50]" current-page-report-template="Showing {first} to {last} of {totalRecords}">
         <template #header>
             <div class="table-header flex justify-content-between align-items-center">
                 <h2>Users</h2>
@@ -16,25 +47,36 @@
                 </div>
             </div>
         </template>
-        <Column field="userId" header="ID" :sortable="true"></Column>
-        <Column field="userFirstName" header="FirstName" :sortable="true"></Column>
-        <Column field="userSecondName" header="SecondName" :sortable="true"></Column>
-        <Column field="userEmail" header="Email" :sortable="true"></Column>
-        <Column field="userPhone" header="Phone"></Column>
-        <Column field="userUsername" header="Username" :sortable="true"></Column>
+        <Column field="id" header="ID" :sortable="true"></Column>
+        <Column field="firstName" header="First Name" :sortable="true"></Column>
+        <Column field="secondName" header="Second Name" :sortable="true"></Column>
+        <Column field="email" header="Email" :sortable="true"></Column>
+        <Column field="phone" header="Phone"></Column>
+        <Column field="username" header="Username" :sortable="true"></Column>
         <!-- <Column field="userPassword" header="Password"></Column> -->
-        <Column field="userCreateDate" header="CreateDate" :sortable="true">
+        <Column field="role" header="Role" :sortable="true"></Column>
+        <Column field="createdDate" header="Created Date" :sortable="true">
             <template #body="slotProps">
                 <div>
-                    {{ new Date(slotProps.data.userCreateDate).toLocaleDateString() }}
+                    {{ new Date(slotProps.data.createdDate).toLocaleDateString() }}
                 </div>
             </template>
         </Column>
-        <Column header="Role">
+        <Column field="updatedDate" header="Updated Date" :sortable="true">
             <template #body="slotProps">
-                <span>{{ props.roles.find((role) => role.roleId == slotProps.data.roleId)?.roleName }}</span>
+                <div>
+                    {{ new Date(slotProps.data.updatedDate).toLocaleDateString() }}
+                </div>
             </template>
         </Column>
+        <Column field="deletedDate" header="Create Date" :sortable="true">
+            <template #body="slotProps">
+                <div>
+                    {{ new Date(slotProps.data.updatedDate).toLocaleDateString() }}
+                </div>
+            </template>
+        </Column>
+        <Column field="softDeleted" header="Soft Deleted" :sortable="true"></Column>
         <Column header="Actions" header-style="width: 4rem; text-align: center" body-style="overflow: visible;">
             <template #body="slotProps">
                 <div class="flex justify-content-around align-content-center">
@@ -53,47 +95,4 @@
     </DataTable>
 </template>
 
-<script lang="ts">
-import { FilterMatchMode } from "primevue/api";
-import { defineComponent, PropType, ref } from "vue";
-import Roles from "../../models/RolesModel";
-import Users from "../../models/UsersModel";
-
-export default defineComponent({
-    props: {
-        // https://forum.vuejs.org/t/specifying-array-type-of-prop-in-vue-3-0-with-typescript/103169
-        users: {
-            type: Array as PropType<Array<Users>>,
-            required: true
-        },
-        roles: {
-            type: Array as PropType<Array<Roles>>,
-            required: true
-        },
-        openEdit: {
-            type: Function,
-            required: true
-        },
-        openDelete: {
-            type: Function,
-            required: true
-        },
-        refreshTable: {
-            type: Function,
-            required: true
-        }
-    },
-    setup(props) {
-        const filters = ref({
-            global: { value: undefined, matchMode: FilterMatchMode.CONTAINS },
-        });
-        return {
-            filters,
-            props
-        }
-    }
-})
-</script>
-
-<style>
-</style>
+<style></style>
