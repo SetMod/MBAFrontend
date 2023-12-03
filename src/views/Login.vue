@@ -7,7 +7,7 @@ import useRoutes from "../hooks/useRoutes";
 import { useToast } from "primevue/usetoast";
 
 const { isUsersLoading, isLoggedIn, usersError, login } = useUsers()
-const { redirectSignUp, redirectHome } = useRoutes()
+const { redirectRegister, redirectHome } = useRoutes()
 const toast = useToast()
 const submitted = ref(false);
 
@@ -68,12 +68,9 @@ const handleSubmit = () => {
 
         <div class="p-card-footer flex justify-content-around align-content-center mt-2">
           <Button @click="handleSubmit">Submit</Button>
-          <Button class="p-button-secondary" label="Register" @click="redirectSignUp" />
+          <Button class="p-button-secondary" label="Register" @click="redirectRegister" />
         </div>
       </div>
     </div>
   </section>
 </template>
-
-
-<style></style>

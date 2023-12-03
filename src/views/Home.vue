@@ -1,3 +1,15 @@
+<script setup lang="ts">
+import useUsers from "../hooks/useUsers";
+import useRoutes from "../hooks/useRoutes";
+
+const { isLoggedIn } = useUsers()
+const { redirectLogin, redirectFiles } = useRoutes()
+const getStarted = () => {
+  isLoggedIn.value ? redirectFiles() : redirectLogin()
+}
+</script>
+
+
 <template>
   <div class="mt-8">
     <img alt="Vue logo" src="../assets/logo.png" />
@@ -6,21 +18,3 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue";
-import useUsers from "../hooks/useUsers";
-import useRoutes from "../hooks/useRoutes";
-
-export default defineComponent({
-  setup() {
-    const { isLoggedIn } = useUsers()
-    const { redirectSignIn, redirectFiles } = useRoutes()
-    const getStarted = () => {
-      isLoggedIn.value ? redirectFiles() : redirectSignIn()
-    }
-    return {
-      getStarted
-    }
-  }
-});
-</script>

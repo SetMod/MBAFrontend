@@ -8,7 +8,7 @@ import useRoutes from "../hooks/useRoutes";
 import { useToast } from "primevue/usetoast";
 
 const { register } = useUsers()
-const { redirectSignIn } = useRoutes()
+const { redirectLogin } = useRoutes()
 const toast = useToast()
 const confirmPassword = ref("")
 const submitted = ref(false);
@@ -52,7 +52,7 @@ const submitSignUp = async () => {
   const response = await register(newUser)
   if (response instanceof String) return toast.add({ severity: 'error', summary: 'Failed', detail: response, life: 3000 });
   toast.add({ severity: 'success', summary: 'Success', detail: 'Signed Up', life: 3000 });
-  redirectSignIn();
+  redirectLogin();
 }
 </script>
 
@@ -158,11 +158,8 @@ const submitSignUp = async () => {
 
       <div class="p-card-footer flex justify-content-around align-items-center">
         <Button @click="submitSignUp">Submit</Button>
-        <Button class="p-button-secondary" @click="redirectSignIn">Login</Button>
+        <Button class="p-button-secondary" @click="redirectLogin">Login</Button>
       </div>
     </div>
   </div>
 </template>
-
-
-<style></style>
