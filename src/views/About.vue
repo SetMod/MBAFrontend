@@ -1,3 +1,6 @@
+<script setup lang="ts">
+</script>
+
 <template>
   <div class="m-auto text-left p-card p-5" style="width: 70rem;">
     <h3 class="p-card-title">About</h3>
@@ -24,11 +27,3 @@
     </Fieldset> -->
   </div>
 </template>
-
-<script lang="ts">
-
-import { defineComponent } from 'vue';
-
-export default defineComponent({
-})
-</script>
