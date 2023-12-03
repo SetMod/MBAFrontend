@@ -78,3 +78,5 @@ export default class ReportsService extends GenericService<Reports, ReportsRespo
     // }
 
 }
+
+export const reportsService = new ReportsService()

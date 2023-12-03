@@ -37,4 +37,4 @@ export default class OrganizationsService extends GenericService<Organizations, 
     }
 }
 
-export const organizationService = new OrganizationsService()
+export const organizationsService = new OrganizationsService()
