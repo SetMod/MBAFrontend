@@ -1,28 +1,12 @@
-<template>
-    <Dialog v-model:visible="props.display" header="Confirmation" :style="{ width: '350px' }" :modal="true">
-        <div class="confirmation-content flex align-content-center justify-content-between">
-            <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
-            <span>Are you sure you want to delete user <b>{{ props.user.userUsername }}</b>?</span>
-        </div>
-        <template #footer>
-            <Button label="No" icon="pi pi-times" class="p-button-text p-button-success" autofocus
-                @click="() => props.closeDialog()" />
-            <Button label="Yes" icon="pi pi-check" class="p-button-text p-button-danger"
-                @click="() => props.submitDialog()" />
-        </template>
-    </Dialog>
-</template>
-
-<script lang="ts">
-import { defineComponent } from "vue"
+<script setup lang="ts">
+import { computed } from "vue";
 import Users from "../../models/UsersModel"
 
-export default defineComponent({
-    props: {
+const props = defineProps(
+    {
         display: {
             type: Boolean,
             required: true
-
         },
         user: {
             type: Users,
@@ -36,14 +20,24 @@ export default defineComponent({
             type: Function,
             required: true
         }
-    },
-    setup(props) {
-        return {
-            props
-        }
     }
+)
+const visible = computed(() => {
+    return props.display
 })
 </script>
 
-<style>
-</style>
+<template>
+    <Dialog v-model:visible="visible" header="User Delete Confirmation" :style="{ width: '350px' }" :modal="true">
+        <div class="confirmation-content flex align-content-center justify-content-between">
+            <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
+            <span>Are you sure you want to delete user <b>{{ props.user.username }}</b>?</span>
+        </div>
+        <template #footer>
+            <Button label="No" icon="pi pi-times" class="p-button-text p-button-success" autofocus
+                @click="() => props.closeDialog()" />
+            <Button label="Yes" icon="pi pi-check" class="p-button-text p-button-danger"
+                @click="() => props.submitDialog()" />
+        </template>
+    </Dialog>
+</template>
