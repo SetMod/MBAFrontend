@@ -1,17 +1,25 @@
 <script setup lang="ts">
 import useRoutes from "../hooks/useRoutes"
+import useUsers from "../hooks/useUsers";
+const { isLoggedIn, user, logout } = useUsers()
+const { navBarRoutes, redirectHome } = useRoutes()
 
-const { navBarRoutes } = useRoutes()
+const logOutUser = () => {
+  logout()
+  redirectHome()
+  // logout().finally(() => {
+  //   redirectHome()
+  // })
+}
 </script>
-
 <template>
   <Menubar :model="navBarRoutes">
-    <!-- <template #end>
-        <div v-if="isLoggedIn" class="flex align-items-center">
-          <span class="mr-3">Hello {{ user?.userUsername || 'user' }}!</span>
-          <Button class="p-button-outlined mr-3 pi pi-sign-out fw" @click="logOutWithToast" />
-        </div>
-      </template> -->
+    <template #end>
+      <div v-if="isLoggedIn" class="flex align-items-center">
+        <span class="mr-3">Hello {{ user?.username || 'user' }}!</span>
+        <Button class="p-button-outlined mr-3 pi pi-sign-out fw" @click="logOutUser" />
+      </div>
+    </template>
   </Menubar>
 </template>
 
