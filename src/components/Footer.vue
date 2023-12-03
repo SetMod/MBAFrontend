@@ -1,14 +1,8 @@
 <template>
-    <footer class="footer">
+    <footer class="bg-black-alpha-20 text-2xl p-5">
         <div>This is a footer</div>
     </footer>
 </template>
 
 <style>
-.footer {
-    widows: 100px;
-    padding: 16px;
-    background: #9e9e9e;
-    font-size: x-large;
-}
 </style>
