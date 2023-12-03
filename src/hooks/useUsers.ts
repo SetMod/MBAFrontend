@@ -1,94 +1,53 @@
-import { computed, reactive, ref, toRefs } from "vue";
-import Users from "../models/UsersModel";
+import { computed } from "vue";
+import Users, { Roles } from "../models/UsersModel";
 import { userService } from "../services/UsersService";
-import { accessTokenKey } from "../config";
+import { setJWTToken, removeJWTToken } from "../utils/jwt"
+import useCRUD from "./useCRUD";
+import { getJWTToken } from "../utils/jwt"
 
-interface UsersState {
-    user: Users | null
-    users: Users[] | null
-}
-
-const usersState = reactive<UsersState>({
-    user: null,
-    users: null,
-})
-
+const USER_STORAGE_KEY = "user"
 export default function useUsers() {
-    const usersError = ref<Error | null>(null)
-    const isUsersLoading = ref(false)
-    const isAdmin = ref(false)
-    const userKey = "user"
+    const {
+        error: usersError,
+        isLoading: isUsersLoading,
+        model: user,
+        models: users,
+        updatedModel: updatedUser,
+        newModel: newUser,
+        deletedModel: deletedUser,
+        getFromLocalStorage,
+        addToLocalStorage,
+        removeFromLocalStorage,
+        getAllModels: getUsers,
+        getModelById: getUserById,
+        getModelByField: getUserByField,
+        getModelsByFields: getUsersByFields,
+        createModel: createUser,
+        updateModel: updateUser,
+        deleteModel: deleteUser,
+    } = useCRUD(userService, USER_STORAGE_KEY)
+
+    // const isAdmin = ref(false)
+    const isAdmin = computed(() => {
+        const currentUser = getFromLocalStorage()
+        return currentUser?.role.toLocaleLowerCase() == Roles.ADMIN.toLocaleLowerCase() ? true : false
+    })
 
     // const isLoggedIn = ref(false)
     const isLoggedIn = computed(() => {
-        const accessKey = localStorage.getItem(accessTokenKey)
-        return accessKey ? true : false
+        return getJWTToken() ? true : false
     })
-
-    const isUserLoggedIn = computed(() => {
-        const user = localStorage.getItem(userKey)
-        if (!user) return false
-
-        const loggedUser = userService.mapJSONToModel(JSON.parse(user))
-        usersState.user = loggedUser
-
-        return true
-    })
-
-    const resetUsers = () => {
-        usersState.user = null
-        usersState.users = null
-        localStorage.removeItem(userKey)
-    }
-
-    const getUsers = async () => {
-        isUsersLoading.value = true
-        usersError.value = null
-        try {
-            const res = await userService.getAll()
-            usersState.users = res
-
-            return res
-        } catch (err) {
-            if (err instanceof Error) {
-                usersError.value = err
-            }
-        } finally {
-
-            isUsersLoading.value = false
-        }
-
-    }
-
-    const getUserById = async (userId: number) => {
-        isUsersLoading.value = true
-        usersError.value = null
-        try {
-            const res = await userService.getById(userId)
-
-            return res
-        } catch (err) {
-            if (err instanceof Error) {
-                usersError.value = err
-            }
-        } finally {
-
-            isUsersLoading.value = false
-        }
-
-    }
 
     const login = async (username: string, password: string) => {
         isUsersLoading.value = true
         usersError.value = null
         try {
             const res = await userService.login(username, password)
+            setJWTToken(res.access_token);
 
-            const user = await userService.whoAmI()
-            if (user instanceof Users) {
-                usersState.user = user
-                localStorage.setItem(userKey, JSON.stringify(userService.mapModelToJSON(user)))
-            }
+            const currentUser = await userService.whoAmI()
+            user.value = currentUser
+            addToLocalStorage(currentUser)
 
             return res
         } catch (err) {
@@ -100,39 +59,47 @@ export default function useUsers() {
             isUsersLoading.value = false
         }
     }
+
+    const whoAmI = async () => {
+        isUsersLoading.value = true
+        usersError.value = null
+        try {
+            const res = await userService.whoAmI()
+            user.value = res
+            addToLocalStorage(res)
+
+            return res
+        } catch (err) {
+            if (err instanceof Error) {
+                console.error(err);
+                usersError.value = err
+            }
+        } finally {
+            isUsersLoading.value = false
+        }
+    }
+
     const logout = async () => {
-        isUsersLoading.value = true
-        usersError.value = null
-        try {
-            const res = await userService.logout()
-
-            return res
-        } catch (err) {
-            if (err instanceof Error) {
-                console.error(err);
-                usersError.value = err
-            }
-        } finally {
-            isUsersLoading.value = false
-        }
+        removeJWTToken()
     }
+    // const logout = async () => {
+    //     isUsersLoading.value = true
+    //     usersError.value = null
+    //     try {
+    //         resetUsers()
+    //         removeJWTToken()
+    //         const res = await userService.logout()
 
-    const createUser = async (newUser: Users) => {
-        isUsersLoading.value = true
-        usersError.value = null
-        try {
-            const res = await userService.create(newUser)
-
-            return res
-        } catch (err) {
-            if (err instanceof Error) {
-                console.error(err);
-                usersError.value = err
-            }
-        } finally {
-            isUsersLoading.value = false
-        }
-    }
+    //         return res
+    //     } catch (err) {
+    //         if (err instanceof Error) {
+    //             console.error(err);
+    //             usersError.value = err
+    //         }
+    //     } finally {
+    //         isUsersLoading.value = false
+    //     }
+    // }
 
     const register = async (newUser: Users) => {
         isUsersLoading.value = true
@@ -151,57 +118,29 @@ export default function useUsers() {
         }
     }
 
-    const updateUser = async (updatedUser: Users) => {
-        isUsersLoading.value = true
-        usersError.value = null
-        try {
-            const res = await userService.update(updatedUser.id, updatedUser)
-            // state.user = res
-            // localStorage.setItem(userKey, JSON.stringify(res))
-
-            return res
-        } catch (err) {
-            if (err instanceof Error) {
-                console.error(err);
-                usersError.value = err
-            }
-        } finally {
-            isUsersLoading.value = false
-        }
-    }
-
-    const deleteUser = async (userId: number) => {
-        isUsersLoading.value = true
-        usersError.value = null
-        try {
-            const res = await userService.delete(userId)
-
-            return res
-        } catch (err) {
-            if (err instanceof Error) {
-                console.error(err);
-                usersError.value = err
-            }
-        } finally {
-            isUsersLoading.value = false
-        }
-
-    }
-
     return {
         isLoggedIn,
         isAdmin,
-        isUsersLoading,
+        register,
+        login,
+        whoAmI,
+        logout,
         usersError,
-        resetUsers,
+        isUsersLoading,
+        user,
+        users,
+        updatedUser,
+        newUser,
+        deletedUser,
+        getFromLocalStorage,
+        addToLocalStorage,
+        removeFromLocalStorage,
         getUsers,
         getUserById,
+        getUserByField,
+        getUsersByFields,
         createUser,
         updateUser,
         deleteUser,
-        register,
-        login,
-        logout,
-        ...toRefs(usersState)
     }
 }

@@ -1,111 +1,72 @@
-import { reactive, ref, toRefs } from "vue";
-import Organizations from "../models/OrganizationsModel";
 import OrganizationMembers from "../models/OrganizationMembersModel";
-import OrganizationsService from "../services/OrganizationsService";
+import { organizationsService } from "../services/OrganizationsService";
+import useCRUD from "./useCRUD";
 
-interface OrganizationsState {
-    organization: Organizations | undefined,
-    organizations: Organizations[] | undefined,
-    organizationMembers: OrganizationMembers[] | undefined,
-}
-
-const state = reactive<OrganizationsState>({
-    organization: undefined,
-    organizations: undefined,
-    organizationMembers: undefined,
-})
-
+const ORGANIZATION_STORAGE_KEY = "organization"
 export default function useOrganizations() {
-    const organizationsService = reactive(new OrganizationsService())
-    const isLoading = ref(false)
+    const {
+        error: organizationsError,
+        isLoading: isOrganizationsLoading,
+        model: organization,
+        models: organizations,
+        updatedModel: updatedOrganization,
+        newModel: newOrganization,
+        deletedModel: deletedOrganization,
+        getFromLocalStorage,
+        addToLocalStorage,
+        removeFromLocalStorage,
+        getAllModels: getOrganizations,
+        getModelById: getOrganizationById,
+        getModelByField: getOrganizationByField,
+        getModelsByFields: getOrganizationsByFields,
+        createModel: createOrganization,
+        updateModel: updateOrganization,
+        deleteModel: deleteOrganization,
+    } = useCRUD(organizationsService, ORGANIZATION_STORAGE_KEY)
 
-    const resetOrganizations = () => {
-        state.organization = undefined
-        state.organizations = undefined
-        localStorage.removeItem('organization')
-    }
-    const resetOrganization = () => {
-        state.organization = undefined
-        localStorage.removeItem('organization')
-    }
 
-    const getOrganizations = async () => {
-        isLoading.value = true
-        const response = await organizationsService.getAll()
-        if (Array.isArray(response)) state.organizations = response
-        isLoading.value = false
+    // const getOrganizationMembers = async (userId: number) => {
+    //     isOrganizationsLoading.value = true
+    //     const response = await organizationsService.getOrganizationMembers(userId)
+    //     if (Array.isArray(response)) organizationsState.organizationMembers = response
+    //     isOrganizationsLoading.value = false
 
-        return response
-    }
+    //     return response
+    // }
+    // const addUserToOrganization = async (usersOrganization: OrganizationMembers) => {
+    //     isOrganizationsLoading.value = true
+    //     const response = await organizationsService.addUserToOrganization(usersOrganization)
+    //     isOrganizationsLoading.value = false
 
-    const getOrganizationById = async (userId: number) => {
-        isLoading.value = true
-        const response = await organizationsService.getById(userId)
-        if (response instanceof Organizations) {
-            localStorage.setItem('organization', JSON.stringify(organizationsService.mapModelToJSON(response)))
-        }
-        isLoading.value = false
+    //     return response
+    // }
+    // const deleteUserFromOrganization = async (usersOrganization: OrganizationMembers) => {
+    //     isOrganizationsLoading.value = true
+    //     const response = await organizationsService.deleteUserFromOrganization(usersOrganization)
+    //     isOrganizationsLoading.value = false
 
-        return response
-    }
-
-    const getOrganizationMembers = async (userId: number) => {
-        isLoading.value = true
-        const response = await organizationsService.getOrganizationMembers(userId)
-        if (Array.isArray(response)) state.organizationMembers = response
-        isLoading.value = false
-
-        return response
-    }
-    const addUserToOrganization = async (usersOrganization: OrganizationMembers) => {
-        isLoading.value = true
-        const response = await organizationsService.addUserToOrganization(usersOrganization)
-        isLoading.value = false
-
-        return response
-    }
-    const createOrganization = async (newOrganization: Organizations, userId: number) => {
-        isLoading.value = true
-        const response = await organizationsService.create(newOrganization, userId)
-        isLoading.value = false
-
-        return response
-    }
-
-    const updateOrganization = async (updatedOrganization: Organizations) => {
-        isLoading.value = true
-        const response = await organizationsService.update(updatedOrganization.id, updatedOrganization)
-        isLoading.value = false
-
-        return response
-    }
-
-    const deleteOrganization = async (organizationId: number) => {
-        isLoading.value = true
-        const response = await organizationsService.delete(organizationId)
-        isLoading.value = false
-
-        return response
-    }
-    const deleteUserFromOrganization = async (usersOrganization: OrganizationMembers) => {
-        isLoading.value = true
-        const response = await organizationsService.deleteUserFromOrganization(usersOrganization)
-        isLoading.value = false
-
-        return response
-    }
+    //     return response
+    // }
     return {
-        isOrganizationsLoading: isLoading,
-        resetOrganizations,
-        resetOrganization,
-        getOrganizationById,
+        isOrganizationsLoading,
+        organizationsError,
+        organization,
+        organizations,
+        updatedOrganization,
+        newOrganization,
+        deletedOrganization,
+        getFromLocalStorage,
+        addToLocalStorage,
+        removeFromLocalStorage,
         getOrganizations,
-        getOrganizationMembers,
-        addUserToOrganization,
+        getOrganizationById,
+        getOrganizationByField,
+        getOrganizationsByFields,
+        // getOrganizationMembers,
+        // addUserToOrganization,
+        // deleteUserFromOrganization,
         createOrganization,
         updateOrganization,
         deleteOrganization,
-        deleteUserFromOrganization,
-        ...toRefs(state)
     }
 }
