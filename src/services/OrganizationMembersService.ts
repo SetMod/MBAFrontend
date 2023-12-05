@@ -1,12 +1,16 @@
-import OrganizationMembers, { OrganizationMembersResponse, OrganizationRoles } from "../models/OrganizationMembersModel";
+import OrganizationMembers, { OrganizationMembersResponse } from "../models/OrganizationMembersModel";
 import GenericService from "./GenericService";
 
 export default class OrganizationMembersService extends GenericService<OrganizationMembers, OrganizationMembersResponse> {
     orgId: number = 0
 
     constructor() {
-        super(`/organizations/${1}/members`)
+        super("/members")
     }
+
+    // constructor() {
+    //     super(`/organizations/${1}/members`)
+    // }
 
     mapJSONToModel(organizationMemberJson: OrganizationMembersResponse) {
         const organizationMember = new OrganizationMembers()
@@ -16,6 +20,7 @@ export default class OrganizationMembersService extends GenericService<Organizat
         organizationMember.active = organizationMemberJson.active
         organizationMember.createdDate = organizationMemberJson.created_date
         organizationMember.updatedDate = organizationMemberJson.updated_date
+
         return organizationMember
     }
 
@@ -23,7 +28,7 @@ export default class OrganizationMembersService extends GenericService<Organizat
         return <OrganizationMembersResponse>{
             user_id: organizationMember.userId,
             organization_id: organizationMember.organizationId,
-            role: organizationMember.role,
+            role: organizationMember.role.toUpperCase(),
             active: organizationMember.active,
             created_date: organizationMember.createdDate,
             updated_date: organizationMember.updatedDate
