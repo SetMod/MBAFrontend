@@ -31,6 +31,7 @@ import ScrollTop from 'primevue/scrolltop';
 import ProgressSpinner from 'primevue/progressspinner';
 import Sidebar from 'primevue/sidebar';
 import Breadcrumb from 'primevue/breadcrumb';
+import PanelMenu from 'primevue/panelmenu';
 
 const app = createApp(App);
 
@@ -40,6 +41,7 @@ app.use(ToastService)
 
 app.directive('tooltip', Tooltip);
 
+app.component('PanelMenu', PanelMenu);
 app.component('Button', Button);
 app.component('Breadcrumb', Breadcrumb);
 app.component('Chart', Chart);
