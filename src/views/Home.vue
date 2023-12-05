@@ -3,10 +3,10 @@ import useUsers from "../hooks/useUsers";
 import useRoutes from "../hooks/useRoutes";
 
 const { isLoggedIn } = useUsers()
-const { redirectLogin, redirectFiles } = useRoutes()
-const getStarted = () => {
-  isLoggedIn.value ? redirectFiles() : redirectLogin()
-}
+const {  redirectLogin} = useRoutes()
+// const getStarted = () => {
+//   isLoggedIn.value ? redirectFiles() : redirectLogin()
+// }
 </script>
 
 
@@ -14,7 +14,7 @@ const getStarted = () => {
   <div class="mt-8">
     <img alt="Vue logo" src="../assets/logo.png" />
     <h1>Market Basket Analyze System</h1>
-    <Button class="mt-5" @click="getStarted">Get started</Button>
+    <!-- <Button class="mt-5" @click="getStarted">Get started</Button> -->
   </div>
 </template>
 
