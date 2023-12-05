@@ -6,16 +6,9 @@ import {
     HomeRoute,
     LoginRoute,
     RegisterRoute,
-    FilesDatasourcesRoute,
-    ReportsRoute,
-    AdminRoute,
-    OrganizationsRoute,
-    DatasourcesRoute,
+    AdminRoutes,
     AboutRoute,
     ProfileRoute,
-    MembersRoute,
-    AnalyzeRoute,
-    SettingsRoute
 } from "../router"
 
 export default function useRoutes() {
@@ -37,27 +30,32 @@ export default function useRoutes() {
             path: RegisterRoute.path
         })
     }
-    const redirectFiles = () => {
-        router.push({
-            path: FilesDatasourcesRoute.path
-        })
-    }
-    const redirectReports = () => {
-        router.push({
-            path: ReportsRoute.path
-        })
-    }
+    // const redirectFiles = () => {
+    //     router.push({
+    //         path: FilesDatasourcesRoute.path
+    //     })
+    // }
+    // const redirectReports = () => {
+    //     router.push({
+    //         path: ReportsRoute.path
+    //     })
+    // }
 
     const navBarRoutes = ref(new Array<MenuItem>(
         {
             label: 'Home', to: HomeRoute.path, icon: 'pi pi-fw pi-home',
         },
         {
-            label: 'Admin', to: AdminRoute.path, icon: 'pi pi-fw pi-shield',
+            label: 'Admin', to: AdminRoutes.path, icon: 'pi pi-fw pi-shield',
             visible: () => isLoggedIn.value && isAdmin.value
         },
         {
-            label: 'My Organizations', to: OrganizationsRoute.path, icon: 'pi pi-fw pi-building',
+            label: 'Organizations', to: "/user/1/organizations", icon: 'pi pi-fw pi-building',
+            // visible: () => isLoggedIn.value
+        },
+        {
+            label: 'My Reports', to: "/user/1/reports", icon: 'pi pi-fw pi-building',
+            // visible: () => isLoggedIn.value
         },
         {
             label: 'About', to: AboutRoute.path, icon: 'pi pi-fw pi-info-circle',
@@ -76,47 +74,60 @@ export default function useRoutes() {
         },
     ))
 
-    const sideBarRoutes = ref(new Array<MenuItem>(
+    const sideBarRoutes = ref<Array<MenuItem>>([
         {
-            label: 'Members', to: MembersRoute.path, icon: 'pi pi-fw pi-users',
-            visible: () => isLoggedIn.value
+            label: 'Admin',
+            icon: 'pi pi-box',
+            visible: () => isLoggedIn.value && isAdmin.value,
+            items: [
+                { 
+                    label: 'Home', to: '/admin', icon: 'pi pi-fw pi-users',
+                },
+                {
+                    label: 'Users', to: '/admin/users', icon: 'pi pi-fw pi-users',
+                },
+                {
+                    label: 'Organizations', to: '/admin/organizations', icon: 'pi pi-fw pi-users',
+                }
+            ]
         },
         {
-            label: 'Datasources', to: DatasourcesRoute.path, icon: 'pi pi-fw pi-list',
-            visible: () => isLoggedIn.value
+            label: 'My Organization',
+            icon: 'pi pi-mobile',
+            visible: () => isLoggedIn.value,
+            items: [
+                {
+                    label: 'Members', to: '/organization/1/members', icon: 'pi pi-fw pi-users',
+                },
+                {
+                    label: 'Datasources', to: '/organization/1/datasources', icon: 'pi pi-fw pi-list',
+                },
+                // {
+                //     label: 'Files', to: FilesDatasourcesRoute.path, icon: 'pi pi-fw pi-file-excel',
+                //     visible: () => isLoggedIn.value
+                // },
+                {
+                    label: 'Reports', to: '/organization/1/reports', icon: 'pi pi-fw pi-list',
+                },
+                // {
+                //     label: 'Visualizations', to: '/visualizations', icon: 'pi pi-fw pi-image',
+                //     visible: () => isLoggedIn.value
+                // },
+                {
+                    label: 'Analyzes', to: '/organization/1/analyzes', icon: 'pi pi-fw pi-check',
+                },
+                {
+                    label: 'Settings', to: '/organization/1/settings', icon: 'pi pi-fw pi-cog',
+                    visible: () => isLoggedIn.value // && (isOrganizationOwner.value || isOrganizationAdmin.value)
+                },
+            ]
         },
-        {
-            label: 'Files', to: FilesDatasourcesRoute.path, icon: 'pi pi-fw pi-file-excel',
-            visible: () => isLoggedIn.value
-        },
-        {
-            label: 'Reports', to: ReportsRoute.path, icon: 'pi pi-fw pi-list',
-            visible: () => isLoggedIn.value
-        },
-        // {
-        //     label: 'Visualizations', to: '/visualizations', icon: 'pi pi-fw pi-image',
-        //     visible: () => isLoggedIn.value
-        // },
-        {
-            label: 'Analyze', to: AnalyzeRoute.path, icon: 'pi pi-fw pi-check',
-            visible: () => isLoggedIn.value
-        },
-
-        {
-            label: 'Settings', to: SettingsRoute.path, icon: 'pi pi-fw pi-cog',
-            visible: () => isLoggedIn.value // && (isOrganizationOwner.value || isOrganizationAdmin.value)
-        },
-    ))
-
+    ]);
 
     const breadCrumbRoutes = ref(new Array<MenuItem>(
         {
             label: 'Home', to: HomeRoute.path, icon: 'pi pi-fw pi-home',
-        },
-        {
-            label: 'Members', to: MembersRoute.path, icon: 'pi pi-fw pi-users',
-            visible: () => isLoggedIn.value
-        },
+        }
     ))
     return {
         navBarRoutes,
@@ -125,7 +136,7 @@ export default function useRoutes() {
         redirectHome,
         redirectLogin,
         redirectRegister,
-        redirectFiles,
-        redirectReports,
+        // redirectFiles,
+        // redirectReports,
     }
 }
