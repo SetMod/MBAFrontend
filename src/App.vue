@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import Navbar from './components/Navbar.vue'
-import Sidebar from './components/Sidebar.vue'
 import Footer from './components/Footer.vue'
 import Container from './components/Container.vue'
 import useUsers from './hooks/useUsers'
@@ -11,13 +10,18 @@ const { whoAmI } = useUsers()
 onMounted(() => {
   whoAmI()
 })
+
+import Sidebar from './components/Sidebar.vue';
+import useRoutes from './hooks/useRoutes'
+
+const { sideBarRoutes } = useRoutes()
 </script>
 
 <template>
   <div class="min-w-screen">
     <Navbar />
-    <div class="flex justify-content-center  min-h-screen">
-      <Sidebar />
+    <div class="flex justify-content-center">
+      <Sidebar :routes="sideBarRoutes" />
       <Container>
         <Suspense>
           <router-view />
