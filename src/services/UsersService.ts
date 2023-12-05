@@ -1,6 +1,7 @@
 import axios, { AxiosError } from "axios";
 import Users, { UsersResponse } from "../models/UsersModel";
 import GenericService from "./GenericService";
+import { organizationsService } from "./OrganizationsService";
 
 export default class UsersService extends GenericService<Users, UsersResponse> {
 
@@ -39,7 +40,7 @@ export default class UsersService extends GenericService<Users, UsersResponse> {
             password_hash: user.passwordHash,
             active: user.active,
             last_login_date: user.lastLoginDate,
-            role: user.role,
+            role: user.role.toUpperCase(),
             created_date: user.createdDate,
             updated_date: user.updatedDate,
             deleted_date: user.deletedDate,
@@ -114,8 +115,48 @@ export default class UsersService extends GenericService<Users, UsersResponse> {
         }
     }
 
+    async register(newUser: Users): Promise<Users> {
+        try {
+            const newUserJson = this.mapModelToJSON(newUser)
+            console.log(newUserJson)
+
+            const res = await this.api.post(`${this.url}/auth/register`, newUserJson)
+            console.log(res)
+
+            const newModel = this.mapJSONToModel(res.data)
+            console.log(newModel)
+
+            return newModel
+        } catch (err) {
+            let errorMessage = 'Failed to register'
+            console.log(errorMessage)
+            if (err instanceof AxiosError) {
+                errorMessage += `. ${err.message}`
+            }
+
+            throw new Error(errorMessage)
+        }
+    }
+
     async getOrganizations(id: number) {
-        throw new Error("Not implemented")
+        try {
+            const res = await this.api.get(`${this.url}/${id}/organizations`)
+            console.log(res)
+
+            const models = organizationsService.mapJSONToModels(res.data)
+            console.log(models)
+
+            return models
+
+        } catch (err) {
+            let errorMessage = "Failed to get user organizations"
+            console.error(errorMessage)
+            if (err instanceof AxiosError) {
+                errorMessage += `. ${err.message}`
+            }
+
+            throw new Error(errorMessage)
+        }
     }
 
     async getDatasources(id: number) {
@@ -127,4 +168,4 @@ export default class UsersService extends GenericService<Users, UsersResponse> {
     }
 }
 
-export const userService = new UsersService()
+export const usersService = new UsersService()
