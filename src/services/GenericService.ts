@@ -11,7 +11,7 @@ export interface IGenericService<M, R> {
     getAll(): Promise<M[]>
     getById(id: number): Promise<M>
     getByField(fieldName: string, fieldValue: string): Promise<M>
-    getByFields(fields: Object): Promise<M[]>
+    getByFields(fields: Object, many: boolean): Promise<M[] | M>
     create(model: M): Promise<M>
     update(id: number, model: M): Promise<M>
     delete(id: number): Promise<M>
@@ -36,6 +36,7 @@ export default class GenericService<M, R> implements IGenericService<M, R> {
         for (let modelJson of data) {
             models.push(this.mapJSONToModel(modelJson))
         }
+
         return models
     }
 
@@ -48,6 +49,7 @@ export default class GenericService<M, R> implements IGenericService<M, R> {
         for (var model of models) {
             data.push(this.mapModelToJSON(model))
         }
+
         return data
     }
 
@@ -92,11 +94,12 @@ export default class GenericService<M, R> implements IGenericService<M, R> {
         }
     }
 
-    async getByField(fieldName: string, fieldValue: string): Promise<M> {
+    async getByField(fieldName: string, fieldValue: any): Promise<M> {
         try {
             const res = await this.api.get(`${this.url}/`, {
                 params: {
-                    [fieldName]: fieldValue
+                    [fieldName]: fieldValue,
+                    many: false,
                 }
             })
             console.log(res)
@@ -116,17 +119,25 @@ export default class GenericService<M, R> implements IGenericService<M, R> {
         }
     }
 
-    async getByFields(fields: Object): Promise<M[]> {
+    async getByFields(fields: Object, many: boolean = true): Promise<M[] | M> {
         try {
+
             const res = await this.api.get(`${this.url}/`, {
-                params: fields
+                params: { ...fields, many: many }
             })
             console.log(res)
 
-            const models = this.mapJSONToModels(res.data)
-            console.log(models)
+            if (many) {
+                const models = this.mapJSONToModels(res.data)
+                console.log(models)
 
-            return models
+                return models
+            } else {
+                const model = this.mapJSONToModel(res.data)
+                console.log(model)
+
+                return model
+            }
         } catch (err) {
             let errorMessage = 'Failed to get by fields'
             console.log(errorMessage)
