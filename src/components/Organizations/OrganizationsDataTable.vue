@@ -10,15 +10,18 @@ const props = defineProps(
         },
         refreshTable: {
             type: Function,
-            required: true
+            required: false,
+            default: () => { }
         },
         openEdit: {
             type: Function,
-            required: true
+            required: false,
+            default: () => { }
         },
         openDelete: {
             type: Function,
-            required: true
+            required: false,
+            default: () => { }
         },
     }
 )
@@ -35,7 +38,11 @@ const props = defineProps(
             </div>
         </template>
         <Column field="id" header="ID" :sortable="true"></Column>
-        <Column field="name" header="Name" :sortable="true"></Column>
+        <Column field="name" header="Name" :sortable="true">
+            <template #body="slotProps">
+                <router-link :to="`/organization/${slotProps.data.id}/`">{{ slotProps.data.name }}</router-link>
+            </template>
+        </Column>
         <Column field="description" header="Description" :sortable="true"></Column>
         <Column field="email" header="Email" :sortable="true"></Column>
         <Column field="phone" header="Phone"></Column>
