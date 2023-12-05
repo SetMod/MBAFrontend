@@ -1,16 +1,22 @@
+<script setup lang="ts">
+import { PropType } from 'vue';
+import { MenuItem } from 'primevue/menuitem';
+
+const props = defineProps({
+        routes: {
+                type: Array as PropType<Array<MenuItem>>,
+                // type: Array<MenuItem>,
+                required: true
+        }
+})
+</script>
+
 <template>
-        <div class="sidebar">
-                <MegaMenu  :model="sideBarRoutes" orientation="vertical" />
+        <div class="p-2 bg-black-alpha-10">
+                <!-- <MegaMenu :model="props.routes" orientation="vertical" /> -->
+                <PanelMenu :model="props.routes" multiple class="w-full md:w-20rem" />
         </div>
 </template>
-
-<script setup lang="ts">
-import { ref } from 'vue';
-import useRoutes from '../hooks/useRoutes';
-
-const visible = ref(false)
-const { sideBarRoutes } = useRoutes()
-</script>
 
 <style>
 .sidebar {
