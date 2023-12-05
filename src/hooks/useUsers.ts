@@ -1,11 +1,17 @@
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import Users, { Roles } from "../models/UsersModel";
-import { userService } from "../services/UsersService";
+import UsersService, { usersService } from "../services/UsersService";
 import { setJWTToken, removeJWTToken } from "../utils/jwt"
 import useCRUD from "./useCRUD";
 import { getJWTToken } from "../utils/jwt"
+import useState from "./useState";
+import Organizations from "../models/OrganizationsModel";
 
 const USER_STORAGE_KEY = "user"
+const currentUser = ref<Users | null>()
+const userOrganizations = ref<Organizations[] | null>()
+const usersState = useState<Users>()
+
 export default function useUsers() {
     const {
         error: usersError,
@@ -25,7 +31,7 @@ export default function useUsers() {
         createModel: createUser,
         updateModel: updateUser,
         deleteModel: deleteUser,
-    } = useCRUD(userService, USER_STORAGE_KEY)
+    } = useCRUD(usersService, usersState, USER_STORAGE_KEY)
 
     // const isAdmin = ref(false)
     const isAdmin = computed(() => {
@@ -38,16 +44,32 @@ export default function useUsers() {
         return getJWTToken() ? true : false
     })
 
+    const getOrganizations = async (id: number) => {
+        isUsersLoading.value = true
+        usersError.value = null
+        try {
+            const res = await usersService.getOrganizations(id)
+            userOrganizations.value = res
+
+            return res
+        } catch (err) {
+            if (err instanceof Error) {
+                usersError.value = err
+            }
+        } finally {
+            isUsersLoading.value = false
+        }
+    }
+
     const login = async (username: string, password: string) => {
         isUsersLoading.value = true
         usersError.value = null
         try {
-            const res = await userService.login(username, password)
+            const res = await usersService.login(username, password)
             setJWTToken(res.access_token);
 
-            const currentUser = await userService.whoAmI()
-            user.value = currentUser
-            addToLocalStorage(currentUser)
+            const user = await usersService.whoAmI()
+            addToLocalStorage(user)
 
             return res
         } catch (err) {
@@ -64,8 +86,8 @@ export default function useUsers() {
         isUsersLoading.value = true
         usersError.value = null
         try {
-            const res = await userService.whoAmI()
-            user.value = res
+            const res = await usersService.whoAmI()
+            currentUser.value = res
             addToLocalStorage(res)
 
             return res
@@ -105,7 +127,7 @@ export default function useUsers() {
         isUsersLoading.value = true
         usersError.value = null
         try {
-            const res = await userService.create(newUser)
+            const res = await usersService.register(newUser)
 
             return res
         } catch (err) {
@@ -127,8 +149,11 @@ export default function useUsers() {
         logout,
         usersError,
         isUsersLoading,
-        user,
         users,
+        user,
+        currentUser,
+        userOrganizations,
+        getOrganizations,
         updatedUser,
         newUser,
         deletedUser,

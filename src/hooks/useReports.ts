@@ -1,7 +1,11 @@
+import Reports from "../models/ReportsModel"
 import { reportsService } from "../services/ReportsService"
 import useCRUD from "./useCRUD"
+import useState from "./useState"
 
 const REPORTS_STORAGE_KEY = "report"
+const reportsState = useState<Reports>()
+
 export default function useReports() {
     const {
         error: reportsError,
@@ -21,7 +25,7 @@ export default function useReports() {
         createModel: createReport,
         updateModel: updateReport,
         deleteModel: deleteReport,
-    } = useCRUD(reportsService, REPORTS_STORAGE_KEY)
+    } = useCRUD(reportsService, reportsState, REPORTS_STORAGE_KEY)
 
     // const getUserReports = async (userId: number) => {
     //     isLoading.value = true

@@ -1,7 +1,13 @@
+import { ref } from "vue";
+import OrganizationMembers from "../models/OrganizationMembersModel";
 import { organizationMembersService } from "../services/OrganizationMembersService";
 import useCRUD from "./useCRUD";
+import useState from "./useState";
 
 const ORGANIZATION_MEMBER_STORAGE_KEY = "organizationMember"
+const currentMember = ref<OrganizationMembers | null>()
+const membersState = useState<OrganizationMembers>()
+
 export default function useOrganizationMembers() {
     const {
         error: organizationMembersError,
@@ -21,7 +27,25 @@ export default function useOrganizationMembers() {
         createModel: createOrganizationMember,
         updateModel: updateOrganizationMember,
         deleteModel: deleteOrganizationMember,
-    } = useCRUD(organizationMembersService, ORGANIZATION_MEMBER_STORAGE_KEY)
+    } = useCRUD(organizationMembersService, membersState, ORGANIZATION_MEMBER_STORAGE_KEY)
+
+    const getMemberByOrgAndUserIDs = async (orgId: number, userId: number) => {
+        isOrganizationMembersLoading.value = true
+        organizationMembersError.value = null
+        try {
+            const fields = { user_id: userId, organization_id: orgId }
+            const res = await organizationMembersService.getByFields(fields, false)
+            if (res instanceof OrganizationMembers) currentMember.value = res
+
+            return res
+        } catch (err) {
+            if (err instanceof Error) {
+                organizationMembersError.value = err
+            }
+        } finally {
+            isOrganizationMembersLoading.value = false
+        }
+    }
 
     return {
         isOrganizationMembersLoading,
@@ -31,6 +55,7 @@ export default function useOrganizationMembers() {
         updatedOrganizationMember,
         newOrganizationMember,
         deletedOrganizationMember,
+        currentMember,
         getFromLocalStorage,
         addToLocalStorage,
         removeFromLocalStorage,
@@ -41,5 +66,6 @@ export default function useOrganizationMembers() {
         createOrganizationMember,
         updateOrganizationMember,
         deleteOrganizationMember,
+        getMemberByOrgAndUserIDs,
     }
 }

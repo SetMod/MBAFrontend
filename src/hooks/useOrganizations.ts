@@ -1,8 +1,12 @@
 import OrganizationMembers from "../models/OrganizationMembersModel";
+import Organizations from "../models/OrganizationsModel";
 import { organizationsService } from "../services/OrganizationsService";
 import useCRUD from "./useCRUD";
+import useState from "./useState";
 
 const ORGANIZATION_STORAGE_KEY = "organization"
+const organizationsState = useState<Organizations>()
+
 export default function useOrganizations() {
     const {
         error: organizationsError,
@@ -22,7 +26,7 @@ export default function useOrganizations() {
         createModel: createOrganization,
         updateModel: updateOrganization,
         deleteModel: deleteOrganization,
-    } = useCRUD(organizationsService, ORGANIZATION_STORAGE_KEY)
+    } = useCRUD(organizationsService, organizationsState, ORGANIZATION_STORAGE_KEY)
 
 
     // const getOrganizationMembers = async (userId: number) => {
