@@ -1,18 +1,18 @@
 import axios, { AxiosError } from "axios";
-import Analyzes, { AssociationRules, IAnalyzeResponse, IAssociationRulesResponse } from "../models/AnalyzesModel";
+import Analyzes, { AssociationRules, IAnalyzesResponse, IAssociationRulesResponse } from "../models/AnalyzesModel";
 import GenericService from "./GenericService";
 
-export default class AnalyzesService extends GenericService<Analyzes, IAnalyzeResponse> {
+export default class AnalyzesService extends GenericService<Analyzes, IAnalyzesResponse> {
 
     constructor() {
         super("/analyzes")
     }
 
-    mapJSONToModel(analyzeJson: IAnalyzeResponse): Analyzes {
+    mapJSONToModel(analyzeJson: IAnalyzesResponse): Analyzes {
         return Analyzes.fromJSON(analyzeJson)
     }
 
-    mapModelToJSON(analyze: Analyzes): IAnalyzeResponse {
+    mapModelToJSON(analyze: Analyzes): IAnalyzesResponse {
         return Analyzes.toJSON(analyze)
     }
 
@@ -65,7 +65,7 @@ export default class AnalyzesService extends GenericService<Analyzes, IAnalyzeRe
     //         const res = await axios.get(`${this.url}/reports/${reportId}/analyzes`)
     //         console.log(res)
 
-    //         const analyzes: Analyzes[] = res.data.map((val: IAnalyzeResponse) => {
+    //         const analyzes: Analyzes[] = res.data.map((val: IAnalyzesResponse) => {
     //             return this.mapJSONToModel(val)
     //         })
     //         console.log(analyzes)
