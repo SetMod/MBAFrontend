@@ -1,40 +1,40 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
-import Home from '../views/Home.vue'
-import Profile from '../views/Profile.vue'
-import Login from '../views/Login.vue'
-import Register from '../views/Register.vue'
-import About from '../views/About.vue'
+import Home from './views/Home.vue'
+import Profile from './views/Profile.vue'
+import Login from './views/Login.vue'
+import Register from './views/Register.vue'
+import About from './views/About.vue'
 
-import Users from "../views/Users/Users.vue"
-import User from "../views/Users/User/User.vue"
-import UserOrganizations from "../views/Users/User/UserOrganizations.vue"
-import UserHome from "../views/Users/User/UserHome.vue"
+import Users from "./views/Users/Users.vue"
+import User from "./views/Users/User/User.vue"
+import UserOrganizations from "./views/Users/User/UserOrganizations.vue"
+import UserHome from "./views/Users/User/UserHome.vue"
 
-import Reports from "../views/Reports/Reports.vue"
-import Report from "../views/Reports/Report/Report.vue"
-import ReportHome from "../views/Reports/Report/ReportHome.vue"
+import Reports from "./views/Reports/Reports.vue"
+import Report from "./views/Reports/Report/Report.vue"
+import ReportHome from "./views/Reports/Report/ReportHome.vue"
 
-import Organizations from "../views/Organizations/Organizations.vue"
-import Organization from "../views/Organizations/Organization/Organization.vue"
-import OrganizationSettings from "../views/Organizations/Organization/OrganizationSettings.vue"
-import OrganizationHome from "../views/Organizations/Organization/OrganizationHome.vue"
+import Organizations from "./views/Organizations/Organizations.vue"
+import Organization from "./views/Organizations/Organization/Organization.vue"
+import OrganizationSettings from "./views/Organizations/Organization/OrganizationSettings.vue"
+import OrganizationHome from "./views/Organizations/Organization/OrganizationHome.vue"
 
-import Members from "../views/Members/Members.vue"
-import Member from "../views/Members/Member/Member.vue"
-import MemberHome from "../views/Members/Member/MemberHome.vue"
+import Members from "./views/Members/Members.vue"
+import Member from "./views/Members/Member/Member.vue"
+import MemberHome from "./views/Members/Member/MemberHome.vue"
 
-import Datasources from "../views/Datasources/Datasources.vue"
-import Datasource from "../views/Datasources/Datasource/Datasource.vue"
-import DatasourceHome from "../views/Datasources/Datasource/DatasourceHome.vue"
+import Datasources from "./views/Datasources/Datasources.vue"
+import Datasource from "./views/Datasources/Datasource/Datasource.vue"
+import DatasourceHome from "./views/Datasources/Datasource/DatasourceHome.vue"
 
-import Analyzes from "../views/Analyzes/Analyzes.vue"
-import Analyze from "../views/Analyzes/Analyze/Analyze.vue"
-import AnalyzeHome from "../views/Analyzes/Analyze/AnalyzeHome.vue"
+import Analyzes from "./views/Analyzes/Analyzes.vue"
+import Analyze from "./views/Analyzes/Analyze/Analyze.vue"
+import AnalyzeHome from "./views/Analyzes/Analyze/AnalyzeHome.vue"
 
-import Admin from '../views/Admin/Admin.vue'
-import AdminHome from "../views/Admin/AdminHome.vue"
+import Admin from './views/Admin/Admin.vue'
+import AdminHome from "./views/Admin/AdminHome.vue"
 
-import useUsers from '../hooks/useUsers'
+import useUsers from './hooks/useUsers'
 
 const { isAdmin, isLoggedIn } = useUsers()
 
@@ -59,7 +59,7 @@ export const AboutRoute: RouteRecordRaw = {
   path: '/about',
   name: 'About',
   component: About
-  // component: () => import('../views/About.vue')
+  // component: () => import('./views/About.vue')
 }
 export const ProfileRoute: RouteRecordRaw = {
   path: '/profile',
@@ -169,7 +169,7 @@ export const OrganizationRoutes: RouteRecordRaw = {
       path: 'settings',
       component: OrganizationSettings,
       props: true,
-      // component: () => import('../views/About.vue')
+      // component: () => import('./views/About.vue')
     }
     // ... Organization members, datasources, reports, etc.
   ]
