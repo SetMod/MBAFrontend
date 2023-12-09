@@ -16,7 +16,7 @@ const state = reactive<VisualizationsState>({
     userVisualizations: undefined,
 })
 
-export default function useAnalyzes() {
+export default function useVisualizations() {
     const visualizationsService = reactive(new VisualizationsService())
     const isLoading = ref(false)
 

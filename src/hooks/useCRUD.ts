@@ -7,18 +7,19 @@ export default function useCRUD<M, R>(service: GenericService<M, R>, state: Gene
     const error = ref<Error | null>(null)
     const isLoading = ref(false)
 
-    const addToLocalStorage = (model: M) => {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(model))
+    const addToLocalStorage = (model: M, KEY: string | undefined) => {
+        const modelJson = service.mapModelToJSON(model)
+        localStorage.setItem(KEY || STORAGE_KEY, JSON.stringify(modelJson))
     }
 
-    const getFromLocalStorage = () => {
-        const modelJson = localStorage.getItem(STORAGE_KEY)
+    const getFromLocalStorage = (KEY: string | undefined): M | null => {
+        const modelJson = localStorage.getItem(KEY || STORAGE_KEY)
         if (!modelJson) return null
         return service.mapJSONToModel(JSON.parse(modelJson))
     }
 
-    const removeFromLocalStorage = () => {
-        localStorage.removeItem(STORAGE_KEY)
+    const removeFromLocalStorage = (KEY: string | undefined) => {
+        localStorage.removeItem(KEY || STORAGE_KEY)
     }
 
 
@@ -73,12 +74,16 @@ export default function useCRUD<M, R>(service: GenericService<M, R>, state: Gene
         }
     }
 
-    const getModelsByFields = async (fields: Object) => {
+    const getModelsByFields = async (fields: Object, many?: boolean) => {
         isLoading.value = true
         error.value = null
         try {
-            const res = await service.getByFields(fields)
-            state.models = res
+            const res = await service.getByFields(fields, many)
+            if (res instanceof Array) {
+                state.models = res
+            } else {
+                state.model = res
+            }
 
             return res
         } catch (err) {

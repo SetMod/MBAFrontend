@@ -1,6 +1,5 @@
-import { ref } from "vue"
+import { computed } from "vue"
 import { MenuItem } from "primevue/menuitem"
-import useUsers from "./useUsers"
 import { useRouter } from "vue-router"
 import {
     HomeRoute,
@@ -13,8 +12,16 @@ import {
 
 export default function useRoutes() {
     const router = useRouter()
-    const { isLoggedIn, isAdmin } = useUsers()
+    // const { isLoggedIn, isAdmin, currentUser } = useUsers()
+    // const { selectedOrganization } = useOrganizations()
+    // const { currentMember, isOrganizationAdmin } = useOrganizationMembers()
 
+    const getHomeRoute = () => {
+        return HomeRoute.path
+    }
+    const getAdminRoute = () => {
+        return AdminRoutes.path
+    }
     const redirectHome = () => {
         router.push({
             path: HomeRoute.path
@@ -30,112 +37,57 @@ export default function useRoutes() {
             path: RegisterRoute.path
         })
     }
-    // const redirectFiles = () => {
-    //     router.push({
-    //         path: FilesDatasourcesRoute.path
-    //     })
-    // }
-    // const redirectReports = () => {
-    //     router.push({
-    //         path: ReportsRoute.path
-    //     })
-    // }
 
-    const navBarRoutes = ref(new Array<MenuItem>(
-        {
-            label: 'Home', to: HomeRoute.path, icon: 'pi pi-fw pi-home',
-        },
-        {
-            label: 'Admin', to: AdminRoutes.path, icon: 'pi pi-fw pi-shield',
-            visible: () => isLoggedIn.value && isAdmin.value
-        },
-        {
-            label: 'Organizations', to: "/user/1/organizations", icon: 'pi pi-fw pi-building',
-            // visible: () => isLoggedIn.value
-        },
-        {
-            label: 'My Reports', to: "/user/1/reports", icon: 'pi pi-fw pi-building',
-            // visible: () => isLoggedIn.value
-        },
-        {
-            label: 'About', to: AboutRoute.path, icon: 'pi pi-fw pi-info-circle',
-        },
-        {
-            label: 'Profile', to: ProfileRoute.path, icon: 'pi pi-fw pi-user',
-            visible: () => isLoggedIn.value
-        },
-        {
-            label: 'Login', to: LoginRoute.path, icon: 'pi pi-fw pi-sign-in',
-            visible: () => !isLoggedIn.value
-        },
-        {
-            label: 'Register', to: RegisterRoute.path, icon: 'pi pi-fw pi-check-square',
-            visible: () => !isLoggedIn.value
-        },
-    ))
+    const getAboutRoute = () => {
+        return AboutRoute.path
+    }
+    const getLoginRoute = () => {
+        return LoginRoute.path
+    }
+    const getRegisterRoute = () => {
+        return RegisterRoute.path
+    }
+    const getProfileRoute = () => {
+        return ProfileRoute.path
+    }
+    const getUserOrganizationsRoute = (orgId: number | undefined = undefined) => {
+        // if (!orgId) {
+        //     orgId = currentUser.value?.id
+        // }
+        return `/user/${orgId}/organizations`
+        // return `/organization/${orgId}/`
+    }
+    const getOrganizationRoute = (orgId: number) => {
+        return `/organization/${orgId}`
+    }
+    const getOrganizationMembersRoute = (orgId: number) => {
+        return `/organization/${orgId}/members`
+    }
 
-    const sideBarRoutes = ref<Array<MenuItem>>([
-        {
-            label: 'Admin',
-            icon: 'pi pi-box',
-            visible: () => isLoggedIn.value && isAdmin.value,
-            items: [
-                { 
-                    label: 'Home', to: '/admin', icon: 'pi pi-fw pi-users',
-                },
-                {
-                    label: 'Users', to: '/admin/users', icon: 'pi pi-fw pi-users',
-                },
-                {
-                    label: 'Organizations', to: '/admin/organizations', icon: 'pi pi-fw pi-users',
-                }
-            ]
-        },
-        {
-            label: 'My Organization',
-            icon: 'pi pi-mobile',
-            visible: () => isLoggedIn.value,
-            items: [
-                {
-                    label: 'Members', to: '/organization/1/members', icon: 'pi pi-fw pi-users',
-                },
-                {
-                    label: 'Datasources', to: '/organization/1/datasources', icon: 'pi pi-fw pi-list',
-                },
-                // {
-                //     label: 'Files', to: FilesDatasourcesRoute.path, icon: 'pi pi-fw pi-file-excel',
-                //     visible: () => isLoggedIn.value
-                // },
-                {
-                    label: 'Reports', to: '/organization/1/reports', icon: 'pi pi-fw pi-list',
-                },
-                // {
-                //     label: 'Visualizations', to: '/visualizations', icon: 'pi pi-fw pi-image',
-                //     visible: () => isLoggedIn.value
-                // },
-                {
-                    label: 'Analyzes', to: '/organization/1/analyzes', icon: 'pi pi-fw pi-check',
-                },
-                {
-                    label: 'Settings', to: '/organization/1/settings', icon: 'pi pi-fw pi-cog',
-                    visible: () => isLoggedIn.value // && (isOrganizationOwner.value || isOrganizationAdmin.value)
-                },
-            ]
-        },
-    ]);
+    const breadCrumbItems = computed(() => {
+        return new Array<MenuItem>(
+            {
+                label: 'Home', route: HomeRoute.path, icon: 'pi pi-fw pi-home',
+            }
+        )
+    })
 
-    const breadCrumbRoutes = ref(new Array<MenuItem>(
-        {
-            label: 'Home', to: HomeRoute.path, icon: 'pi pi-fw pi-home',
-        }
-    ))
     return {
-        navBarRoutes,
-        sideBarRoutes,
-        breadCrumbRoutes,
+        getHomeRoute,
+        getAdminRoute,
+        // navBarItems,
+        // sideBarItems,
+        breadCrumbItems,
         redirectHome,
         redirectLogin,
         redirectRegister,
+        getUserOrganizationsRoute,
+        getAboutRoute,
+        getLoginRoute,
+        getRegisterRoute,
+        getProfileRoute,
+        getOrganizationRoute,
+        getOrganizationMembersRoute,
         // redirectFiles,
         // redirectReports,
     }

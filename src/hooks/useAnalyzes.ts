@@ -1,104 +1,94 @@
-import { reactive, ref, toRefs } from "vue"
-import Analyzes from "../models/AnalyzesModel"
-import AssociationRules from "../models/AssociationRulesModel"
-import AnalyzesService from "../services/AnalyzeService"
+import { ref } from "vue"
+import Analyzes, { AssociationRules } from "../models/AnalyzesModel"
+import { analyzesService } from "../services/AnalyzesService"
+import useState from "./useState"
+import useCRUD from "./useCRUD"
 
-export interface AnalyzesState {
-    analyze: Analyzes | undefined
-    analyzes: Analyzes[] | undefined
-    reportAnalyzes: Analyzes[] | undefined
-    userAnalyzes: Analyzes[] | undefined
-    associationRules: AssociationRules[] | undefined
-}
 
-const state = reactive<AnalyzesState>({
-    analyze: undefined,
-    analyzes: undefined,
-    reportAnalyzes: undefined,
-    userAnalyzes: undefined,
-    associationRules: undefined,
-})
+const DATASOURCES_STORAGE_KEY = "analyze"
+// const analyzesState = reactive<AnalyzesState>({
+//     analyze: undefined,
+//     analyzes: undefined,
+//     reportAnalyzes: undefined,
+//     userAnalyzes: undefined,
+//     associationRules: undefined,
+// })
+const analyzesState = useState<Analyzes>()
+const {
+    error: analyzesError,
+    isLoading: isAnalyzesLoading,
+    model: analyze,
+    models: analyzes,
+    updatedModel: updatedAnalyze,
+    newModel: newAnalyze,
+    deletedModel: deletedAnalyze,
+    getFromLocalStorage,
+    addToLocalStorage,
+    removeFromLocalStorage,
+    getAllModels: getAnalyzes,
+    getModelById: getAnalyzeById,
+    getModelByField: getAnalyzeByField,
+    getModelsByFields: getAnalyzesByFields,
+    createModel: createAnalyze,
+    updateModel: updateAnalyze,
+    deleteModel: deleteAnalyze,
+} = useCRUD(analyzesService, analyzesState, DATASOURCES_STORAGE_KEY)
+const userAnalyzes = ref<Analyzes[] | null>()
 
 export default function useAnalyzes() {
-    const analyzesService = reactive(new AnalyzesService())
-    const isLoading = ref(false)
+    // const downloadAnalyze = async (id: number) => {
+    //     isAnalyzesLoading.value = true
+    //     const response = await analyzesService.downloadAnalyzeById(id)
+    //     isAnalyzesLoading.value = false
 
-    const resetAnalyzes = () => {
-        state.analyze = undefined
-        state.analyzes = undefined
-        state.reportAnalyzes = undefined
-        state.userAnalyzes = undefined
-    }
+    //     return response
+    // }
 
-    const getAnalyzes = async () => {
-        isLoading.value = true
-        const response = await analyzesService.getAll()
-        if (Array.isArray(response)) state.analyzes = response
-        isLoading.value = false
+    // const createAnalyze = async (newAnalyze: Analyzes, fileId: number) => {
+    //     isAnalyzesLoading.value = true
+    //     const response = await analyzesService.createAnalyze(newAnalyze, fileId)
+    //     if (Array.isArray(response)) analyzesState.associationRules = response
+    //     isAnalyzesLoading.value = false
 
-        return response
-    }
+    //     return response
+    // }
 
-    const getAnalyzeById = async (id: number) => {
-        isLoading.value = true
-        const response = await analyzesService.getById(id)
-        if (response instanceof Analyzes) state.analyze = response
-        isLoading.value = false
+    const getUserAnalyzes = async (userId: number) => {
+        isAnalyzesLoading.value = true
+        analyzesError.value = null
+        try {
+            const memberships = await analyzesService.getUserAnalyzes(userId)
+            userAnalyzes.value = memberships
 
-        return response
-    }
-    const downloadAnalyze = async (id: number) => {
-        isLoading.value = true
-        const response = await analyzesService.downloadAnalyzeById(id)
-        isLoading.value = false
-
-        return response
-    }
-
-    const getReportAnalyzes = async (reportId: number) => {
-        isLoading.value = true
-        const response = await analyzesService.getReportAnalyzes(reportId)
-        if (Array.isArray(response)) state.reportAnalyzes = response
-        isLoading.value = false
-
-        return response
-    }
-
-    const createAnalyze = async (newAnalyze: Analyzes, fileId: number) => {
-        isLoading.value = true
-        const response = await analyzesService.createAnalyze(newAnalyze, fileId)
-        if (Array.isArray(response)) state.associationRules = response
-        isLoading.value = false
-
-        return response
-    }
-
-    const updateAnalyze = async (updatedAnalyze: Analyzes) => {
-        isLoading.value = true
-        const response = await analyzesService.updateAnalyze(updatedAnalyze)
-        isLoading.value = false
-
-        return response
-    }
-
-    const deleteAnalyze = async (id: number) => {
-        isLoading.value = true
-        const response = await analyzesService.deleteAnalyze(id)
-        isLoading.value = false
-
-        return response
+        } catch (err) {
+            if (err instanceof Error) {
+                analyzesError.value = err
+                userAnalyzes.value = null
+            }
+        } finally {
+            isAnalyzesLoading.value = false
+        }
     }
 
     return {
-        resetAnalyzes,
+        userAnalyzes,
+        analyzesError,
+        isAnalyzesLoading,
+        analyze,
+        analyzes,
+        updatedAnalyze,
+        newAnalyze,
+        deletedAnalyze,
+        getUserAnalyzes,
+        getFromLocalStorage,
+        addToLocalStorage,
+        removeFromLocalStorage,
         getAnalyzes,
         getAnalyzeById,
-        downloadAnalyze,
-        getReportAnalyzes,
+        getAnalyzeByField,
+        getAnalyzesByFields,
         createAnalyze,
         updateAnalyze,
         deleteAnalyze,
-        isAnalyzesLoading: isLoading,
-        ...toRefs(state)
     }
 }

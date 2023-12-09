@@ -1,11 +1,11 @@
 import { reactive, ref, toRefs } from "vue";
-import FileDatasourcesModel from "../models/FileDatasourcesModel"
-import FilesService from "../services/FileDatasourcesService";
+import { Datasources } from "../models/DatasourcesModel"
+import { filesService } from "../services/FileDatasourcesService";
 
 export interface IFilesState {
-    file: FileDatasourcesModel | undefined
-    files: FileDatasourcesModel[] | undefined
-    userFiles: FileDatasourcesModel[] | undefined
+    file: Datasources | undefined
+    files: Datasources[] | undefined
+    userFiles: Datasources[] | undefined
 }
 
 const state = reactive<IFilesState>({
@@ -15,7 +15,6 @@ const state = reactive<IFilesState>({
 })
 
 export default function useFiles() {
-    const filesService = reactive(new FilesService())
     const isLoading = ref(false)
 
     const resetFiles = () => {
@@ -53,16 +52,16 @@ export default function useFiles() {
         // isLoading.value = false
         return response
     }
-    const createFile = async (file: FileDatasourcesModel, form: FormData) => {
+    const createFile = async (file: Datasources, form: FormData) => {
         isLoading.value = true
         const response = await filesService.createFile(file, form)
         isLoading.value = false
 
         return response
     }
-    const updateFile = async (file: FileDatasourcesModel) => {
+    const updateFile = async (id: number, file: Datasources) => {
         isLoading.value = true
-        const response = await filesService.update(file)
+        const response = await filesService.update(id, file)
         isLoading.value = false
 
         return response
