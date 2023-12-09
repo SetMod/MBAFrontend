@@ -4,7 +4,36 @@ import Profile from '../views/Profile.vue'
 import Login from '../views/Login.vue'
 import Register from '../views/Register.vue'
 import About from '../views/About.vue'
-// import Settings from '../views/Settings.vue'
+
+import Users from "../views/Users/Users.vue"
+import User from "../views/Users/User/User.vue"
+import UserOrganizations from "../views/Users/User/UserOrganizations.vue"
+import UserHome from "../views/Users/User/UserHome.vue"
+
+import Reports from "../views/Reports/Reports.vue"
+import Report from "../views/Reports/Report/Report.vue"
+import ReportHome from "../views/Reports/Report/ReportHome.vue"
+
+import Organizations from "../views/Organizations/Organizations.vue"
+import Organization from "../views/Organizations/Organization/Organization.vue"
+import OrganizationSettings from "../views/Organizations/Organization/OrganizationSettings.vue"
+import OrganizationHome from "../views/Organizations/Organization/OrganizationHome.vue"
+
+import Members from "../views/Members/Members.vue"
+import Member from "../views/Members/Member/Member.vue"
+import MemberHome from "../views/Members/Member/MemberHome.vue"
+
+import Datasources from "../views/Datasources/Datasources.vue"
+import Datasource from "../views/Datasources/Datasource/Datasource.vue"
+import DatasourceHome from "../views/Datasources/Datasource/DatasourceHome.vue"
+
+import Analyzes from "../views/Analyzes/Analyzes.vue"
+import Analyze from "../views/Analyzes/Analyze/Analyze.vue"
+import AnalyzeHome from "../views/Analyzes/Analyze/AnalyzeHome.vue"
+
+import Admin from '../views/Admin/Admin.vue'
+import AdminHome from "../views/Admin/AdminHome.vue"
+
 import useUsers from '../hooks/useUsers'
 
 const { isAdmin, isLoggedIn } = useUsers()
@@ -40,27 +69,6 @@ export const ProfileRoute: RouteRecordRaw = {
 }
 
 
-import Users from "../views/Users/Users.vue"
-import User from "../views/Users/User/User.vue"
-import UserHome from "../views/Users/User/Home.vue"
-import Reports from "../views/Reports/Reports.vue"
-import Report from "../views/Reports/Report/Report.vue"
-import ReportHome from "../views/Reports/Report/Home.vue"
-
-import Organizations from "../views/Organizations/Organizations.vue"
-import Organization from "../views/Organizations/Organization/Organization.vue"
-import Settings from "../views/Organizations/Organization/Settings.vue"
-import OrganizationHome from "../views/Organizations/Organization/Home.vue"
-import Members from "../views/Members/Members.vue"
-import Member from "../views/Members/Member/Member.vue"
-import MemberHome from "../views/Members/Member/Home.vue"
-import Datasources from "../views/Datasources/Datasources.vue"
-import Datasource from "../views/Datasources/Datasource/Datasource.vue"
-import DatasourceHome from "../views/Datasources/Datasource/Home.vue"
-import Analyzes from "../views/Analyzes/Analyzes.vue"
-import Analyze from "../views/Analyzes/Analyze/Analyze.vue"
-import AnalyzeHome from "../views/Analyzes/Analyze/Home.vue"
-
 export const UserRoutes: RouteRecordRaw = {
   path: "/user/:userId(\\d+)",
   component: User,
@@ -68,14 +76,17 @@ export const UserRoutes: RouteRecordRaw = {
     {
       path: '',
       component: UserHome,
+      props: true,
     },
     {
       path: 'organizations',
-      component: Organizations,
+      component: UserOrganizations,
+      props: true,
     },
     {
       path: 'reports',
       component: Reports,
+      props: true,
     },
   ]
 }
@@ -88,10 +99,12 @@ export const OrganizationRoutes: RouteRecordRaw = {
     {
       path: '',
       component: OrganizationHome,
+      props: true,
     },
     {
       path: 'members',
       component: Members,
+      props: true,
     },
     {
       path: 'member/:memberId',
@@ -100,12 +113,14 @@ export const OrganizationRoutes: RouteRecordRaw = {
         {
           path: '',
           component: MemberHome,
+          props: true,
         }
       ]
     },
     {
       path: 'datasources',
       component: Datasources,
+      props: true,
     },
     {
       path: 'datasource/:datasourceId',
@@ -114,12 +129,14 @@ export const OrganizationRoutes: RouteRecordRaw = {
         {
           path: '',
           component: DatasourceHome,
+          props: true,
         }
       ]
     },
     {
       path: 'analyzes',
       component: Analyzes,
+      props: true,
     },
     {
       path: 'analyze/:analyzeId',
@@ -128,12 +145,14 @@ export const OrganizationRoutes: RouteRecordRaw = {
         {
           path: '',
           component: AnalyzeHome,
+          props: true,
         }
       ]
     },
     {
       path: 'reports',
       component: Reports,
+      props: true,
     },
     {
       path: 'report/:reportId',
@@ -142,20 +161,20 @@ export const OrganizationRoutes: RouteRecordRaw = {
         {
           path: '',
           component: ReportHome,
+          props: true,
         }
       ]
     },
     {
       path: 'settings',
-      component: Settings
+      component: OrganizationSettings,
+      props: true,
       // component: () => import('../views/About.vue')
     }
     // ... Organization members, datasources, reports, etc.
   ]
 }
 
-import Admin from '../views/Admin/Admin.vue'
-import AdminHome from "../views/Admin/Home.vue"
 export const AdminRoutes: RouteRecordRaw = {
   path: '/admin',
   name: 'Admin',
@@ -171,7 +190,7 @@ export const AdminRoutes: RouteRecordRaw = {
       component: Users,
     },
     {
-      path: 'user/:id',
+      path: 'user/:userId',
       component: User,
       children: UserRoutes.children
     },
@@ -180,7 +199,7 @@ export const AdminRoutes: RouteRecordRaw = {
       component: Organizations
     },
     {
-      path: 'organization/:id',
+      path: 'organization/:orgId',
       component: Organization,
       children: OrganizationRoutes.children
     },
@@ -204,108 +223,3 @@ export const router = createRouter({
 })
 
 export default router
-
-
-// export const AdminRoute: RouteRecordRaw = {
-//   path: '/admin',
-//   name: 'Admin',
-//   beforeEnter: (to, from) => isLoggedIn.value && isAdmin.value,
-//   component: Admin,
-//   children: [
-//     AdminHomeRoute,
-//     AdminUsersRoute,
-//     AdminUserRoute,
-//     AdminOrganizationsRoute,
-//   ]
-// }
-// export const MembersRoute: RouteRecordRaw = {
-//   path: '/members',
-//   name: 'Members',
-//   component: Organizations,
-//   children: [
-//     {
-//       path: ':id',
-//       component: Organizations
-//     }
-//   ]
-// }
-// export const DatasourcesRoute: RouteRecordRaw = {
-//   path: '/datasources',
-//   name: 'Datasources',
-//   beforeEnter: (to, from) => isLoggedIn.value,
-//   component: Datasources,
-//   // children: [
-//   //   {
-//   //     path: '/datasources/:id',
-//   //     component: DatasourcesDataTable
-//   //   }
-//   // ]
-// }
-// export const FilesDatasourcesRoute: RouteRecordRaw = {
-//   path: `/files`,
-//   name: 'FilesDatasources',
-//   beforeEnter: (to, from) => isLoggedIn.value,
-//   component: Files,
-// }
-// export const ReportsRoute: RouteRecordRaw = {
-//   path: '/reports',
-//   name: 'Reports',
-//   beforeEnter: (to, from) => isLoggedIn.value,
-//   component: Reports
-// }
-// export const AnalyzeRoute: RouteRecordRaw = {
-//   path: '/analyze',
-//   name: 'Analyze',
-//   beforeEnter: (to, from) => isLoggedIn.value,
-//   component: Analyze
-// }
-// export const VisualizationsRoute: RouteRecordRaw = {
-//   path: '/visualizations',
-//   name: 'Visualizations',
-//   beforeEnter: (to, from) => isLoggedIn.value,
-//   component: () => import('../views/Visualizations.vue')
-// }
-// export const ChartsRoute: RouteRecordRaw = {
-//   path: '/charts',
-//   name: 'Charts',
-//   beforeEnter: (to, from) => isLoggedIn.value,
-//   component: () => import('../views/Visualizations.vue')
-// }
-
-// export const OrganizationsRoute: RouteRecordRaw = {
-//   path: '/organizations',
-//   name: 'Organizations',
-//   component: Organizations,
-//   // children: [
-//   //   {
-//   //     path: ':id',
-//   //     component: Organizations,
-//   //     children: [
-//   //       MembersRoute,
-//   //       DatasourcesRoute
-//   //     ]
-//   //   }
-//   // ]
-// }
-// export const SettingsRoute: RouteRecordRaw = {
-//   path: '/settings',
-//   name: 'Settings',
-//   component: Settings
-//   // component: () => import('../views/About.vue')
-// }
-
-// export const routes: Array<RouteRecordRaw> = [
-//   HomeRoute,
-//   OrganizationsRoute,
-//   MembersRoute,
-//   AdminRoutes,
-//   ProfileRoute,
-//   DatasourcesRoute,
-//   FilesDatasourcesRoute,
-//   ReportsRoute,
-//   AnalyzeRoute,
-//   LoginRoute,
-//   RegisterRoute,
-//   AboutRoute,
-//   SettingsRoute,
-// ]
