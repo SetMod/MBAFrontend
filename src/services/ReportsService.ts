@@ -1,40 +1,40 @@
 import { AxiosError } from "axios";
-import Reports, { ReportsResponse } from "../models/ReportsModel";
-import { VisualizationResponse } from "../models/VisualizationsModel";
+import Reports, { IReportsResponse } from "../models/ReportsModel";
 import GenericService from "./GenericService";
 
-export default class ReportsService extends GenericService<Reports, ReportsResponse> {
+export default class ReportsService extends GenericService<Reports, IReportsResponse> {
 
     constructor() {
         super("/reports")
     }
 
-    mapJSONToModel(reportJson: ReportsResponse): Reports {
-        const report = new Reports()
-        report.id = reportJson.id
-        report.name = reportJson.name
-        report.type = reportJson.type
-        report.userId = reportJson.user_id
-        report.organizationId = reportJson.organization_id
-        report.createdDate = reportJson.created_date
-        report.updatedDate = reportJson.updated_date
-        report.deletedDate = reportJson.deleted_date
-        report.softDeleted = reportJson.soft_deleted
-
-        return report
+    mapJSONToModel(reportJson: IReportsResponse): Reports {
+        return Reports.fromJSON(reportJson)
     }
 
-    mapModelToJSON(report: Reports): ReportsResponse {
-        return <ReportsResponse>{
-            id: report.id,
-            name: report.name,
-            type: report.type,
-            user_id: report.userId,
-            organization_id: report.organizationId,
-            created_date: report.createdDate,
-            updated_date: report.updatedDate,
-            deleted_date: report.deletedDate,
-            soft_deleted: report.softDeleted,
+    mapModelToJSON(report: Reports): IReportsResponse {
+        return Reports.toJSON(report)
+    }
+
+    async getUserReports(userId: number) {
+        try {
+            console.log(`Getting all user reports with id='${userId}'`);
+            const res = await this.api.get(`/users/${userId}/reports`)
+            console.log(res)
+
+            const models = this.mapJSONToModels(res.data)
+            console.log(models)
+
+            return models
+
+        } catch (err) {
+            let errorMessage = "Failed to get all user reports"
+            console.error(errorMessage)
+            if (err instanceof AxiosError) {
+                errorMessage += `. ${err.message}`
+            }
+
+            throw new Error(errorMessage)
         }
     }
 
@@ -42,7 +42,7 @@ export default class ReportsService extends GenericService<Reports, ReportsRespo
     //     try {
     //         const res = await this.api.get(`${this.url}/${id}/visualizations`)
 
-    //         const visualizations: Visualizations[] = res.data.map((val: VisualizationResponse) => {
+    //         const visualizations: Visualizations[] = res.data.map((val: IVisualizationResponse) => {
     //             return this.mapDataToVisualization(val)
     //         })
     //         console.log(visualizations)

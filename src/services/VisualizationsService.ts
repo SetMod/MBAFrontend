@@ -1,11 +1,19 @@
 import { AxiosError } from "axios";
-import Visualizations, { TopRulesDataResponse, TopSupportDataResponse, TopTransactionsDataResponse, TotalCostItemDataResponse, VisualizationResponse } from "../models/VisualizationsModel";
+import Visualizations, { TopRulesDataResponse, TopSupportDataResponse, TopTransactionsDataResponse, TotalCostItemDataResponse, IVisualizationResponse } from "../models/VisualizationsModel";
 import GenericService from "./GenericService";
 
-export default class VisualizationsService extends GenericService<Visualizations, VisualizationResponse> {
+export default class VisualizationsService extends GenericService<Visualizations, IVisualizationResponse> {
 
     constructor() {
         super("/visualizations");
+    }
+
+    mapJSONToModel(visualizationJson: IVisualizationResponse): Visualizations {
+        return Visualizations.fromJSON(visualizationJson)
+    }
+
+    mapModelToJSON(visualization: Visualizations): IVisualizationResponse {
+        return Visualizations.toJSON(visualization)
     }
 
     isTopSupportData = (obj: any): obj is TopSupportDataResponse => {
@@ -76,7 +84,7 @@ export default class VisualizationsService extends GenericService<Visualizations
             })
             console.log(res);
 
-            // const associationRules: AssociationRules[] = res.data.map((val: AssociationRulesResponse) => {
+            // const associationRules: AssociationRules[] = res.data.map((val: IAssociationRulesResponse) => {
             //     return this.mapDataToAssociationRules(val)
             // })
             // // console.log(associationRules)
@@ -129,31 +137,6 @@ export default class VisualizationsService extends GenericService<Visualizations
             throw new Error(errorMessage)
         }
     }
-
-    mapJSONToModel(visualizationJson: VisualizationResponse): Visualizations {
-        const visualization = new Visualizations()
-        visualization.id = visualizationJson.id
-        visualization.name = visualizationJson.name
-        visualization.type = visualizationJson.type
-        visualization.reportId = visualizationJson.report_id
-        visualization.createdDate = visualizationJson.created_date
-        visualization.updatedDate = visualizationJson.updated_date
-        visualization.deletedDate = visualizationJson.deleted_date
-        visualization.softDeleted = visualizationJson.soft_deleted
-
-        return visualization
-    }
-
-    mapModelToJSON(visualization: Visualizations): VisualizationResponse {
-        return <VisualizationResponse>{
-            id: visualization.id,
-            name: visualization.name,
-            type: visualization.type,
-            report_id: visualization.reportId,
-            created_date: visualization.createdDate,
-            updated_date: visualization.updatedDate,
-            deleted_date: visualization.deletedDate,
-            soft_deleted: visualization.softDeleted,
-        }
-    }
 }
+
+export const visualizationsService = new VisualizationsService()

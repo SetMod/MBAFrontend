@@ -1,12 +1,20 @@
 import axios, { AxiosError } from "axios";
-import { Datasources, IDatasourcesResponse } from "../models/DatasourcesModel"
+import Datasources, { IDatasourcesResponse } from "../models/DatasourcesModel"
 import GenericService from "./GenericService";
 
 
-export default class FileDatasourcesService extends GenericService<Datasources, IDatasourcesResponse> {
+export default class DatasourcesService extends GenericService<Datasources, IDatasourcesResponse> {
 
     constructor() {
         super("/datasources")
+    }
+
+    mapJSONToModel(datasourceJson: IDatasourcesResponse): Datasources {
+        return Datasources.fromJSON(datasourceJson)
+    }
+
+    mapModelToJSON(datasource: Datasources): IDatasourcesResponse {
+        return Datasources.toJSON(datasource)
     }
 
     async downloadFileById(fileId: number) {
@@ -35,6 +43,7 @@ export default class FileDatasourcesService extends GenericService<Datasources, 
             throw new Error(errorMessage)
         }
     }
+
     async createFile(file: Datasources, form: FormData) {
         try {
             // const dataFile = this.mapFileToData(file)
@@ -63,34 +72,6 @@ export default class FileDatasourcesService extends GenericService<Datasources, 
         }
     }
 
-
-    mapJSONToModel(fileDatasourcesJson: IDatasourcesResponse): Datasources {
-        const fileDatasource = new Datasources()
-        fileDatasource.id = fileDatasourcesJson.id
-        fileDatasource.name = fileDatasourcesJson.name
-        fileDatasource.type = fileDatasourcesJson.type
-        fileDatasource.creatorId = fileDatasourcesJson.creator_id
-        fileDatasource.createdDate = fileDatasourcesJson.created_date
-        fileDatasource.updatedDate = fileDatasourcesJson.updated_date
-        fileDatasource.deletedDate = fileDatasourcesJson.deleted_date
-        fileDatasource.softDeleted = fileDatasourcesJson.soft_deleted
-
-        return fileDatasource
-    }
-
-    mapModelToJSON(fileDatasource: Datasources): IDatasourcesResponse {
-        return <IDatasourcesResponse>{
-            id: fileDatasource.id,
-            name: fileDatasource.name,
-            type: fileDatasource.type,
-            creator_id: fileDatasource.creatorId,
-            created_date: fileDatasource.createdDate,
-            updated_date: fileDatasource.updatedDate,
-            deleted_date: fileDatasource.deletedDate,
-            soft_deleted: fileDatasource.softDeleted,
-        }
-    }
-
     async getUserDatasources(userId: number) {
         try {
             console.log(`Getting all user datasources with id='${userId}'`);
@@ -115,4 +96,4 @@ export default class FileDatasourcesService extends GenericService<Datasources, 
 
 }
 
-export const filesService = new FileDatasourcesService()
+export const datasourcesService = new DatasourcesService()

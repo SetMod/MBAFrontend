@@ -1,19 +1,43 @@
 import axios, { AxiosError } from "axios";
-import config from "../config";
-import Analyzes, { AssociationRules, AnalyzeResponse, AssociationRulesResponse } from "../models/AnalyzesModel";
+import Analyzes, { AssociationRules, IAnalyzeResponse, IAssociationRulesResponse } from "../models/AnalyzesModel";
 import GenericService from "./GenericService";
 
-export default class AnalyzesService extends GenericService<Analyzes, AnalyzeResponse> {
+export default class AnalyzesService extends GenericService<Analyzes, IAnalyzeResponse> {
 
     constructor() {
         super("/analyzes")
     }
 
-    async downloadAnalyzeById(id: number) {
-        try {
-            const analyze = await this.getById(id)
+    mapJSONToModel(analyzeJson: IAnalyzeResponse): Analyzes {
+        return Analyzes.fromJSON(analyzeJson)
+    }
 
-            const res = await axios.get(`${this.url}/download/${id}`, { responseType: 'blob' })
+    mapModelToJSON(analyze: Analyzes): IAnalyzeResponse {
+        return Analyzes.toJSON(analyze)
+    }
+
+    mapDataToAssociationRules(data: IAssociationRulesResponse) {
+        const associationRules = new AssociationRules()
+        associationRules.antecedentSupport = data["antecedent support"]
+        associationRules.antecedents = data.antecedents
+        associationRules.confidence = data.confidence
+        associationRules.consequentSupport = data["consequent support"]
+        associationRules.consequents = data.consequents
+        associationRules.conviction = data.conviction
+        associationRules.leverage = data.leverage
+        associationRules.lift = data.lift
+        associationRules.support = data.support
+
+        return associationRules
+    }
+
+    async downloadAnalyzeById(analyzeId: number) {
+        try {
+            console.log(`Downloading analyze with id='${analyzeId}'`);
+
+            const analyze = await this.getById(analyzeId)
+
+            const res = await axios.get(`${this.url}/download/${analyzeId}`, { responseType: 'blob' })
             console.log(res)
 
             const blob = new Blob([res.data], { type: res.data.type })
@@ -35,12 +59,13 @@ export default class AnalyzesService extends GenericService<Analyzes, AnalyzeRes
             throw new Error(errorMessage)
         }
     }
+
     // async getReportAnalyzes(reportId: number) {
     //     try {
     //         const res = await axios.get(`${this.url}/reports/${reportId}/analyzes`)
     //         console.log(res)
 
-    //         const analyzes: Analyzes[] = res.data.map((val: AnalyzeResponse) => {
+    //         const analyzes: Analyzes[] = res.data.map((val: IAnalyzeResponse) => {
     //             return this.mapJSONToModel(val)
     //         })
     //         console.log(analyzes)
@@ -56,6 +81,7 @@ export default class AnalyzesService extends GenericService<Analyzes, AnalyzeRes
     //         throw new Error(errorMessage)
     //     }
     // }
+
     async createAnalyze(analyze: Analyzes, fileId: number) {
         try {
             const dataAnalyze = this.mapModelToJSON(analyze)
@@ -67,7 +93,7 @@ export default class AnalyzesService extends GenericService<Analyzes, AnalyzeRes
             })
             console.log(res)
 
-            const associationRules: AssociationRules[] = res.data.map((val: AssociationRulesResponse) => {
+            const associationRules: AssociationRules[] = res.data.map((val: IAssociationRulesResponse) => {
                 return this.mapDataToAssociationRules(val)
             })
             // console.log(associationRules)
@@ -123,62 +149,28 @@ export default class AnalyzesService extends GenericService<Analyzes, AnalyzeRes
         }
     }
 
-    mapJSONToModel(analyzeJson: AnalyzeResponse): Analyzes {
-        const analyze = new Analyzes()
-        analyze.id = analyzeJson.id
-        analyze.name = analyzeJson.name
-        analyze.description = analyzeJson.description
-        analyze.support = analyzeJson.support
-        analyze.lift = analyzeJson.lift
-        analyze.confidence = analyzeJson.confidence
-        analyze.rulesLength = analyzeJson.rules_length
-        analyze.filePath = analyzeJson.file_path
-        analyze.status = analyzeJson.status
-        analyze.datasourceId = analyzeJson.datasource_id
-        analyze.startedDate = analyzeJson.started_date
-        analyze.finishedDate = analyzeJson.finished_date
-        analyze.createdDate = analyzeJson.created_date
-        analyze.updatedDate = analyzeJson.updated_date
-        analyze.deletedDate = analyzeJson.deleted_date
-        analyze.softDeleted = analyzeJson.soft_deleted
+    async getUserAnalyzes(userId: number) {
+        try {
+            console.log(`Getting all user analyzes with id='${userId}'`);
+            const res = await this.api.get(`/users/${userId}/analyzes`)
+            console.log(res)
 
-        return analyze
-    }
+            const models = this.mapJSONToModels(res.data)
+            console.log(models)
 
+            return models
 
-    mapModelToJSON(analyze: Analyzes): AnalyzeResponse {
-        return <AnalyzeResponse>{
-            id: analyze.id,
-            name: analyze.name,
-            description: analyze.description,
-            support: analyze.support,
-            lift: analyze.lift,
-            confidence: analyze.confidence,
-            rules_length: analyze.rulesLength,
-            file_path: analyze.filePath,
-            status: analyze.status,
-            datasource_id: analyze.datasourceId,
-            started_date: analyze.startedDate,
-            finished_date: analyze.finishedDate,
-            created_date: analyze.createdDate,
-            updated_date: analyze.updatedDate,
-            deleted_date: analyze.deletedDate,
-            soft_deleted: analyze.softDeleted,
+        } catch (err) {
+            let errorMessage = "Failed to get all user analyzes"
+            console.error(errorMessage)
+            if (err instanceof AxiosError) {
+                errorMessage += `. ${err.message}`
+            }
+
+            throw new Error(errorMessage)
         }
     }
 
-    mapDataToAssociationRules(data: AssociationRulesResponse) {
-        const associationRules = new AssociationRules()
-        associationRules.antecedentSupport = data["antecedent support"]
-        associationRules.antecedents = data.antecedents
-        associationRules.confidence = data.confidence
-        associationRules.consequentSupport = data["consequent support"]
-        associationRules.consequents = data.consequents
-        associationRules.conviction = data.conviction
-        associationRules.leverage = data.leverage
-        associationRules.lift = data.lift
-        associationRules.support = data.support
-
-        return associationRules
-    }
 }
+
+export const analyzesService = new AnalyzesService()

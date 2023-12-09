@@ -1,38 +1,40 @@
-import Organizations, { OrganizationsResponse } from "../models/OrganizationsModel"
+import { AxiosError } from "axios"
+import Organizations, { IOrganizationsResponse } from "../models/OrganizationsModel"
 import GenericService from "./GenericService"
 
-export default class OrganizationsService extends GenericService<Organizations, OrganizationsResponse> {
+export default class OrganizationsService extends GenericService<Organizations, IOrganizationsResponse> {
 
     constructor() {
         super("/organizations")
     }
 
-    mapJSONToModel(organizationJson: OrganizationsResponse): Organizations {
-        const organization = new Organizations()
-        organization.id = organizationJson.id
-        organization.name = organizationJson.name
-        organization.description = organizationJson.description
-        organization.email = organizationJson.email
-        organization.phone = organizationJson.phone
-        organization.createdDate = organizationJson.created_date
-        organization.updatedDate = organizationJson.updated_date
-        organization.deletedDate = organizationJson.deleted_date
-        organization.softDeleted = organizationJson.soft_deleted
-
-        return organization
+    mapJSONToModel(organizationJson: IOrganizationsResponse): Organizations {
+        return Organizations.fromJSON(organizationJson)
     }
 
-    mapModelToJSON(organization: Organizations): OrganizationsResponse {
-        return <OrganizationsResponse>{
-            id: organization.id,
-            name: organization.name,
-            description: organization.description,
-            email: organization.email,
-            phone: organization.phone,
-            created_date: organization.createdDate,
-            updated_date: organization.updatedDate,
-            deleted_date: organization.deletedDate,
-            soft_deleted: organization.softDeleted,
+    mapModelToJSON(organization: Organizations): IOrganizationsResponse {
+        return Organizations.toJSON(organization)
+    }
+
+    async getUserOrganizations(userId: number) {
+        try {
+            console.log(`Getting user organizations with id='${userId}'`)
+            const res = await this.api.get(`/users/${userId}/organizations`)
+            console.log(res)
+
+            const models = this.mapJSONToModels(res.data)
+            console.log(models)
+
+            return models
+
+        } catch (err) {
+            let errorMessage = "Failed to get user organizations"
+            console.error(errorMessage)
+            if (err instanceof AxiosError) {
+                errorMessage += `. ${err.message}`
+            }
+
+            throw new Error(errorMessage)
         }
     }
 }
