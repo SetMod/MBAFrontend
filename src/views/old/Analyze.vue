@@ -6,7 +6,7 @@ import useReports from "../hooks/useReports";
 import useUsers from "../hooks/useUsers";
 import { useToast } from "primevue/usetoast";
 import Analyzes from "../models/AnalyzesModel";
-import { FileDatasourcesModel } from "../models/DatasourcesModel";
+import { Datasources } from "../models/DatasourcesModel";
 import Reports from "../models/ReportsModel";
 import AnalyzeCreateVue from "../components/Analyzes/AnalyzeCreate.vue";
 import AssociationRulesDataTableVue from "../components/Analyzes/AssociationRulesDataTable.vue";
@@ -25,7 +25,7 @@ const { getUserReports, userReports: reports, isReportsLoading } = useReports()
 const { getUserFiles, files, isFilesLoading } = useFiles()
 const { userAnalyzes: analyzes, associationRules, isAnalyzesLoading, createAnalyze } = useAnalyzes()
 const selectedAnalyze = ref<Analyzes>()
-const submitAnalyze = async (analyze: Analyzes, file: FileDatasourcesModel, report: Reports) => {
+const submitAnalyze = async (analyze: Analyzes, file: Datasources, report: Reports) => {
   if (!file || !report) return toast.add({ severity: 'warn', summary: 'Warning', detail: 'Select file and report', life: 3000 });
 
   // analyze.datasourceId = report.id

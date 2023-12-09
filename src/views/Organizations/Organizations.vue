@@ -1,43 +1,27 @@
 <script setup lang="ts">
 import { onMounted } from 'vue';
-import useUsers from '../../hooks/useUsers';
-import { useRoute, useRouter } from 'vue-router';
-import useOrganizationMembers from '../../hooks/useOrganizationMembers';
 import OrganizationsDataTable from '../../components/Organizations/OrganizationsDataTable.vue';
+import useOrganizations from '../../hooks/useOrganizations';
 
-const router = useRouter()
-const route = useRoute()
-const { userOrganizations, currentUser, getOrganizations } = useUsers()
-const { getMemberByOrgAndUserIDs, getOrganizationMemberByField, currentMember } = useOrganizationMembers()
+const { userOrganizations, organizations, getUserOrganizations, getOrganizations } = useOrganizations()
 
-let userIdParam = route.params.userId
-let userId = typeof userIdParam === "string" ? Number(userIdParam) : null
-
-onMounted(async () => {
-    console.log("User id: " + userId);
-    console.log("Current User id: " + currentUser.value?.id);
-    console.log("Current Member id: " + currentMember.value?.id);
-
-    if (!currentUser.value || !userId) {
-        router.push('/login')
-    } else {
-        // getOrganizationMemberByField("user_id", userId)
-        // getMemberByOrgAndUserIDs(1, userId)
-        getOrganizations(userId)
+const props = defineProps({
+    userId: {
+        type: Number,
+        required: false,
+        default: null
     }
 })
 
-const columns = [
-    { field: "id", header: "ID" },
-    { field: "name", header: "NAME" },
-    { field: "description", header: "DESCRIPTION" },
-    { field: "email", header: "EMAIL" },
-    { field: "phone", header: "PHONE" },
-    { field: "createdDate", header: "CREATEDDATE" },
-    { field: "updatedDate", header: "UPDATEDDATE" },
-    { field: "deletedDate", header: "DELETEDDATE" },
-    { field: "softDeleted", header: "SOFTDELETED" },
-];
+onMounted(async () => {
+    if (props.userId) {
+        await getUserOrganizations(props.userId)
+        // getOrganizationMemberByField("user_id", userId)
+        // getMemberByOrgAndUserIDs(1, userId)
+    } else {
+        await getOrganizations()
+    }
+})
 </script>
 
 <template>
@@ -46,5 +30,8 @@ const columns = [
     </h1>
     <div v-if="userOrganizations">
         <OrganizationsDataTable :organizations="userOrganizations" />
+    </div>
+    <div v-else-if="organizations">
+        <OrganizationsDataTable :organizations="organizations" />
     </div>
 </template>

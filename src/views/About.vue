@@ -2,7 +2,7 @@
 </script>
 
 <template>
-  <div class="m-auto text-left p-card p-5" style="width: 70rem;">
+  <div class="m-auto text-left p-card p-5">
     <h3 class="p-card-title">About</h3>
     <div>
       <h3 class="my-3">Workflow</h3>

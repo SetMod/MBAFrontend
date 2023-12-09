@@ -5,7 +5,7 @@ import useUsers from "../hooks/useUsers"
 import { useToast } from "primevue/usetoast";
 import useOrganizations from "../hooks/useOrganizations";
 import { FileUploadRemoveEvent } from "primevue/fileupload"
-import { FileDatasourcesModel } from "../models/DatasourcesModel";
+import { Datasources } from "../models/DatasourcesModel";
 import FileDeleteDialogVue from "../components/Files/FileDeleteDialog.vue";
 import FileEditDialogVue from "../components/Files/FileEditDialog.vue";
 import FileUploadVue from "../components/Files/FileUpload.vue";
@@ -15,7 +15,7 @@ const toast = useToast();
 const { user, isLoggedIn, getUsers } = useUsers()
 const { organization, getUserOrganizations } = useOrganizations()
 const { userFiles: files, isFilesLoading, getUserFiles, createFile, deleteFile, updateFile, downloadFile } = useFiles()
-const selectedFile = ref<FileDatasourcesModel>()
+const selectedFile = ref<Datasources>()
 const csvFile = ref()
 const displayDelete = ref(false)
 const displayUpdate = ref(false)
@@ -36,15 +36,15 @@ const closeDialog = () => {
     displayUpdate.value = false
     selectedFile.value = undefined
 }
-const openEdit = (file: FileDatasourcesModel) => {
+const openEdit = (file: Datasources) => {
     displayUpdate.value = true
     selectedFile.value = file
 }
-const openDelete = (file: FileDatasourcesModel) => {
+const openDelete = (file: Datasources) => {
     displayDelete.value = true
     selectedFile.value = file
 }
-const onUpload = async (event: FileUploadRemoveEvent, newFile: FileDatasourcesModel) => {
+const onUpload = async (event: FileUploadRemoveEvent, newFile: Datasources) => {
     if (!isLoggedIn.value || !user.value) return toast.add({ severity: 'error', summary: 'Error', detail: 'User not signed in', life: 3000 });
     if (!organization.value) return toast.add({ severity: 'warn', summary: 'Warning', detail: 'Select organization in your profile', life: 3000 });
 
