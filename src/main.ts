@@ -32,15 +32,27 @@ import ProgressSpinner from 'primevue/progressspinner';
 import Sidebar from 'primevue/sidebar';
 import Breadcrumb from 'primevue/breadcrumb';
 import PanelMenu from 'primevue/panelmenu';
+import Tag from 'primevue/tag';
+import ConfirmDialog from 'primevue/confirmdialog';
+import ConfirmationService from 'primevue/confirmationservice';
+
+import 'primevue/resources/themes/lara-light-green/theme.css'
+import "primeicons/primeicons.css";
+import Menu from 'primevue/menu';
+// import 'primevue/resources/themes/soho-dark/theme.css'
+// import 'primevue/resources/themes/soho-light/theme.css'
 
 const app = createApp(App);
 
 app.use(router)
 app.use(PrimeVue, { ripple: true })
 app.use(ToastService)
+app.use(ConfirmationService);
 
 app.directive('tooltip', Tooltip);
 
+app.component('ConfirmDialog', ConfirmDialog);
+app.component('Tag', Tag);
 app.component('PanelMenu', PanelMenu);
 app.component('Button', Button);
 app.component('Breadcrumb', Breadcrumb);
@@ -59,6 +71,7 @@ app.component('Textarea', Textarea);
 app.component('Toast', Toast);
 app.component('Toolbar', Toolbar);
 app.component('Message', Message);
+app.component('Menu', Menu);
 app.component('MegaMenu', MegaMenu);
 app.component('Menubar', Menubar);
 app.component('InputText', InputText);
