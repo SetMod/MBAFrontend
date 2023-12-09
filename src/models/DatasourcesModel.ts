@@ -1,6 +1,6 @@
 import GenericModel, { IGenericResponse } from "./GenericModel";
 
-enum DatasourceTypes {
+export enum DatasourceTypes {
     FILE = "file",
     DB = "db",
 

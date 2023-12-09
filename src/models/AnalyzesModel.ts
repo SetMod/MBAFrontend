@@ -16,7 +16,7 @@ export enum Algorithm {
     HMINE = "H-mine"
 }
 
-export interface IAnalyzeResponse extends IGenericResponse {
+export interface IAnalyzesResponse extends IGenericResponse {
     name: string
     description: string
     support: number
@@ -26,8 +26,8 @@ export interface IAnalyzeResponse extends IGenericResponse {
     file_path: string
     status: AnalyzeStatus
     algorithm: Algorithm
-    started_date: Date
-    finished_date: Date
+    started_date: Date | null
+    finished_date: Date | null
     creator_id: number
 }
 
@@ -95,7 +95,7 @@ export default class Analyzes extends GenericModel {
         this.softDeleted = softDeleted
     }
 
-    static fromJSON(analyzeJson: IAnalyzeResponse): Analyzes {
+    static fromJSON(analyzeJson: IAnalyzesResponse): Analyzes {
         const analyze = new Analyzes(
             analyzeJson.id,
             analyzeJson.name,
@@ -118,8 +118,8 @@ export default class Analyzes extends GenericModel {
         return analyze
     }
 
-    static toJSON(analyze: Analyzes): IAnalyzeResponse {
-        const analyzeRes = <IAnalyzeResponse>{
+    static toJSON(analyze: Analyzes): IAnalyzesResponse {
+        const analyzeRes = <IAnalyzesResponse>{
             id: analyze.id,
             name: analyze.name,
             description: analyze.description,
@@ -142,7 +142,7 @@ export default class Analyzes extends GenericModel {
         return analyzeRes
     }
 
-    toJSON(): IAnalyzeResponse {
+    toJSON(): IAnalyzesResponse {
         return Analyzes.toJSON(this)
     }
 }
