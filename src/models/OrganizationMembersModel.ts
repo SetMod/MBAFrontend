@@ -1,4 +1,4 @@
-import GenericModel, { GenericResponse } from "./GenericModel"
+import GenericModel, { IGenericResponse } from "./GenericModel"
 
 export enum OrganizationRoles {
     OWNER = "Owner",
@@ -7,16 +7,74 @@ export enum OrganizationRoles {
     VIEWER = "Viewer",
 }
 
-export default class OrganizationMembers extends GenericModel {
-    userId: number = 0
-    organizationId: number = 0
-    active: boolean = true
-    role: OrganizationRoles = OrganizationRoles.VIEWER
-}
-
-export interface OrganizationMembersResponse extends GenericResponse {
+export interface IOrganizationMembersResponse extends IGenericResponse {
     user_id: number
     organization_id: number
     active: boolean
     role: OrganizationRoles
+}
+
+export default class OrganizationMembers extends GenericModel {
+    userId: number
+    organizationId: number
+    active: boolean
+    role: OrganizationRoles
+
+    constructor(
+        id: number,
+        userId: number,
+        organizationId: number,
+        active: boolean = true,
+        role: OrganizationRoles = OrganizationRoles.VIEWER,
+        createdDate: Date = new Date(),
+        updatedDate: Date | null = null,
+        deletedDate: Date | null = null,
+        softDeleted: boolean = false,
+    ) {
+        super(id, createdDate, updatedDate, deletedDate, softDeleted)
+        this.userId = userId
+        this.organizationId = organizationId
+        this.active = active
+        this.role = role
+        this.createdDate = createdDate
+        this.updatedDate = updatedDate
+        this.deletedDate = deletedDate
+        this.softDeleted = softDeleted
+    }
+
+    static fromJSON(organizationMemberJson: IOrganizationMembersResponse) {
+        const organizationMember = new OrganizationMembers(
+            organizationMemberJson.id,
+            organizationMemberJson.user_id,
+            organizationMemberJson.organization_id,
+            organizationMemberJson.active,
+            organizationMemberJson.role,
+            organizationMemberJson.created_date,
+            organizationMemberJson.updated_date,
+            organizationMemberJson.deleted_date,
+            organizationMemberJson.soft_deleted,
+        )
+
+        return organizationMember
+    }
+
+    static toJSON(organizationMember: OrganizationMembers) {
+        const memberRes = <IOrganizationMembersResponse>{
+            id: organizationMember.id,
+            user_id: organizationMember.userId,
+            organization_id: organizationMember.organizationId,
+            role: organizationMember.role.toUpperCase(),
+            active: organizationMember.active,
+            created_date: organizationMember.createdDate,
+            updated_date: organizationMember.updatedDate,
+            deleted_date: organizationMember.deletedDate,
+            soft_deleted: organizationMember.softDeleted
+        }
+
+        return memberRes
+    }
+
+    toJSON() {
+        return OrganizationMembers.toJSON(this)
+    }
 }
