@@ -1,50 +1,29 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
 import Navbar from './components/Navbar.vue'
 import Footer from './components/Footer.vue'
 import Container from './components/Container.vue'
-import useUsers from './hooks/useUsers'
-
-const { whoAmI } = useUsers()
-
-onMounted(() => {
-  whoAmI()
-})
-
 import Sidebar from './components/Sidebar.vue';
-import useRoutes from './hooks/useRoutes'
-
-const { sideBarRoutes } = useRoutes()
 </script>
 
 <template>
-  <div class="min-w-screen">
-    <Navbar />
-    <div class="flex justify-content-center">
-      <Sidebar :routes="sideBarRoutes" />
-      <Container>
-        <Suspense>
+  <Suspense>
+    <div>
+      <Navbar />
+      <div class="grid">
+        <Sidebar class="col-2" />
+        <Container class="col-auto w-10">
           <router-view />
-        </Suspense>
-      </Container>
+        </Container>
+      </div>
+      <Footer />
     </div>
-    <Footer />
-  </div>
+  </Suspense>
 </template>
 
 
 <style>
-@import "primevue/resources/themes/saga-blue/theme.css ";
-@import "primevue/resources/primevue.min.css";
 @import "primeicons/primeicons.css";
 @import "primeflex/primeflex.css";
-
-* {
-  margin: 0;
-  padding: 0;
-  border: 0;
-  box-sizing: border-box;
-}
 
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
@@ -52,15 +31,5 @@ const { sideBarRoutes } = useRoutes()
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-}
-
-#nav a {
-  font-weight: bold;
-  color: #2c3e50;
-}
-
-#nav a.router-link-exact-active {
-  font-weight: bold;
-  color: #42b983;
 }
 </style>
