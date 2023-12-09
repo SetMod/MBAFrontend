@@ -1,3 +1,24 @@
+<script setup lang="ts">
+const props = defineProps(
+    {
+        display: {
+            type: Boolean,
+            required: true
+
+        },
+        closeDialog: {
+            type: Function,
+            required: true
+        },
+        submitDialog: {
+            type: Function,
+            required: true
+        }
+    }
+) 
+</script>
+
+
 <template>
     <Dialog v-model:visible="props.display" header="Confirmation" :style="{ width: '350px' }" :modal="true">
         <div class="confirmation-content flex align-content-center justify-content-between">
@@ -12,33 +33,3 @@
         </template>
     </Dialog>
 </template>
-
-<script lang="ts">
-import { defineComponent } from "vue"
-
-export default defineComponent({
-    props: {
-        display: {
-            type: Boolean,
-            required: true
-
-        },
-        closeDialog: {
-            type: Function,
-            required: true
-        },
-        submitDialog: {
-            type: Function,
-            required: true
-        }
-    },
-    setup(props) {
-        return {
-            props
-        }
-    }
-})
-</script>
-
-<style>
-</style>

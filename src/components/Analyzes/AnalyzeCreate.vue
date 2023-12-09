@@ -76,84 +76,69 @@
                 <Button v-else label="Create report" class="p-button-link" @click="redirectReports" />
             </div>
             <div class="field flex justify-content-around">
-                <i v-if="loading" class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
+                <i v-if="props.loading" class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
                 <Button v-else label="Analyze" :disabled="!selectedFile || !selectedReport"
-                    @click="() => submit(state, selectedFile, selectedReport)" />
+                    @click="() => props.submit(analyzeCreateState, selectedFile, selectedReport)" />
             </div>
         </div>
     </div>
 </template>
 
-<script lang="ts">
+<script setup lang="ts">
 import useVuelidate from "@vuelidate/core"
 import { maxLength, minLength, required, decimal, between } from "@vuelidate/validators"
-import { defineComponent, reactive, ref } from "vue"
+import { reactive, ref } from "vue"
 import useFiles from "../../hooks/useFiles"
 import useRoutes from "../../hooks/useRoutes"
 import useReports from "../../hooks/useReports"
-import Analyzes, { AnalyzeStatus } from "../../models/AnalyzesModel"
-import { FileDatasourcesModel } from "../../models/DatasourcesModel"
+import Analyzes, { AnalyzeStatus, Algorithm, IAnalyzesResponse } from "../../models/AnalyzesModel"
+import Datasources from "../../models/DatasourcesModel"
 import Reports from "../../models/ReportsModel"
 
-export default defineComponent({
-    props: {
-        loading: {
-            type: Boolean,
-            default: false
-        },
-        submit: {
-            type: Function,
-            required: true
-        }
+const props = defineProps({
+    loading: {
+        type: Boolean,
+        default: false
     },
-    setup(props) {
-        const { userFiles, isFilesLoading } = useFiles()
-        const { userReports, isReportsLoading } = useReports()
-        const { redirectFiles, redirectReports } = useRoutes()
-        const selectedFile = ref<FileDatasourcesModel>()
-        const selectedReport = ref<Reports>()
-        const state = reactive<Analyzes>({
-            id: 0,
-            name: '',
-            description: '',
-            support: 0.1,
-            lift: 0.1,
-            confidence: 0.1,
-            rulesLength: 1,
-            createdDate: new Date(),
-            updatedDate: new Date(),
-            deletedDate: new Date(),
-            softDeleted: false,
-            status: AnalyzeStatus.STARTED,
-            startedDate: new Date(),
-            finishedDate: new Date(),
-            filePath: '',
-            reportId: 0
-        })
-        const rules = {
-            name: { required, minLength: minLength(2), maxLength: maxLength(200) },
-            description: { required, minLength: minLength(10), maxLength: maxLength(2000) },
-            support: { required, decimal, between: between(0.01, 1) },
-            lift: { required, decimal, between: between(0.01, 1) },
-            confidence: { required, decimal, between: between(0.01, 1) },
-            rulesLength: { required, decimal, between: between(1, 10) },
-        }
-        const v$ = useVuelidate(rules, state)
-        return {
-            userFiles,
-            userReports,
-            selectedFile,
-            selectedReport,
-            isFilesLoading,
-            isReportsLoading,
-            v$,
-            state,
-            props,
-            redirectFiles,
-            redirectReports,
-        }
+    submit: {
+        type: Function,
+        required: true
     }
 })
+
+const { userFiles, isFilesLoading } = useFiles()
+const { userReports, isReportsLoading } = useReports()
+const { redirectFiles, redirectReports } = useRoutes()
+const selectedFile = ref<Datasources>()
+const selectedReport = ref<Reports>()
+const analyzeCreateState = reactive<IAnalyzesResponse>({
+    id: 0,
+    name: '',
+    description: '',
+    support: 0.1,
+    lift: 0.1,
+    confidence: 0.1,
+    rules_length: 1,
+    status: AnalyzeStatus.IN_PROGRESS,
+    file_path: '',
+    creator_id: 0,
+    algorithm: Algorithm.FPGROWTH,
+    started_date: null,
+    finished_date: null,
+    created_date: new Date(),
+    updated_date: null,
+    deleted_date: null,
+    soft_deleted: false,
+})
+const analyzeCreateRules = {
+    name: { required, minLength: minLength(2), maxLength: maxLength(200) },
+    description: { required, minLength: minLength(10), maxLength: maxLength(2000) },
+    support: { required, decimal, between: between(0.01, 1) },
+    lift: { required, decimal, between: between(0.01, 1) },
+    confidence: { required, decimal, between: between(0.01, 1) },
+    rules_length: { required, decimal, between: between(1, 10) },
+}
+const v$ = useVuelidate(analyzeCreateRules, analyzeCreateState)
 </script>
 
 <style></style>

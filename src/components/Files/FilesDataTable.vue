@@ -68,7 +68,7 @@
 import { defineComponent, PropType } from "vue"
 import useOrganizations from "../../hooks/useOrganizations"
 import useUsers from "../../hooks/useUsers"
-import Files from "../../models/FileDatasourcesModel"
+import Files from "../../models/Datasources"
 
 export default defineComponent({
     props: {

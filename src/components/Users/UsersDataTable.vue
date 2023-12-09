@@ -12,15 +12,18 @@ const props = defineProps(
         },
         openEdit: {
             type: Function,
-            required: true
+            required: false,
+            default: () => { }
         },
         openDelete: {
             type: Function,
-            required: true
+            required: false,
+            default: () => { }
         },
         refreshTable: {
             type: Function,
-            required: true
+            required: false,
+            default: () => { }
         }
     }
 )

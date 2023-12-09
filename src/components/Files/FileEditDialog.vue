@@ -23,7 +23,7 @@
 import { defineComponent } from "vue"
 import { maxLength, minLength, required } from "@vuelidate/validators"
 import useVuelidate from "@vuelidate/core"
-import { FileDatasourcesModel } from "../../models/DatasourcesModel"
+import { Datasources } from "../../models/DatasourcesModel"
 
 export default defineComponent({
     props: {
@@ -32,7 +32,7 @@ export default defineComponent({
             required: true
         },
         file: {
-            type: FileDatasourcesModel,
+            type: Datasources,
             required: true
         },
         closeDialog: {
