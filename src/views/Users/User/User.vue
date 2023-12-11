@@ -4,8 +4,7 @@
 <template>
     <Toast />
     <div>
-        <h4 class="m-3 text-left">My User</h4>
-        <hr>
+        <h4 class="m-3 text-left">User</h4>
         <div>
             <Sidebar />
             <router-view></router-view>
