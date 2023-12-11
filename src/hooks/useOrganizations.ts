@@ -1,9 +1,10 @@
-import { computed, ref } from "vue";
-import OrganizationMembers from "../models/OrganizationMembersModel";
+import { reactive, ref } from "vue";
 import Organizations from "../models/OrganizationsModel";
 import { organizationsService } from "../services/OrganizationsService";
 import useCRUD from "./useCRUD";
 import useState from "./useState";
+import useVuelidate from "@vuelidate/core";
+import { required, minLength, maxLength, email } from "@vuelidate/validators";
 
 const ORGANIZATION_STORAGE_KEY = "organization"
 const organizationsState = useState<Organizations>()
@@ -32,8 +33,41 @@ const SELECTED_ORGANIZATION_STORAGE_KEY = "selected_organization"
 const selectedOrganization = ref<Organizations | null>(getFromLocalStorage(SELECTED_ORGANIZATION_STORAGE_KEY))
 const userOrganizations = ref<Organizations[] | null>()
 
-export default function useOrganizations() {
+export function useOrgCreateValidate() {
+    const orgCreateState = reactive<Organizations>(new Organizations(0, '', '', '', '',))
+    const orgCreateRules = {
+        name: { required, minLength: minLength(2), maxLength: maxLength(200) },
+        description: { required, minLength: minLength(10), maxLength: maxLength(2000) },
+        email: { required, email, maxLength: maxLength(255) },
+        phone: { minLength: minLength(18), maxLength: maxLength(18) },
+    }
+    const orgCreateValidate = useVuelidate(orgCreateRules, orgCreateState)
 
+    return {
+        orgCreateState,
+        orgCreateRules,
+        orgCreateValidate,
+    }
+}
+
+export function useOrgEditValidate() {
+    const orgEditState = ref<Organizations>(selectedOrganization.value)
+    const orgEditRules = {
+        name: { required, minLength: minLength(2), maxLength: maxLength(200) },
+        description: { required, minLength: minLength(10), maxLength: maxLength(2000) },
+        email: { required, email, maxLength: maxLength(255) },
+        phone: { minLength: minLength(18), maxLength: maxLength(18) },
+    }
+    const orgEditValidate = useVuelidate(orgEditRules, orgEditState)
+
+    return {
+        orgEditState,
+        orgEditRules,
+        orgEditValidate,
+    }
+}
+
+export default function useOrganizations() {
     const selectOrganization = async (orgId: number) => {
         isOrganizationsLoading.value = true
         organizationsError.value = null

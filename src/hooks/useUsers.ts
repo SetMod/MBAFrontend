@@ -32,6 +32,8 @@ const {
 
 export const CURRENT_USER_STORAGE_KEY = "current_user"
 const currentUser = ref<Users | null>(getFromLocalStorage(CURRENT_USER_STORAGE_KEY))
+const SELECTED_USER_STORAGE_KEY = "selected_organization"
+const selectedUser = ref<Users | null>(getFromLocalStorage(SELECTED_USER_STORAGE_KEY))
 
 export function useUserLoginValidate() {
     // LOGIN VALIDATION
@@ -50,12 +52,12 @@ export function useUserLoginValidate() {
         loginValidate
     }
 }
-export function useUserRegisterValidate() {
+export function useUserCreateValidate() {
     // REGISTER VALIDATION
     const password = computed(() => {
-        return registerState.password
+        return userCreateState.password
     })
-    const registerState = reactive({
+    const userCreateState = reactive({
         firstName: '',
         secondName: '',
         email: '',
@@ -65,7 +67,7 @@ export function useUserRegisterValidate() {
         phone: '',
         role: Roles.USER,
     })
-    const registerRules = {
+    const userCreateRules = {
         firstName: { required },
         secondName: { required },
         email: { required, email },
@@ -74,18 +76,18 @@ export function useUserRegisterValidate() {
         confirmPassword: { required, sameAsPassword: sameAs(password) },
         phone: { required, minLength: minLength(18), maxLength: maxLength(18) },
     }
-    const registerValidate = useVuelidate(registerRules, registerState)
+    const userCreateValidate = useVuelidate(userCreateRules, userCreateState)
 
     return {
         password,
-        registerState,
-        registerRules,
-        registerValidate
+        userCreateState,
+        userCreateRules,
+        userCreateValidate
     }
 }
-export function useUserProfileValidate() {
+export function useUserEditValidate() {
     // PROFILE VALIDATION
-    const profileState = reactive({
+    const userEditState = reactive({
         id: currentUser.value?.id,
         firstName: currentUser.value?.firstName,
         secondName: currentUser.value?.secondName,
@@ -95,7 +97,7 @@ export function useUserProfileValidate() {
         phone: currentUser.value?.phone,
         role: currentUser.value?.role,
     })
-    const profileRules = {
+    const userEditRules = {
         firstName: { required },
         secondName: { required },
         email: { required, email },
@@ -103,23 +105,22 @@ export function useUserProfileValidate() {
         // password: { required, minLength: minLength(6) },
         phone: { required, minLength: minLength(18), maxLength: maxLength(18) },
     }
-    const profileValidate = useVuelidate(profileRules, profileState)
+    const userEditValidate = useVuelidate(userEditRules, userEditState)
 
     return {
-        profileState,
-        profileRules,
-        profileValidate,
+        userEditState,
+        userEditRules,
+        userEditValidate,
     }
 }
 export default function useUsers() {
+
     const isAdmin = computed(() => {
         return currentUser.value?.role.toLocaleLowerCase() == Roles.ADMIN.toLocaleLowerCase() ? true : false
     })
     const isLoggedIn = computed(() => {
         return currentUser.value && getJWTToken() ? true : false
     })
-
-
 
     const login = async (username: string, password: string) => {
         isUsersLoading.value = true
@@ -198,6 +199,7 @@ export default function useUsers() {
         updatedUser,
         newUser,
         deletedUser,
+        selectedUser,
         getFromLocalStorage,
         addToLocalStorage,
         removeFromLocalStorage,
