@@ -1,98 +1,81 @@
+<script setup lang="ts">
+import { useOrgEditValidate } from "../../hooks/useOrganizations"
+
+const props = defineProps({
+    show: {
+        type: Boolean,
+        required: true
+    }
+})
+
+const emit = defineEmits({
+    'update:show': (value: boolean) => {
+        if (typeof value == 'boolean') return true
+        console.error('Invalid value type for update:show event!');
+        return false
+    },
+    submitDialog: () => true
+})
+
+const closeDialog = () => emit('update:show', false)
+const submitDialog = () => {
+    emit('submitDialog')
+    closeDialog()
+}
+
+const { orgEditValidate } = useOrgEditValidate()
+</script>
+
 <template>
-    <Dialog v-model:visible="props.display" header="Organization" :modal="true" class="p-fluid w-29rem">
+    <Dialog header="Organization" class="p-fluid w-29rem" :modal="true" :visible="props.show" @update:visible="closeDialog">
         <div class="field">
             <label for="name">Name</label>
-            <InputText id="name" v-model.trim="v$.organizationName.$model" required="true" autofocus
-                :class="{ 'p-invalid': v$.organizationName.$invalid }" />
-            <small v-if="v$.organizationName.required.$invalid" class="p-error">Name is required.</small>
-            <small v-else-if="v$.organizationName.minLength.$invalid" class="p-error">Name is to
+            <InputText id="name" v-model.trim="orgEditValidate.name.$model" required="true" autofocus
+                :class="{ 'p-invalid': orgEditValidate.name.$invalid }" />
+            <small v-if="orgEditValidate.name.required.$invalid" class="p-error">Name is required.</small>
+            <small v-else-if="orgEditValidate.name.minLength.$invalid" class="p-error">Name is to
                 short.</small>
-            <small v-else-if="v$.organizationName.maxLength.$invalid" class="p-error">Name is to
+            <small v-else-if="orgEditValidate.name.maxLength.$invalid" class="p-error">Name is to
                 long.</small>
         </div>
         <div class="field">
             <label for="description">Description</label>
-            <Textarea id="description" v-model="v$.organizationDescription.$model" required="true" rows="3" cols="20"
-                :class="{ 'p-invalid': v$.organizationDescription.$invalid }" />
-            <small v-if="v$.organizationDescription.required.$invalid" class="p-error">Description is
+            <Textarea id="description" v-model="orgEditValidate.description.$model" required="true" rows="3" cols="20"
+                :class="{ 'p-invalid': orgEditValidate.description.$invalid }" />
+            <small v-if="orgEditValidate.description.required.$invalid" class="p-error">Description is
                 required.</small>
-            <small v-else-if="v$.organizationDescription.minLength.$invalid" class="p-error">Description is
+            <small v-else-if="orgEditValidate.description.minLength.$invalid" class="p-error">Description is
                 to
                 short.</small>
-            <small v-else-if="v$.organizationDescription.maxLength.$invalid" class="p-error">Description is
+            <small v-else-if="orgEditValidate.description.maxLength.$invalid" class="p-error">Description is
                 to
                 long.</small>
         </div>
         <div class="field">
             <label for="name">Email</label>
-            <InputText id="name" v-model.trim="v$.organizationEmail.$model" required="true" autofocus
-                :class="{ 'p-invalid': v$.organizationEmail.$invalid }" />
-            <small v-if="v$.organizationEmail.required.$invalid" class="p-error">Email is required.</small>
-            <small v-else-if="v$.organizationEmail.email.$invalid" class="p-error">Email is
+            <InputText id="name" v-model.trim="orgEditValidate.email.$model" required="true" autofocus
+                :class="{ 'p-invalid': orgEditValidate.email.$invalid }" />
+            <small v-if="orgEditValidate.email.required.$invalid" class="p-error">Email is required.</small>
+            <small v-else-if="orgEditValidate.email.email.$invalid" class="p-error">Email is
                 invalid.</small>
-            <small v-else-if="v$.organizationEmail.maxLength.$invalid" class="p-error">Email is to
+            <small v-else-if="orgEditValidate.email.maxLength.$invalid" class="p-error">Email is to
                 long.</small>
         </div>
         <div class="field">
             <label for="name">Phone</label>
-            <InputMask v-model="v$.organizationPhone.$model" mask="+99 (999) 999-9999" placeholder="+ 99 (999) 999-9999"
-                :class="{ 'p-invalid': v$.organizationPhone.$invalid }" />
-            <!-- <InputText id="name" v-model.trim="v$.organizationPhone.$model" autofocus
-                :class="{ 'p-invalid': v$.organizationPhone.$invalid }" /> -->
-            <small v-if="v$.organizationPhone.minLength.$invalid" class="p-error">Phone number is to
+            <InputMask v-model="orgEditValidate.phone.$model" mask="+99 (999) 999-9999" placeholder="+ 99 (999) 999-9999"
+                :class="{ 'p-invalid': orgEditValidate.phone.$invalid }" />
+            <!-- <InputText id="name" v-model.trim="v$.phone.$model" autofocus
+                :class="{ 'p-invalid': v$.phone.$invalid }" /> -->
+            <small v-if="orgEditValidate.phone.minLength.$invalid" class="p-error">Phone number is to
                 short.</small>
-            <small v-else-if="v$.organizationPhone.maxLength.$invalid" class="p-error">Phone number is to
+            <small v-else-if="orgEditValidate.phone.maxLength.$invalid" class="p-error">Phone number is to
                 long.</small>
         </div>
         <template #footer>
-            <Button label="Cancel" icon="pi pi-times" class="p-button p-button-secondary"
-                @click="() => props.closeDialog()" />
-            <Button label="Save" icon="pi pi-check" class="p-button p-button-success" :disabled="v$.$invalid"
-                @click="() => props.submitDialog(v$.$invalid)" />
+            <Button label="Cancel" icon="pi pi-times" class="p-button p-button-secondary" @click="closeDialog" />
+            <Button label="Save" icon="pi pi-check" class="p-button p-button-success" :disabled="orgEditValidate.$invalid"
+                @click="submitDialog" />
         </template>
     </Dialog>
 </template>
-
-<script lang="ts">
-import { defineComponent } from "vue"
-import { email, maxLength, minLength, required } from "@vuelidate/validators"
-import useVuelidate from "@vuelidate/core"
-import Organizations from "../../models/OrganizationsModel"
-
-export default defineComponent({
-    props: {
-        display: {
-            type: Boolean,
-            required: true
-        },
-        organization: {
-            type: Organizations,
-            required: true
-        },
-        closeDialog: {
-            type: Function,
-            required: true
-        },
-        submitDialog: {
-            type: Function,
-            required: true
-        }
-    },
-    setup(props) {
-        const rules = {
-            organizationName: { required, minLength: minLength(2), maxLength: maxLength(200) },
-            organizationDescription: { required, minLength: minLength(10), maxLength: maxLength(2000) },
-            organizationEmail: { required, email, maxLength: maxLength(255) },
-            organizationPhone: { minLength: minLength(18), maxLength: maxLength(18) },
-        }
-        const v$ = useVuelidate(rules, props.organization)
-        return {
-            v$,
-            props
-        }
-    }
-})
-</script>
-
-<style>
-</style>

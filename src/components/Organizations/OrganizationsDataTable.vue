@@ -13,45 +13,23 @@ const props = defineProps(
             type: Boolean,
             required: false
         },
-        refreshTable: {
-            type: Function,
-            required: false,
-            default: () => { }
-        },
-        openEdit: {
-            type: Function,
-            required: false,
-            default: () => { }
-        },
-        openDelete: {
-            type: Function,
-            required: false,
-            default: () => { }
-        },
     }
 )
+const emit = defineEmits({
+    refreshTable: () => true,
+    openEdit: (value: Organizations) => {
+        if (value instanceof Organizations) return true
+        console.error('Invalid value type for openEdit event!');
+        return false
+    },
+    openDelete: (value: Organizations) => {
+        if (value instanceof Organizations) return true
+        console.error('Invalid value type for openDelete event!');
+        return false
+    },
+})
 
 const { getOrganizationRoute } = useRoutes()
-const items = ref([
-    {
-        label: 'Options',
-        items: [
-            {
-                label: 'Refresh',
-                icon: 'pi pi-refresh'
-            },
-            {
-                label: 'Export',
-                icon: 'pi pi-upload'
-            }
-        ]
-    }
-]);
-const showActions = ref(false)
-const toggle = (payload: MouseEvent) => {
-    showActions.value = true
-};
-
 </script>
 
 <template>
@@ -64,8 +42,7 @@ const toggle = (payload: MouseEvent) => {
             <template #header>
                 <div class="table-header flex justify-content-between align-items-center">
                     <h2>Organizations table</h2>
-                    <Button icon="pi pi-refresh" class="h-2rem" @click="() => refreshTable()" />
-                    <!-- <Button icon="pi pi-refresh" class="h-2rem" @click="() => refreshTable()" /> -->
+                    <Button icon="pi pi-refresh" class="h-2rem" @click="emit('refreshTable')" />
                 </div>
             </template>
             <Column field="id" header="ID" :sortable="true"></Column>
@@ -105,29 +82,25 @@ const toggle = (payload: MouseEvent) => {
                 <template #body="slotProps">
                     <div class="flex justify-content-around align-content-center">
                         <Button type="button" icon="pi pi-user-edit" class="mr-1 p-button-outlined p-button-info"
-                            @click="() => props.openEdit(slotProps.data)"></Button>
+                            @click="() => emit('openEdit', slotProps.data)"></Button>
                         <Button type="button" icon="pi pi-times" class="p-button-outlined p-button-danger"
-                            @click="() => props.openDelete(slotProps.data)"></Button>
+                            @click="() => emit('openDelete', slotProps.data)"></Button>
                     </div>
                 </template>
             </Column>
             <Column header="Actions" header-style="width: 4rem; text-align: center" body-style="overflow: visible;">
-                <template #body>
-                    <div class="card flex justify-content-center">
-                        <Button type="button" icon="pi pi-ellipsis-v" @click="toggle" />
-                        <Menu :model="items" :popup="true" />
-                    </div>
-                    <!-- <div class="flex justify-content-around align-content-center">
+                <template #body="slotProps">
+                    <div class="flex justify-content-around align-content-center">
                         <Button type="button" icon="pi pi-list" class="p-button-outlined p-button-info mr-1"></Button>
                         <Button type="button" icon="pi pi-pencil" class="p-button-outlined p-button-warning mr-1"
-                            @click="() => openEdit(slotProps.data)"></Button>
+                            @click="() => emit('openEdit', slotProps.data)"></Button>
                         <Button type="button" icon="pi pi-times" class="p-button-outlined p-button-danger"
-                            @click="() => openDelete(slotProps.data)"></Button>
-                    </div> -->
+                            @click="() => emit('openDelete', slotProps.data)"></Button>
+                    </div>
                 </template>
             </Column>
             <template #paginatorstart>
-                <Button type="button" icon="pi pi-refresh" class="p-button-text" @click="() => refreshTable()" />
+                <Button type="button" icon="pi pi-refresh" class="p-button-text" @click="() => emit('refreshTable')" />
             </template>
             <template #paginatorend>
             </template>
