@@ -1,36 +1,33 @@
 <script setup lang="ts">
-import { computed, ref } from "vue"
+import { ref } from "vue"
 import Users, { Roles } from "../../models/UsersModel"
+import { useUserEditValidate } from "../../hooks/useUsers"
 
 const props = defineProps({
-    display: {
+    show: {
         type: Boolean,
         required: true
     },
-    user: {
-        type: Users,
-        required: true
-    },
-    closeDialog: {
-        type: Function,
-        required: true
-    },
-    submitDialog: {
-        type: Function,
-        required: true
-    }
 })
+const emit = defineEmits({
+    'update:show': (value: boolean) => {
+        if (typeof value === 'boolean') return true
+        console.error('Invalid value type for update:show event!');
+        return false
+    },
+    submitDialog: () => true
+})
+const closeDialog = () => emit('update:show', false)
+const submitDialog = () => {
+    emit('submitDialog')
+    closeDialog()
+}
 const selectedRole = ref<Roles>()
-const user = computed(() => {
-    return props.user
-})
-const visible = computed(() => {
-    return props.display
-})
+const { } = useUserEditValidate()
 </script>
 
 <template>
-    <Dialog v-model:visible="visible" header="Edit User" :modal="true" class="p-fluid w-29rem">
+    <Dialog header="Edit User" class="p-fluid w-29rem" :modal="true" :visible="props.show" @update:visible="closeDialog">
         <div class="p-fluid text-left">
             <div class="field">
                 <label for="firstName">First name:</label>
@@ -70,8 +67,8 @@ const visible = computed(() => {
             </div>
         </div>
         <template #footer>
-            <Button label="Cancel" icon="pi pi-times" class="p-button-text" @click="() => props.closeDialog()" />
-            <Button label="Save" icon="pi pi-check" class="p-button-text" @click="() => props.submitDialog(selectedRole)" />
+            <Button label="Cancel" icon="pi pi-times" class="p-button-text" @click="closeDialog" />
+            <Button label="Save" icon="pi pi-check" class="p-button-text" @click="submitDialog" />
         </template>
     </Dialog>
 </template>

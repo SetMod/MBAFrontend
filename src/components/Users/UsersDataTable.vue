@@ -10,23 +10,22 @@ const props = defineProps(
             type: Array as PropType<Array<Users>>,
             required: true
         },
-        openEdit: {
-            type: Function,
-            required: false,
-            default: () => { }
-        },
-        openDelete: {
-            type: Function,
-            required: false,
-            default: () => { }
-        },
-        refreshTable: {
-            type: Function,
-            required: false,
-            default: () => { }
-        }
+
     }
 )
+const emit = defineEmits({
+    refreshTable: () => true,
+    openEdit: (value: Users) => {
+        if (value instanceof Users) return true
+        console.error('Invalid value type for openEdit event!');
+        return false
+    },
+    openDelete: (value: Users) => {
+        if (value instanceof Users) return true
+        console.error('Invalid value type for openDelete event!');
+        return false
+    },
+})
 const filters = ref({
     global: { value: undefined, matchMode: FilterMatchMode.CONTAINS },
 });
@@ -46,7 +45,7 @@ const filters = ref({
                         <i class="pi pi-search" />
                         <InputText v-model="filters.global.value" placeholder="Search..." />
                     </span>
-                    <Button icon="pi pi-refresh" class="h-2rem" @click="() => props.refreshTable()" />
+                    <Button icon="pi pi-refresh" class="h-2rem" @click="() => emit('refreshTable')" />
                 </div>
             </div>
         </template>
@@ -84,14 +83,14 @@ const filters = ref({
             <template #body="slotProps">
                 <div class="flex justify-content-around align-content-center">
                     <Button type="button" icon="pi pi-user-edit" class="mr-1 p-button-outlined p-button-info"
-                        @click="() => props.openEdit(slotProps.data)"></Button>
+                        @click="() => emit('openEdit', slotProps.data)"></Button>
                     <Button type="button" icon="pi pi-times" class="p-button-outlined p-button-danger"
-                        @click="() => props.openDelete(slotProps.data)"></Button>
+                        @click="() => emit('openDelete', slotProps.data)"></Button>
                 </div>
             </template>
         </Column>
         <template #paginatorstart>
-            <Button type="button" icon="pi pi-refresh" class="p-button-text" @click="() => props.refreshTable()" />
+            <Button type="button" icon="pi pi-refresh" class="p-button-text" @click="() => emit('refreshTable')" />
         </template>
         <template #paginatorend>
         </template>
