@@ -7,7 +7,6 @@ import About from './views/About.vue'
 
 import Users from "./views/Users/Users.vue"
 import User from "./views/Users/User/User.vue"
-import UserOrganizations from "./views/Users/User/UserOrganizations.vue"
 import UserHome from "./views/Users/User/UserHome.vue"
 
 import Reports from "./views/Reports/Reports.vue"
@@ -80,7 +79,7 @@ export const UserRoutes: RouteRecordRaw = {
     },
     {
       path: 'organizations',
-      component: UserOrganizations,
+      component: Organizations,
       props: true,
     },
     {
