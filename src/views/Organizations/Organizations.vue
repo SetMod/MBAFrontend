@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import { useToast } from 'primevue/usetoast';
-import useOrganizations from '../../hooks/useOrganizations';
 import Organizations from '../../models/OrganizationsModel';
 import OrganizationCreateDialog from '../../components/Organizations/OrganizationCreateDialog.vue';
 import OrganizationEditDialog from '../../components/Organizations/OrganizationEditDialog.vue';
@@ -9,37 +8,64 @@ import OrganizationDeleteDialog from '../../components/Organizations/Organizatio
 import OrganizationLeaveDialog from '../../components/Organizations/OrganizationLeaveDialog.vue';
 import OrganizationToolbar from '../../components/Organizations/OrganizationToolbar.vue';
 import OrganizationsDataTable from '../../components/Organizations/OrganizationsDataTable.vue';
+import OrganizationMembers, { OrganizationRoles } from '../../models/OrganizationMembersModel';
+import useOrganizations from '../../hooks/useOrganizations';
+import useMembers from '../../hooks/useMembers';
+import useUsers from '../../hooks/useUsers';
 
 const props = defineProps({
     userId: {
         type: String,
         required: false,
-        default: null
+        default: ''
     },
 })
 
 onMounted(async () => {
-    await refreshOrgsTable(Number(props.userId))
+    await refreshOrgsTable(props.userId)
 })
 
 const toast = useToast()
+const { currentUser, } = useUsers()
 const {
-    organizationsError,
-    userOrganizations,
-    organizations,
-    selectedOrganization,
     isOrganizationsLoading,
+    organizationsError,
+    organizations,
+    userOrganizations,
+    selectedOrganization: globallySelectedOrganization,
     getUserOrganizations,
+    // selectedOrganization,
     getOrganizations,
     createOrganization,
     updateOrganization,
     deleteOrganization,
 } = useOrganizations()
-
+const {
+    membersError,
+    createMember,
+    getMemberByOrgAndUserIDs,
+    deleteMember
+} = useMembers()
 const showOrgsCreate = ref(false)
 const showOrgsEdit = ref(false)
 const showOrgsDelete = ref(false)
 const showOrgsLeave = ref(false)
+const selectedOrganization = ref<Organizations | null>(null)
+
+const refreshOrgsTable = async (userId: string) => {
+    if (userId) {
+        globallySelectedOrganization.value = null
+        await getUserOrganizations(Number(userId))
+        if (organizationsError.value instanceof Error) {
+            toast.add({ severity: 'error', summary: 'Failed to refresh table', detail: organizationsError.value.message, life: 3000 })
+        }
+    } else {
+        await getOrganizations()
+        if (organizationsError.value instanceof Error) {
+            toast.add({ severity: 'error', summary: 'Failed to refresh table', detail: organizationsError.value.message, life: 3000 })
+        }
+    }
+}
 
 const openOrgsEdit = (organization: Organizations) => {
     showOrgsEdit.value = true
@@ -53,33 +79,48 @@ const openOrgsLeave = (organization: Organizations) => {
     showOrgsLeave.value = true
     selectedOrganization.value = organization
 };
-const selectOrganization = (organization: Organizations) => {
+const openOrgsJoin = (organization: Organizations) => {
+    showOrgsLeave.value = true
     selectedOrganization.value = organization
-}
+};
 
-const refreshOrgsTable = async (userId: number) => {
-    if (userId) {
-        await getUserOrganizations(userId)
-        // getOrganizationMemberByField("user_id", userId)
-        // getMemberByOrgAndUserIDs(1, userId)
-    } else {
-        await getOrganizations()
-    }
-}
 const submitOrgsCreate = async (newOrganization: Organizations) => {
     if (!newOrganization) {
         toast.add({ severity: 'error', summary: 'Fail', detail: 'Select organization', life: 3000 });
         return
+    } else if (!currentUser.value) {
+        toast.add({ severity: 'error', summary: 'Fail', detail: 'Select user', life: 3000 });
+        return
     }
 
-    const res = await createOrganization(newOrganization)
-
+    const organization = await createOrganization(newOrganization)
     if (organizationsError.value instanceof Error) {
         toast.add({ severity: 'error', summary: 'Failed to create', detail: organizationsError.value.message, life: 3000 })
+        return
+    }
+    if (!organization) {
+        toast.add({ severity: 'error', summary: 'Failed to create', detail: 'Failed to get new organization', life: 3000 })
+        return
+    }
+
+    const newMember = new OrganizationMembers(
+        0,
+        currentUser.value.id,
+        organization.id,
+        true,
+        OrganizationRoles.OWNER
+    )
+
+    await createMember(newMember)
+    if (membersError.value instanceof Error) {
+        toast.add({ severity: 'error', summary: 'Failed to create', detail: membersError.value.message, life: 3000 })
     } else {
         toast.add({ severity: 'success', summary: 'Created', detail: 'Organization created', life: 1500 });
+        await refreshOrgsTable(props.userId)
     }
 }
+
+
 // Add to organization settings
 const submitOrgsEdit = async () => {
     if (!selectedOrganization.value) {
@@ -93,8 +134,10 @@ const submitOrgsEdit = async () => {
         toast.add({ severity: 'error', summary: 'Failed to update', detail: organizationsError.value.message, life: 3000 })
     } else {
         toast.add({ severity: 'success', summary: 'Updated', detail: 'Organization updated', life: 1500 });
+        await refreshOrgsTable(props.userId)
     }
 }
+
 // Add to organization settings
 const submitOrgsDelete = async () => {
     if (!selectedOrganization.value) {
@@ -108,26 +151,55 @@ const submitOrgsDelete = async () => {
         toast.add({ severity: 'error', summary: 'Failed to delete', detail: organizationsError.value.message, life: 3000 })
     } else {
         toast.add({ severity: 'success', summary: 'Deleted', detail: 'Organization deleted', life: 1500 });
+        await refreshOrgsTable(props.userId)
     }
 }
+
 // Add to organization settings
 const submitOrgsLeave = async () => {
     if (!selectedOrganization.value) {
         toast.add({ severity: 'warn', summary: 'Warning', detail: 'Select organization to leave', life: 3000 })
         return
+    } else if (!currentUser.value) {
+        toast.add({ severity: 'warn', summary: 'Warning', detail: 'Select organization to leave', life: 3000 })
+        return
     }
 
-    const member = new OrganizationMembers()
-    member.id = user.value.id
-    member.id = selectedOrganization.value.id
-    member.role = OrganizationRoles.VIEWER
+    const member = await getMemberByOrgAndUserIDs(selectedOrganization.value.id, currentUser.value.id)
+    if (!member || member instanceof Array) {
+        toast.add({ severity: 'warn', summary: 'Warning', detail: 'Select organization to leave', life: 3000 })
+        return
+    }
 
-    const res = await deleteUserFromOrganization(member)
+    await deleteMember(member.id)
 
     if (organizationsError.value instanceof Error) {
         toast.add({ severity: 'error', summary: 'Failed to leave organization', detail: organizationsError.value.message, life: 3000 })
     } else {
         toast.add({ severity: 'success', summary: 'Deleted', detail: 'Organization deleted', life: 1500 });
+    }
+}
+const submitOrgsJoin = async () => {
+    if (!selectedOrganization.value) {
+        toast.add({ severity: 'warn', summary: 'Warning', detail: 'Select organization to join', life: 3000 })
+        return
+    } else if (!currentUser.value) {
+        toast.add({ severity: 'warn', summary: 'Warning', detail: 'Select organization to join', life: 3000 })
+        return
+    }
+
+    const member = new OrganizationMembers(
+        0,
+        currentUser.value.id,
+        selectedOrganization.value.id,
+    )
+
+    await createMember(member)
+
+    if (membersError.value instanceof Error) {
+        toast.add({ severity: 'error', summary: 'Failed to leave organization', detail: membersError.value.message, life: 3000 })
+    } else {
+        toast.add({ severity: 'success', summary: 'Deleted', detail: `Organization joined ${selectedOrganization.value.name} organization`, life: 1500 });
     }
 }
 </script>
@@ -138,21 +210,20 @@ const submitOrgsLeave = async () => {
         Organizations
     </h1>
     <OrganizationCreateDialog v-model:show="showOrgsCreate" @submit-dialog="submitOrgsCreate" />
-    <OrganizationEditDialog v-model:show="showOrgsEdit" @submit-dialog="submitOrgsEdit" />
+    <OrganizationEditDialog v-if="selectedOrganization" v-model:show="showOrgsEdit" :organization="selectedOrganization"
+        @submit-dialog="submitOrgsEdit" />
     <OrganizationDeleteDialog v-model:show="showOrgsDelete" @submit-dialog="submitOrgsDelete" />
-    <OrganizationLeaveDialog v-model:show="showOrgsLeave" @submit-dialog="submitOrgsDelete" />
-    <div v-if="userOrganizations">
-        <OrganizationToolbar v-model:show-new-dialog="showOrgsCreate" :organizations="userOrganizations"
-            :is-loading="isOrganizationsLoading" @select-organization="selectOrganization" />
+    <OrganizationLeaveDialog v-model:show="showOrgsLeave" @submit-dialog="submitOrgsLeave" />
+    <div v-if="userOrganizations.length">
+        <OrganizationToolbar v-model:show-new-dialog="showOrgsCreate" v-model:selected-organization="selectedOrganization"
+            :organizations="userOrganizations" :is-loading="isOrganizationsLoading" @submit-join="submitOrgsJoin" />
         <OrganizationsDataTable :organizations="userOrganizations" :is-loading="isOrganizationsLoading"
-            @refresh-table="() => refreshOrgsTable(Number(props.userId))" @open-edit="openOrgsEdit"
-            @open-delete="openOrgsDelete" />
+            @refresh-table="() => refreshOrgsTable(props.userId)" @open-edit="openOrgsEdit" @open-delete="openOrgsDelete" />
     </div>
-    <div v-else-if="organizations">
-        <OrganizationToolbar v-model:show-new-dialog="showOrgsCreate" :organizations="organizations"
-            :is-loading="isOrganizationsLoading" @select-organization="selectOrganization" />
+    <div v-else-if="organizations.length">
+        <OrganizationToolbar v-model:show-new-dialog="showOrgsCreate" v-model:selected-organization="selectedOrganization"
+            :organizations="organizations" :is-loading="isOrganizationsLoading" />
         <OrganizationsDataTable :organizations="organizations" :is-loading="isOrganizationsLoading"
-            @refresh-table="() => refreshOrgsTable(Number(props.userId))" @open-edit="openOrgsEdit"
-            @open-delete="openOrgsDelete" />
+            @refresh-table="() => refreshOrgsTable(props.userId)" @open-edit="openOrgsEdit" @open-delete="openOrgsDelete" />
     </div>
 </template>

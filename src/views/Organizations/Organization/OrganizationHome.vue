@@ -1,98 +1,60 @@
 <script setup lang="ts">
 import { onMounted } from 'vue';
-import useOrganizationMembers from '../../../hooks/useOrganizationMembers';
+import useMembers from '../../../hooks/useMembers';
 import useOrganizations from '../../../hooks/useOrganizations';
+import MemberCard from '../../../components/Members/MemberCard.vue';
+import useUsers from '../../../hooks/useUsers';
+import OrganizationCard from '../../../components/Organizations/OrganizationCard.vue';
 
 const props = defineProps(
     {
         orgId: {
-            type: Number,
+            type: String,
             required: true
         },
         userId: {
-            type: Number,
+            type: String,
             required: false,
-            default: undefined
+            default: ''
         },
     }
 )
 
-const { selectedOrganization, isOrganizationsLoading, selectOrganization } = useOrganizations()
+const {
+    currentUser
+} = useUsers()
+const {
+    isOrganizationsLoading,
+    selectedOrganization,
+    selectOrganization
+} = useOrganizations()
 const {
     getMemberByOrgAndUserIDs,
     currentMember,
-    isOrganizationAdmin,
-    isOrganizationOwner,
-    isOrganizationMembersLoading
-} = useOrganizationMembers()
+    isMembersLoading
+} = useMembers()
 
 onMounted(async () => {
     if (props.userId) {
-        await getMemberByOrgAndUserIDs(props.orgId, props.userId)
+        await getMemberByOrgAndUserIDs(Number(props.orgId), Number(props.userId))
     }
-    await selectOrganization(props.orgId)
+    if (currentUser.value) {
+        await getMemberByOrgAndUserIDs(Number(props.orgId), currentUser.value.id)
+    }
+    await selectOrganization(Number(props.orgId))
 })
 
 </script>
 
 <template>
-    <h1>
-        Organization Home
-    </h1>
-    <div>
-        <h2>Member:</h2>
-        <div v-if="isOrganizationMembersLoading">
-            Loading...
+    <div class="grid">
+        <div class="col-8">
+            <OrganizationCard v-if="selectedOrganization" :organization="selectedOrganization"
+                :is-loading="isOrganizationsLoading" />
         </div>
-        <div v-else-if="currentMember">
-            <div>
-                Current member Id: {{ currentMember.id }}
-            </div>
-            <div>
-                Current member active: {{ currentMember.active }}
-            </div>
-            <div>
-                Current member role: {{ currentMember.role }}
-            </div>
-            <div>is Owner: {{ isOrganizationOwner }}</div>
-            <div>is Admin: {{ isOrganizationAdmin }}</div>
-        </div>
-    </div>
-    <div>
-        <h2>Organization:</h2>
-        <div v-if="isOrganizationsLoading">
-            Loading...
-        </div>
-        <div v-else>
-            <div v-if="selectedOrganization">
-                <div>
-                    Id: {{ selectedOrganization.id }}
-                </div>
-                <div>
-                    Name: {{ selectedOrganization.name }}
-                </div>
-                <div>
-                    Description: {{ selectedOrganization.description }}
-                </div>
-                <div>
-                    Email: {{ selectedOrganization.email }}
-                </div>
-                <div>
-                    Phone: {{ selectedOrganization.phone }}
-                </div>
-                <div>
-                    Created date: {{ selectedOrganization.createdDate }}
-                </div>
-                <div>
-                    Updated date: {{ selectedOrganization.updatedDate }}
-                </div>
-                <div>
-                    Deleted date: {{ selectedOrganization.deletedDate }}
-                </div>
-                <div>
-                    Soft deleted: {{ selectedOrganization.softDeleted }}
-                </div>
-            </div>
+        <div class="col-4">
+            <MemberCard v-if="currentMember && currentUser" :member="currentMember" :user="currentUser"
+                :is-loading="isMembersLoading" />
         </div>
     </div>
 </template>

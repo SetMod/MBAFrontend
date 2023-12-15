@@ -1,13 +1,14 @@
 <script setup lang="ts">
+import useOrganizations from '../../../hooks/useOrganizations';
+
+const { selectedOrganization } = useOrganizations()
 </script>
 
 <template>
-    <!-- <Toast /> -->
     <div>
-        <h4 class="m-3 text-left">My Organization</h4>
+        <h4 class="m-3 text-left">Organization "{{ selectedOrganization?.name }}"</h4>
         <hr>
         <div>
-            <!-- <Sidebar /> -->
             <router-view></router-view>
         </div>
     </div>
