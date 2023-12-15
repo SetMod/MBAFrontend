@@ -5,21 +5,20 @@ import useRoutes from "../hooks/useRoutes"
 import useUsers from "../hooks/useUsers";
 import { computed } from "vue";
 import { MenuItem } from "primevue/menuitem";
+import { getRolesSeverity, getRolesValue } from "../utils";
 
 const confirm = useConfirm()
 const toast = useToast()
 
-const { isLoggedIn, currentUser, logout, isAdmin } = useUsers()
+const { isLoggedIn, currentUser, logout } = useUsers()
 const {
-  // navBarItems,
   getHomeRoute,
-  getAdminRoute,
   getUserOrganizationsRoute,
-  breadCrumbItems,
   redirectHome,
   getAboutRoute,
   getLoginRoute,
   getRegisterRoute,
+  getUserMembershipsRoute,
   getProfileRoute
 } = useRoutes()
 
@@ -29,11 +28,11 @@ const navBarItems = computed<Array<MenuItem>>(() => {
       label: 'Home', route: getHomeRoute(), icon: 'pi pi-fw pi-home',
     },
     {
-      label: 'Admin', route: getAdminRoute(), icon: 'pi pi-fw pi-shield',
-      visible: () => isLoggedIn.value && isAdmin.value
+      label: 'My Organizations', route: getUserOrganizationsRoute(currentUser.value?.id), icon: 'pi pi-fw pi-building',
+      visible: () => isLoggedIn.value
     },
     {
-      label: 'My Organizations', route: getUserOrganizationsRoute(currentUser.value?.id), icon: 'pi pi-fw pi-building',
+      label: 'My Memberships', route: getUserMembershipsRoute(currentUser.value?.id), icon: 'pi pi-fw pi-building',
       visible: () => isLoggedIn.value
     },
   )
@@ -53,6 +52,8 @@ const logOutUser = () => {
     },
   });
 };
+
+
 
 </script>
 <template>
@@ -86,7 +87,9 @@ const logOutUser = () => {
                 <div class="p-button-icon p-button-icon-left pi pi-fw pi-user" />
                 <div>
                   <div class="font-bold">{{ currentUser.username }}</div>
-                  <div class="text-sm">{{ currentUser.role }}</div>
+                  <Badge class="text-sm" :value="getRolesValue(currentUser.role)"
+                    :severity="getRolesSeverity(currentUser.role)">
+                  </Badge>
                 </div>
               </Button>
             </router-link>
@@ -97,6 +100,5 @@ const logOutUser = () => {
       </template>
     </Menubar>
   </nav>
-  <Breadcrumb :home="breadCrumbItems[0]" :model="breadCrumbItems" />
 </template>
 
