@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue"
-import Users, { Roles } from "../../models/UsersModel"
+import Users, { roleOptions } from "../../models/UsersModel"
 import { useUserEditValidate } from "../../hooks/useUsers"
 
 const props = defineProps({
@@ -8,7 +7,12 @@ const props = defineProps({
         type: Boolean,
         required: true
     },
+    user: {
+        type: Users,
+        required: true
+    }
 })
+
 const emit = defineEmits({
     'update:show': (value: boolean) => {
         if (typeof value === 'boolean') return true
@@ -17,13 +21,13 @@ const emit = defineEmits({
     },
     submitDialog: () => true
 })
+
 const closeDialog = () => emit('update:show', false)
 const submitDialog = () => {
     emit('submitDialog')
     closeDialog()
 }
-const selectedRole = ref<Roles>()
-const { } = useUserEditValidate()
+const { userEditValidate } = useUserEditValidate(props.user)
 </script>
 
 <template>
@@ -31,44 +35,63 @@ const { } = useUserEditValidate()
         <div class="p-fluid text-left">
             <div class="field">
                 <label for="firstName">First name:</label>
-                <InputText v-model="user.firstName" placeholder="first name" />
+                <InputText id="firstName" v-model.trim="userEditValidate.firstName.$model" required="true" autofocus
+                    :class="{ 'p-invalid': userEditValidate.firstName.$invalid }" />
+                <small v-if="userEditValidate.firstName.required.$invalid" class="p-error">First name is required.</small>
             </div>
 
             <div class="field">
                 <label for="secondName">Second name:</label>
-                <InputText v-model="user.secondName" placeholder="second name" />
+                <InputText v-model.trim="userEditValidate.secondName.$model" placeholder="second name"
+                    :class="{ 'p-invalid': userEditValidate.secondName.$invalid }" />
+                <small v-if="userEditValidate.secondName.required.$invalid" class="p-error">Second name is required.</small>
             </div>
 
             <div class="field">
                 <label for="email">E-mail:</label>
-                <InputText v-model="user.email" placeholder="email@example.com" type="email" />
+                <InputText v-model.trim="userEditValidate.email.$model" placeholder="email@example.com" type="email"
+                    :class="{ 'p-invalid': userEditValidate.email.$invalid }" />
+                <small v-if="userEditValidate.email.required.$invalid" class="p-error">Email is required.</small>
+                <small v-else-if="userEditValidate.email.email.$invalid" class="p-error">Email is
+                    invalid.</small>
             </div>
 
             <div class="field">
                 <label for="username">Username:</label>
-                <InputText v-model="user.username" placeholder="username" />
+                <InputText v-model.trim="userEditValidate.username.$model" placeholder="username"
+                    :class="{ 'p-invalid': userEditValidate.username.$invalid }" />
+                <small v-if="userEditValidate.username.required.$invalid" class="p-error">Username is required.</small>
+                <small v-else-if="userEditValidate.username.minLength.$invalid" class="p-error">Username is to
+                    short.</small>
             </div>
 
             <!-- <div class="field">
                 <label for="password">Password:</label>
-                <Password v-model="user.password" placeholder="password" toggle-mask :feedback="false" />
+                <Password v-model.trim="user.password" placeholder="password" toggle-mask :feedback="false" />
             </div> -->
 
             <div class="field">
                 <label for="phone">Phone number:</label>
-                <InputText v-model="user.phone" placeholder="+38012345678" type="tel" />
+                <InputText v-model.trim="userEditValidate.phone.$model" placeholder="+38012345678" type="tel"
+                    :class="{ 'p-invalid': userEditValidate.phone.$invalid }" />
+                <small v-if="userEditValidate.phone.minLength.$invalid" class="p-error">Phone number is to
+                    short.</small>
+                <small v-else-if="userEditValidate.phone.maxLength.$invalid" class="p-error">Phone number is to
+                    long.</small>
             </div>
 
             <div class="field">
                 <label for="role">Role:</label>
-                <!-- <InputText v-model="selectedUser.role" placeholder="User" /> -->
-                <Dropdown v-model="selectedRole" :options="Object.keys(Roles)" option-label="role"
-                    placeholder="Select a role" :filter="true" filter-placeholder="Find Role" />
+                <Dropdown v-model="userEditValidate.role.$model" :options="roleOptions" option-label="value"
+                    option-value="name" placeholder="Select a role" :filter="true" filter-placeholder="Find Role"
+                    :class="{ 'p-invalid': userEditValidate.role.$invalid }" />
+                <small v-if="userEditValidate.role.required.$invalid" class="p-error">Role is required.</small>
             </div>
         </div>
         <template #footer>
-            <Button label="Cancel" icon="pi pi-times" class="p-button-text" @click="closeDialog" />
-            <Button label="Save" icon="pi pi-check" class="p-button-text" @click="submitDialog" />
+            <Button label="Cancel" icon="pi pi-times" severity="secondary" @click="closeDialog" />
+            <Button label="Update" icon="pi pi-check" severity="success" :disabled="userEditValidate.$invalid"
+                @click="submitDialog" />
         </template>
     </Dialog>
 </template>
