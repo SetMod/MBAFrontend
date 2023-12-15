@@ -2,39 +2,32 @@
 import { useToast } from "primevue/usetoast";
 import { ref } from "vue";
 import useUsers, { useUserEditValidate } from "../../hooks/useUsers";
-import Users from "../../models/UsersModel";
+import Users, { roleOptions } from "../../models/UsersModel";
 
-const { currentUser, usersError, updateUser } = useUsers()
-const { userEditValidate, userEditState } = useUserEditValidate()
+const props = defineProps({
+    user: {
+        type: Users,
+        required: true
+    }
+})
+
+const {
+    usersError,
+    updateUser,
+} = useUsers()
+
+const { userEditValidate } = useUserEditValidate(props.user)
 
 const toast = useToast()
 const edit = ref(false)
 const displayEdit = ref(false)
 
 const submitEdit = async () => {
-    if (userEditValidate.value.$invalid) {
-        toast.add({ severity: 'warn', summary: 'Warning', detail: 'Validate all fields', life: 3000 });
-        return
-    }
-    if (!currentUser.value) {
-        toast.add({ severity: 'warn', summary: 'Warning', detail: 'Login', life: 3000 });
-        return
-    }
-
     edit.value = false;
     displayEdit.value = false
 
-    const updatedUser = new Users()
-    updatedUser.id = userEditState.id || currentUser.value.id
-    updatedUser.firstName = userEditState.firstName || currentUser.value.firstName
-    updatedUser.secondName = userEditState.secondName || currentUser.value.secondName
-    updatedUser.email = userEditState.email || currentUser.value.email
-    updatedUser.username = userEditState.username || currentUser.value.username
-    // updatedUser.password = state.password || user.value.password
-    updatedUser.phone = userEditState.phone || currentUser.value.phone
-    updatedUser.role = userEditState.role || currentUser.value.role
+    const res = await updateUser(props.user.id, props.user)
 
-    const res = await updateUser(updatedUser.id, updatedUser)
     if (res) {
         toast.add({ severity: 'success', summary: 'Success', detail: 'Profile Updated', life: 3000 });
     } else if (usersError instanceof Error) {
@@ -64,20 +57,24 @@ const submitEdit = async () => {
                 <label>First name:</label>
                 <InputText v-model="userEditValidate.firstName.$model" :disabled="!edit"
                     :class="{ 'p-invalid': userEditValidate.firstName.$invalid && edit }" placeholder="first name" />
-                <small v-if="(userEditValidate.firstName.$invalid && edit) || userEditValidate.firstName.$pending"
-                    class="p-error">{{
-                        userEditValidate.firstName.required.$message.replace('Value', 'First name')
-                    }}</small>
+                <small class="p-error">
+                    {{
+                        (userEditValidate.firstName.$invalid && edit) || userEditValidate.firstName.$pending ?
+                        userEditValidate.firstName.required.$message.replace('Value', 'First name') : '&nbsp;'
+                    }}
+                </small>
             </div>
 
             <div class="field">
                 <label>Second name:</label>
                 <InputText v-model="userEditValidate.secondName.$model" :disabled="!edit"
                     :class="{ 'p-invalid': userEditValidate.secondName.$invalid && edit }" placeholder="second name" />
-                <small v-if="(userEditValidate.secondName.$invalid && edit) || userEditValidate.secondName.$pending"
-                    class="p-error">{{
-                        userEditValidate.secondName.required.$message.replace('Value', 'Second name')
-                    }}</small>
+                <small class="p-error">
+                    {{
+                        (userEditValidate.secondName.$invalid && edit) || userEditValidate.secondName.$pending ?
+                        userEditValidate.secondName.required.$message.replace('Value', 'Second name') : '&nbsp;'
+                    }}
+                </small>
             </div>
 
             <div class="field">
@@ -90,38 +87,54 @@ const submitEdit = async () => {
                         <small class="p-error">{{ error.$message }}</small>
                     </span>
                 </span>
-                <small v-else-if="(userEditValidate.email.$invalid && edit) || userEditValidate.email.$pending"
-                    class="p-error">{{
-                        userEditValidate.email.required.$message.replace('Value', 'E-mail')
-                    }}</small>
+                <small class="p-error">
+                    {{
+                        (userEditValidate.email.$invalid && edit) || userEditValidate.email.$pending ?
+                        userEditValidate.email.required.$message.replace('Value', 'E-mail') : ''
+                    }}
+                </small>
             </div>
 
             <div class="field">
                 <label>Phone number:</label>
                 <InputMask v-model="userEditValidate.phone.$model" :disabled="!edit" mask="+99 (999) 999-9999"
                     placeholder="+ 99 (999) 999-9999" />
-                <small v-if="(userEditValidate.phone.required.$invalid && edit) || userEditValidate.phone.$pending"
-                    class="p-error">{{
-                        userEditValidate.phone.required.$message.replace('Value', 'Phone number')
-                    }}</small>
-                <small v-else-if="userEditValidate.phone.minLength.$invalid && edit" class="p-error">{{
-                    userEditValidate.phone.minLength.$message.replace('Value', 'Phone number')
-                }}</small>
-                <small v-else-if="userEditValidate.phone.maxLength.$invalid && edit" class="p-error">{{
-                    userEditValidate.phone.maxLength.$message.replace('Value', 'Phone number')
-                }}</small>
+                <small class="p-error">
+                    {{
+                        (userEditValidate.phone.required.$invalid && edit) || userEditValidate.phone.$pending ?
+                        userEditValidate.phone.required.$message.replace('Value', 'Phone number') : ''
+                    }}
+                </small>
+                <small class="p-error">
+                    {{
+                        userEditValidate.phone.minLength.$invalid && edit ?
+                        userEditValidate.phone.minLength.$message.replace('Value', 'Phone number') : ''
+                    }}
+                </small>
+                <small class="p-error">
+                    {{
+                        userEditValidate.phone.maxLength.$invalid && edit ?
+                        userEditValidate.phone.maxLength.$message.replace('Value', 'Phone number') : ''
+                    }}
+                </small>
             </div>
 
             <div class="field">
                 <label>Username:</label>
                 <InputText v-model="userEditValidate.username.$model" :disabled="!edit"
                     :class="{ 'p-invalid': userEditValidate.username.$invalid && edit }" placeholder="username" />
-                <small v-if="userEditValidate.username.required.$invalid && edit" class="p-error">{{
-                    userEditValidate.username.required.$message.replace('Value', 'Username')
-                }}</small>
-                <small v-else-if="userEditValidate.username.minLength.$invalid && edit" class="p-error">{{
-                    userEditValidate.username.minLength.$message.replace('This field', 'Username')
-                }}</small>
+                <small class="p-error">
+                    {{
+                        userEditValidate.username.required.$invalid && edit ?
+                        userEditValidate.username.required.$message.replace('Value', 'Username') : ''
+                    }}
+                </small>
+                <small class="p-error">
+                    {{
+                        userEditValidate.username.minLength.$invalid && edit ?
+                        userEditValidate.username.minLength.$message.replace('This field', 'Username') : ''
+                    }}
+                </small>
             </div>
 
             <!-- <div class="field">
@@ -135,8 +148,13 @@ const submitEdit = async () => {
             </div> -->
 
             <div class="field">
-                <label>Role:</label>
-                <InputText v-model="userEditState.role" :disabled="true" placeholder="No role" />
+                <label for="role">Role:</label>
+                <Dropdown v-model="userEditValidate.role.$model" :options="roleOptions" option-label="value"
+                    option-value="name" placeholder="Select a role" :filter="true" filter-placeholder="Find Role"
+                    :disabled="true" :class="{ 'p-invalid': userEditValidate.role.$invalid }" />
+                <small class="p-error">
+                    {{ userEditValidate.role.required.$invalid ? 'Role is required.' : '' }}
+                </small>
             </div>
         </div>
 
@@ -144,7 +162,8 @@ const submitEdit = async () => {
             <Button v-if="!edit" label="Edit" severity="help" @click="() => edit = true" />
             <div v-else class="flex justify-content-around align-items-center">
                 <Button label="Cancel" @click="() => edit = false" />
-                <Button label="Save" severity="warning" @click="() => displayEdit = true" />
+                <Button label="Save" severity="warning" :disabled="userEditValidate.$invalid"
+                    @click="() => displayEdit = true" />
             </div>
         </div>
     </div>
