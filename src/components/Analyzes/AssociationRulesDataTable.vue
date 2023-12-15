@@ -1,9 +1,39 @@
+<script setup lang="ts">
+import { FilterMatchMode } from "primevue/api";
+import { PropType, ref } from "vue"
+import { AssociationRules } from "../../models/AnalyzesModel"
+import DataTable from "primevue/datatable";
+
+const props = defineProps({
+    associationRules: {
+        type: Array as PropType<Array<AssociationRules>>,
+        required: true
+    }
+})
+const emit = defineEmits({
+    openEdit: () => true,
+    openDelete: () => true,
+})
+
+const dt = ref<DataTable | undefined>();
+const filters = ref({
+    global: { value: undefined, matchMode: FilterMatchMode.CONTAINS },
+});
+const exportCSV = (event: Event) => {
+    if (dt.value) {
+        dt.value.exportCSV();
+    } else {
+        console.error('DataTable is undefined');
+
+    }
+};
+</script>
+
 <template>
-    <DataTable ref="dt" :value="associationRules" removable-sort responsive-layout="scroll" :filters="filters"
+    <DataTable ref="dt" :value="props.associationRules" removable-sort responsive-layout="scroll" :filters="filters"
         :paginator="true" :rows="10"
         paginator-template="CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
-        :rows-per-page-options="[10, 25, 50]"
-        current-page-report-template="Showing {first} to {last} of {totalRecords}">
+        :rows-per-page-options="[10, 25, 50]" current-page-report-template="Showing {first} to {last} of {totalRecords}">
         <template #header>
             <div class="table-header flex justify-content-between align-items-center">
                 <h2>Association Rules</h2>
@@ -61,48 +91,3 @@
         </template>
     </DataTable>
 </template>
-
-<script lang="ts">
-import { FilterMatchMode } from "primevue/api";
-import { defineComponent, PropType, ref } from "vue"
-import AssociationRules from "../../models/AssociationRulesModel"
-
-export default defineComponent({
-    props: {
-        associationRules: {
-            type: Array as PropType<Array<AssociationRules>>,
-            required: true
-        },
-        openEdit: {
-            type: Function,
-            default: () => {
-                console.log('Edit');
-            }
-        },
-        openDelete: {
-            type: Function,
-            default: () => {
-                console.log('Edit');
-            }
-        },
-    },
-    setup(props) {
-        const dt = ref();
-        const filters = ref({
-            global: { value: undefined, matchMode: FilterMatchMode.CONTAINS },
-        });
-        const exportCSV = (event: MouseEvent) => {
-            dt.value.exportCSV();
-        };
-        return {
-            dt,
-            props,
-            filters,
-            exportCSV,
-        }
-    }
-})
-</script>
-
-<style>
-</style>
