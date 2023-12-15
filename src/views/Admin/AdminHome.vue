@@ -2,7 +2,7 @@
 </script>
 
 <template>
-    <div>
+    <h1>
         Admin Home
-    </div>
+    </h1>
 </template>
