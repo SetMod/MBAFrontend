@@ -83,6 +83,11 @@ export const UserRoutes: RouteRecordRaw = {
       props: true,
     },
     {
+      path: 'memberships',
+      component: () => Members,
+      props: true,
+    },
+    {
       path: 'reports',
       component: Reports,
       props: true,
