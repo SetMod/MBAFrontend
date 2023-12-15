@@ -179,6 +179,8 @@ export default class GenericService<M, R> implements IGenericService<M, R> {
     async update(id: number, model: M): Promise<M> {
         try {
             console.log(`Updating ${typeof model} with id='${id}'`);
+            console.log(model);
+            
             const modelJson = this.mapModelToJSON(model)
             console.log(modelJson)
 

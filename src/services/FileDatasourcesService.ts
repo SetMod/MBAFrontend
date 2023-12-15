@@ -1,109 +1,28 @@
 import axios, { AxiosError } from "axios";
-import { Datasources, IDatasourcesResponse } from "../models/DatasourcesModel"
-import GenericService from "./GenericService";
+import Datasources, { IDatasourcesResponse } from "../models/DatasourcesModel"
+import DatasourcesService from "./DatasourcesService";
 
-
-export default class FileDatasourcesService extends GenericService<Datasources, IDatasourcesResponse> {
-
-    constructor() {
-        super("/datasources")
-    }
+export default class FileDatasourcesService extends DatasourcesService {
 
     async downloadFileById(fileId: number) {
         try {
-            const fileDatasource = await this.getById(fileId)
+            console.log(`Downloading file with id=${fileId}`);
 
-            if (fileDatasource instanceof Array) throw new Error('Failed to download file')
-
-            const res = await axios.get(`/download/${fileId}`, { responseType: 'blob' })
+            const res = await this.api.get(`${this.url}/download/${fileId}`, { responseType: 'blob' })
             console.log(res)
 
             const blob = new Blob([res.data], { type: res.data.type })
             const link = document.createElement('a')
             link.href = URL.createObjectURL(blob)
-            link.download = fileDatasource.name ? fileDatasource.name : 'Untitled'
+            link.download = `file_datasource_${fileId}`
+            // link.download = fileDatasource.name ? fileDatasource.name : 'Untitled'
             link.click()
 
             // const file: Files = this.mapDataToFile(response.data)
             // console.log(file)
             // return file
-        } catch (error) {
-            const errorMessage = 'Failed to download the file'
-            console.error(errorMessage)
-            console.error(error)
-
-            throw new Error(errorMessage)
-        }
-    }
-    async createFile(file: Datasources, form: FormData) {
-        try {
-            // const dataFile = this.mapFileToData(file)
-            const res = await axios.post(`/upload`
-                , form, {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                },
-                params: {
-                    "name": file.name ? file.name : 'Untitled',
-                    "id": file.id
-                }
-            })
-            console.log(res)
-
-            const newFileDatasource: Datasources = this.mapJSONToModel(res.data)
-            console.log(newFileDatasource)
-
-            return newFileDatasource
-        } catch (error) {
-            const errorMessage = 'Filed adding the file'
-            console.error(errorMessage)
-            console.error(error)
-
-            throw new Error(errorMessage)
-        }
-    }
-
-
-    mapJSONToModel(fileDatasourcesJson: IDatasourcesResponse): Datasources {
-        const fileDatasource = new Datasources()
-        fileDatasource.id = fileDatasourcesJson.id
-        fileDatasource.name = fileDatasourcesJson.name
-        fileDatasource.type = fileDatasourcesJson.type
-        fileDatasource.creatorId = fileDatasourcesJson.creator_id
-        fileDatasource.createdDate = fileDatasourcesJson.created_date
-        fileDatasource.updatedDate = fileDatasourcesJson.updated_date
-        fileDatasource.deletedDate = fileDatasourcesJson.deleted_date
-        fileDatasource.softDeleted = fileDatasourcesJson.soft_deleted
-
-        return fileDatasource
-    }
-
-    mapModelToJSON(fileDatasource: Datasources): IDatasourcesResponse {
-        return <IDatasourcesResponse>{
-            id: fileDatasource.id,
-            name: fileDatasource.name,
-            type: fileDatasource.type,
-            creator_id: fileDatasource.creatorId,
-            created_date: fileDatasource.createdDate,
-            updated_date: fileDatasource.updatedDate,
-            deleted_date: fileDatasource.deletedDate,
-            soft_deleted: fileDatasource.softDeleted,
-        }
-    }
-
-    async getUserDatasources(userId: number) {
-        try {
-            console.log(`Getting all user datasources with id='${userId}'`);
-            const res = await this.api.get(`/users/${userId}/datasources`)
-            console.log(res)
-
-            const models = this.mapJSONToModels(res.data)
-            console.log(models)
-
-            return models
-
         } catch (err) {
-            let errorMessage = "Failed to get all user datasources"
+            let errorMessage = "Failed to download file"
             console.error(errorMessage)
             if (err instanceof AxiosError) {
                 errorMessage += `. ${err.message}`
@@ -113,6 +32,40 @@ export default class FileDatasourcesService extends GenericService<Datasources, 
         }
     }
 
+    async createFile(file: Datasources, formData: FormData) {
+        try {
+            console.log('Creating file datasource');
+
+            // const dataFile = this.mapFileToData(file)
+            const res = await this.api.post(
+                `${this.url}/upload`,
+                formData,
+                {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    },
+                    params: {
+                        "name": file.name ? file.name : 'Untitled',
+                        "id": file.id
+                    }
+                }
+            )
+            console.log(res)
+
+            const newFileDatasource: Datasources = this.mapJSONToModel(res.data)
+            console.log(newFileDatasource)
+
+            return newFileDatasource
+        } catch (err) {
+            let errorMessage = "Failed to create file datasource"
+            console.error(errorMessage)
+            if (err instanceof AxiosError) {
+                errorMessage += `. ${err.message}`
+            }
+
+            throw new Error(errorMessage)
+        }
+    }
 }
 
 export const filesService = new FileDatasourcesService()

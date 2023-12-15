@@ -148,29 +148,6 @@ export default class AnalyzesService extends GenericService<Analyzes, IAnalyzesR
             throw new Error(errorMessage)
         }
     }
-
-    async getUserAnalyzes(userId: number) {
-        try {
-            console.log(`Getting all user analyzes with id='${userId}'`);
-            const res = await this.api.get(`/users/${userId}/analyzes`)
-            console.log(res)
-
-            const models = this.mapJSONToModels(res.data)
-            console.log(models)
-
-            return models
-
-        } catch (err) {
-            let errorMessage = "Failed to get all user analyzes"
-            console.error(errorMessage)
-            if (err instanceof AxiosError) {
-                errorMessage += `. ${err.message}`
-            }
-
-            throw new Error(errorMessage)
-        }
-    }
-
 }
 
 export const analyzesService = new AnalyzesService()

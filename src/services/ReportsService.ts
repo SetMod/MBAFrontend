@@ -16,28 +16,6 @@ export default class ReportsService extends GenericService<Reports, IReportsResp
         return Reports.toJSON(report)
     }
 
-    async getUserReports(userId: number) {
-        try {
-            console.log(`Getting all user reports with id='${userId}'`);
-            const res = await this.api.get(`/users/${userId}/reports`)
-            console.log(res)
-
-            const models = this.mapJSONToModels(res.data)
-            console.log(models)
-
-            return models
-
-        } catch (err) {
-            let errorMessage = "Failed to get all user reports"
-            console.error(errorMessage)
-            if (err instanceof AxiosError) {
-                errorMessage += `. ${err.message}`
-            }
-
-            throw new Error(errorMessage)
-        }
-    }
-
     // async getVisualizations(id: number) {
     //     try {
     //         const res = await this.api.get(`${this.url}/${id}/visualizations`)
