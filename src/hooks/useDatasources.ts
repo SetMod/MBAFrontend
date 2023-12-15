@@ -1,11 +1,14 @@
 import { ref } from "vue"
-import Datasources from "../models/DatasourcesModel"
+import Datasources, { IDatasourcesFullResponse } from "../models/DatasourcesModel"
 import { datasourcesService } from "../services/DatasourcesService"
 import useCRUD from "./useCRUD"
 import useState from "./useState"
+import { usersService } from "../services/UsersService"
+import { organizationsService } from "../services/OrganizationsService"
+import { filesService } from "../services/FileDatasourcesService"
 
-const DATASOURCES_STORAGE_KEY = "datasource"
 const datasourcesState = useState<Datasources>()
+const userDatasources = ref<Datasources[] | null>(null)
 const {
     error: datasourcesError,
     isLoading: isDatasourcesLoading,
@@ -14,9 +17,6 @@ const {
     updatedModel: updatedDatasource,
     newModel: newDatasource,
     deletedModel: deletedDatasource,
-    getFromLocalStorage,
-    addToLocalStorage,
-    removeFromLocalStorage,
     getAllModels: getDatasources,
     getModelById: getDatasourceById,
     getModelByField: getDatasourceByField,
@@ -24,10 +24,24 @@ const {
     createModel: createDatasource,
     updateModel: updateDatasource,
     deleteModel: deleteDatasource,
-} = useCRUD(datasourcesService, datasourcesState, DATASOURCES_STORAGE_KEY)
-const userDatasources = ref<Datasources[] | null>()
+} = useCRUD(datasourcesService, datasourcesState)
 
 export default function useDatasources() {
+
+    const createFileDatasource = async (file: Datasources, form: FormData) => {
+        isDatasourcesLoading.value = true
+        datasourcesError.value = null
+        try {
+            const res = await filesService.createFile(file, form)
+
+        } catch (err) {
+            if (err instanceof Error) {
+                datasourcesError.value = err
+            }
+        } finally {
+            isDatasourcesLoading.value = false
+        }
+    }
 
     const getUserDatasources = async (userId: number) => {
         isDatasourcesLoading.value = true
@@ -56,6 +70,40 @@ export default function useDatasources() {
     // }
 
 
+    const userDatasourcesFull = ref<IDatasourcesFullResponse[]>([])
+    const getUserDatasourcesFull = async (userId: number) => {
+        isDatasourcesLoading.value = true
+        datasourcesError.value = null
+        try {
+            const datasources = await usersService.getDatasourcesFull(userId)
+            userDatasourcesFull.value = datasources
+        } catch (err) {
+            if (err instanceof Error) {
+                datasourcesError.value = err
+                userDatasourcesFull.value = []
+            }
+        } finally {
+            isDatasourcesLoading.value = false
+        }
+    }
+
+    const organizationDatasourcesFull = ref<IDatasourcesFullResponse[]>([])
+    const getOrganizationsDatasourcesFull = async (orgId: number) => {
+        isDatasourcesLoading.value = true
+        datasourcesError.value = null
+        try {
+            const datasources = await organizationsService.getDatasourcesFull(orgId)
+            organizationDatasourcesFull.value = datasources
+        } catch (err) {
+            if (err instanceof Error) {
+                datasourcesError.value = err
+                organizationDatasourcesFull.value = []
+            }
+        } finally {
+            isDatasourcesLoading.value = false
+        }
+    }
+
     return {
         userDatasources,
         datasourcesError,
@@ -65,15 +113,17 @@ export default function useDatasources() {
         updatedDatasource,
         newDatasource,
         deletedDatasource,
+        userDatasourcesFull,
+        organizationDatasourcesFull,
+        getOrganizationsDatasourcesFull,
+        getUserDatasourcesFull,
         getUserDatasources,
-        getFromLocalStorage,
-        addToLocalStorage,
-        removeFromLocalStorage,
         getDatasources,
         getDatasourceById,
         getDatasourceByField,
         getDatasourcesByFields,
         createDatasource,
+        createFileDatasource,
         updateDatasource,
         deleteDatasource,
     }

@@ -1,11 +1,20 @@
 import { ref } from "vue"
-import Reports from "../models/ReportsModel"
+import Reports, { IReportsFullResponse } from "../models/ReportsModel"
 import { reportsService } from "../services/ReportsService"
 import useCRUD from "./useCRUD"
 import useState from "./useState"
+import { useLocalStorage } from "./useLocalStorage"
+import { usersService } from "../services/UsersService"
+import { organizationsService } from "../services/OrganizationsService"
 
 const REPORTS_STORAGE_KEY = "report"
 const reportsState = useState<Reports>()
+const {
+    getFromLocalStorage,
+    addToLocalStorage,
+    removeFromLocalStorage
+} = useLocalStorage(reportsService, REPORTS_STORAGE_KEY)
+
 const {
     error: reportsError,
     isLoading: isReportsLoading,
@@ -14,9 +23,6 @@ const {
     updatedModel: updatedReport,
     newModel: newReport,
     deletedModel: deletedReport,
-    getFromLocalStorage,
-    addToLocalStorage,
-    removeFromLocalStorage,
     getAllModels: getReports,
     getModelById: getReportById,
     getModelByField: getReportByField,
@@ -24,8 +30,7 @@ const {
     createModel: createReport,
     updateModel: updateReport,
     deleteModel: deleteReport,
-} = useCRUD(reportsService, reportsState, REPORTS_STORAGE_KEY)
-const userReports = ref<Reports[] | null>()
+} = useCRUD(reportsService, reportsState)
 
 export default function useReports() {
 
@@ -38,17 +43,34 @@ export default function useReports() {
     //     return response
     // }
 
-    const getUserReports = async (userId: number) => {
+    const userReportsFull = ref<IReportsFullResponse[]>([])
+    const getUserReportsFull = async (userId: number) => {
         isReportsLoading.value = true
         reportsError.value = null
         try {
-            const memberships = await reportsService.getUserReports(userId)
-            userReports.value = memberships
-
+            const reports = await usersService.getReportsFull(userId)
+            userReportsFull.value = reports
         } catch (err) {
             if (err instanceof Error) {
                 reportsError.value = err
-                userReports.value = null
+                userReportsFull.value = []
+            }
+        } finally {
+            isReportsLoading.value = false
+        }
+    }
+
+    const organizationReportsFull = ref<IReportsFullResponse[]>([])
+    const getOrganizationsReportsFull = async (orgId: number) => {
+        isReportsLoading.value = true
+        reportsError.value = null
+        try {
+            const reports = await organizationsService.getReportsFull(orgId)
+            organizationReportsFull.value = reports
+        } catch (err) {
+            if (err instanceof Error) {
+                reportsError.value = err
+                organizationReportsFull.value = []
             }
         } finally {
             isReportsLoading.value = false
@@ -66,7 +88,6 @@ export default function useReports() {
 
 
     return {
-        userReports,
         reportsError,
         isReportsLoading,
         report,
@@ -74,10 +95,10 @@ export default function useReports() {
         updatedReport,
         newReport,
         deletedReport,
-        getUserReports,
-        getFromLocalStorage,
-        addToLocalStorage,
-        removeFromLocalStorage,
+        userReportsFull,
+        organizationReportsFull,
+        getOrganizationsReportsFull,
+        getUserReportsFull,
         getReports,
         getReportById,
         getReportByField,

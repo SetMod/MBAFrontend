@@ -5,9 +5,19 @@ import useCRUD from "./useCRUD";
 import useState from "./useState";
 import useVuelidate from "@vuelidate/core";
 import { required, minLength, maxLength, email } from "@vuelidate/validators";
+import { useLocalStorage } from "./useLocalStorage";
+import OrganizationMembers, { IOrganizationMembersFullResponse } from "../models/OrganizationMembersModel";
+import { usersService } from "../services/UsersService";
 
 const ORGANIZATION_STORAGE_KEY = "organization"
+const SELECTED_ORGANIZATION_STORAGE_KEY = "selected_organization"
 const organizationsState = useState<Organizations>()
+const {
+    getFromLocalStorage,
+    addToLocalStorage,
+    removeFromLocalStorage
+} = useLocalStorage(organizationsService, ORGANIZATION_STORAGE_KEY)
+const selectedOrganization = ref<Organizations | null>(getFromLocalStorage(SELECTED_ORGANIZATION_STORAGE_KEY))
 
 const {
     error: organizationsError,
@@ -17,9 +27,6 @@ const {
     updatedModel: updatedOrganization,
     newModel: newOrganization,
     deletedModel: deletedOrganization,
-    getFromLocalStorage,
-    addToLocalStorage,
-    removeFromLocalStorage,
     getAllModels: getOrganizations,
     getModelById: getOrganizationById,
     getModelByField: getOrganizationByField,
@@ -27,42 +34,34 @@ const {
     createModel: createOrganization,
     updateModel: updateOrganization,
     deleteModel: deleteOrganization,
-} = useCRUD(organizationsService, organizationsState, ORGANIZATION_STORAGE_KEY)
+} = useCRUD(organizationsService, organizationsState)
 
-const SELECTED_ORGANIZATION_STORAGE_KEY = "selected_organization"
-const selectedOrganization = ref<Organizations | null>(getFromLocalStorage(SELECTED_ORGANIZATION_STORAGE_KEY))
-const userOrganizations = ref<Organizations[] | null>()
+
+
+const orgRules = {
+    name: { required, minLength: minLength(2), maxLength: maxLength(200) },
+    description: { required, minLength: minLength(10), maxLength: maxLength(2000) },
+    email: { required, email, maxLength: maxLength(255) },
+    phone: { minLength: minLength(18), maxLength: maxLength(18) },
+}
 
 export function useOrgCreateValidate() {
     const orgCreateState = reactive<Organizations>(new Organizations(0, '', '', '', '',))
-    const orgCreateRules = {
-        name: { required, minLength: minLength(2), maxLength: maxLength(200) },
-        description: { required, minLength: minLength(10), maxLength: maxLength(2000) },
-        email: { required, email, maxLength: maxLength(255) },
-        phone: { minLength: minLength(18), maxLength: maxLength(18) },
-    }
-    const orgCreateValidate = useVuelidate(orgCreateRules, orgCreateState)
+    const orgCreateValidate = useVuelidate(orgRules, orgCreateState)
 
     return {
         orgCreateState,
-        orgCreateRules,
+        orgCreateRules: orgRules,
         orgCreateValidate,
     }
 }
-
-export function useOrgEditValidate() {
-    const orgEditState = ref<Organizations>(selectedOrganization.value)
-    const orgEditRules = {
-        name: { required, minLength: minLength(2), maxLength: maxLength(200) },
-        description: { required, minLength: minLength(10), maxLength: maxLength(2000) },
-        email: { required, email, maxLength: maxLength(255) },
-        phone: { minLength: minLength(18), maxLength: maxLength(18) },
-    }
-    const orgEditValidate = useVuelidate(orgEditRules, orgEditState)
+export function useOrgEditValidate(orgEditState: Organizations) {
+    // const orgEditState = reactive<Organizations>(selectedOrganization.value)
+    const orgEditValidate = useVuelidate(orgRules, orgEditState)
 
     return {
         orgEditState,
-        orgEditRules,
+        orgEditRules: orgRules,
         orgEditValidate,
     }
 }
@@ -89,22 +88,25 @@ export default function useOrganizations() {
         }
     }
 
+    const userOrganizations = ref<Organizations[]>([])
     const getUserOrganizations = async (userId: number) => {
         isOrganizationsLoading.value = true
         organizationsError.value = null
         try {
-            const organizations = await organizationsService.getUserOrganizations(userId)
+            const organizations = await usersService.getOrganizations(userId)
             userOrganizations.value = organizations
 
         } catch (err) {
             if (err instanceof Error) {
                 organizationsError.value = err
-                userOrganizations.value = null
+                userOrganizations.value = []
             }
         } finally {
             isOrganizationsLoading.value = false
         }
     }
+
+
 
     // const getOrganizationMembers = async (userId: number) => {
     //     isOrganizationsLoading.value = true
@@ -130,7 +132,6 @@ export default function useOrganizations() {
     // }
     return {
         selectedOrganization,
-        userOrganizations,
         isOrganizationsLoading,
         organizationsError,
         organization,
@@ -138,14 +139,12 @@ export default function useOrganizations() {
         updatedOrganization,
         newOrganization,
         deletedOrganization,
-        getFromLocalStorage,
-        addToLocalStorage,
-        removeFromLocalStorage,
+        userOrganizations,
         getOrganizations,
         getOrganizationById,
         getOrganizationByField,
-        getOrganizationsByFields,
         getUserOrganizations,
+        getOrganizationsByFields,
         // getOrganizationMembers,
         // addUserToOrganization,
         // deleteUserFromOrganization,

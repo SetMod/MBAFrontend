@@ -14,7 +14,7 @@ export default function useRoutes() {
     const router = useRouter()
     // const { isLoggedIn, isAdmin, currentUser } = useUsers()
     // const { selectedOrganization } = useOrganizations()
-    // const { currentMember, isOrganizationAdmin } = useOrganizationMembers()
+    // const { currentMember, isOrganizationAdmin } = useMembers()
 
     const getHomeRoute = () => {
         return HomeRoute.path
@@ -50,18 +50,45 @@ export default function useRoutes() {
     const getProfileRoute = () => {
         return ProfileRoute.path
     }
-    const getUserOrganizationsRoute = (orgId: number | undefined = undefined) => {
-        // if (!orgId) {
-        //     orgId = currentUser.value?.id
-        // }
-        return `/user/${orgId}/organizations`
-        // return `/organization/${orgId}/`
+    const getUserRoute = (userId: number | string) => {
+        return `/user/${userId}`
     }
+    const getUserOrganizationsRoute = (orgId: number) => {
+        return `/user/${orgId}/organizations`
+    }
+    const getUserMembershipsRoute = (orgId: number) => {
+        return `/user/${orgId}/memberships`
+    }
+
     const getOrganizationRoute = (orgId: number) => {
         return `/organization/${orgId}`
     }
     const getOrganizationMembersRoute = (orgId: number) => {
         return `/organization/${orgId}/members`
+    }
+    const getOrganizationMemberRoute = (orgId: number, memberId: number) => {
+        return `/organization/${orgId}/member/${memberId}`
+    }
+    const getOrganizationDatasourcesRoute = (orgId: number) => {
+        return `/organization/${orgId}/datasources`
+    }
+    const getOrganizationDatasourceRoute = (orgId: number, datasourceId: number) => {
+        return `/organization/${orgId}/datasource/${datasourceId}`
+    }
+    const getOrganizationReportsRoute = (orgId: number) => {
+        return `/organization/${orgId}/reports`
+    }
+    const getReportRoute = (orgId: number, reportId: number) => {
+        return `/organization/${orgId}/report/${reportId}`
+    }
+    const getOrganizationAnalyzesRoute = (orgId: number) => {
+        return `/organization/${orgId}/analyzes`
+    }
+    const getOrganizationAnalyzeRoute = (orgId: number, analyzeId: number) => {
+        return `/organization/${orgId}/analyze/${analyzeId}`
+    }
+    const getOrganizationSettingsRoute = (orgId: number) => {
+        return `/organization/${orgId}/settings`
     }
 
     const breadCrumbItems = computed(() => {
@@ -81,9 +108,19 @@ export default function useRoutes() {
         redirectHome,
         redirectLogin,
         redirectRegister,
+        getUserRoute,
+        getUserMembershipsRoute,
+        getOrganizationReportsRoute,
+        getOrganizationDatasourcesRoute,
+        getOrganizationAnalyzesRoute,
+        getOrganizationDatasourceRoute,
+        getOrganizationSettingsRoute,
+        getOrganizationMemberRoute,
         getUserOrganizationsRoute,
+        getOrganizationAnalyzeRoute,
         getAboutRoute,
         getLoginRoute,
+        getReportRoute,
         getRegisterRoute,
         getProfileRoute,
         getOrganizationRoute,

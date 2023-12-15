@@ -7,9 +7,20 @@ import { getJWTToken } from "../utils/jwt"
 import useState from "./useState";
 import { email, maxLength, minLength, required, sameAs } from "@vuelidate/validators";
 import useVuelidate from "@vuelidate/core";
+import { useLocalStorage } from "./useLocalStorage";
 
 const USER_STORAGE_KEY = "user"
+const CURRENT_USER_STORAGE_KEY = "current_user"
 const usersState = useState<Users>()
+const {
+    getFromLocalStorage,
+    addToLocalStorage,
+    removeFromLocalStorage
+} = useLocalStorage(usersService, USER_STORAGE_KEY)
+const currentUser = ref<Users | null>(getFromLocalStorage(CURRENT_USER_STORAGE_KEY))
+const SELECTED_USER_STORAGE_KEY = "selected_organization"
+const selectedUser = ref<Users | null>(getFromLocalStorage(SELECTED_USER_STORAGE_KEY))
+
 const {
     error: usersError,
     isLoading: isUsersLoading,
@@ -18,9 +29,6 @@ const {
     updatedModel: updatedUser,
     newModel: newUser,
     deletedModel: deletedUser,
-    getFromLocalStorage,
-    addToLocalStorage,
-    removeFromLocalStorage,
     getAllModels: getUsers,
     getModelById: getUserById,
     getModelByField: getUserByField,
@@ -28,12 +36,7 @@ const {
     createModel: createUser,
     updateModel: updateUser,
     deleteModel: deleteUser,
-} = useCRUD(usersService, usersState, USER_STORAGE_KEY)
-
-export const CURRENT_USER_STORAGE_KEY = "current_user"
-const currentUser = ref<Users | null>(getFromLocalStorage(CURRENT_USER_STORAGE_KEY))
-const SELECTED_USER_STORAGE_KEY = "selected_organization"
-const selectedUser = ref<Users | null>(getFromLocalStorage(SELECTED_USER_STORAGE_KEY))
+} = useCRUD(usersService, usersState)
 
 export function useUserLoginValidate() {
     // LOGIN VALIDATION
@@ -74,7 +77,7 @@ export function useUserCreateValidate() {
         username: { required, minLength: minLength(4) },
         password: { required, minLength: minLength(6) },
         confirmPassword: { required, sameAsPassword: sameAs(password) },
-        phone: { required, minLength: minLength(18), maxLength: maxLength(18) },
+        phone: { required, minLength: minLength(13), maxLength: maxLength(18) },
     }
     const userCreateValidate = useVuelidate(userCreateRules, userCreateState)
 
@@ -85,25 +88,16 @@ export function useUserCreateValidate() {
         userCreateValidate
     }
 }
-export function useUserEditValidate() {
+export function useUserEditValidate(userEditState: Users) {
     // PROFILE VALIDATION
-    const userEditState = reactive({
-        id: currentUser.value?.id,
-        firstName: currentUser.value?.firstName,
-        secondName: currentUser.value?.secondName,
-        email: currentUser.value?.email,
-        username: currentUser.value?.username,
-        // password: user.value?.password,
-        phone: currentUser.value?.phone,
-        role: currentUser.value?.role,
-    })
     const userEditRules = {
         firstName: { required },
         secondName: { required },
         email: { required, email },
         username: { required, minLength: minLength(3) },
         // password: { required, minLength: minLength(6) },
-        phone: { required, minLength: minLength(18), maxLength: maxLength(18) },
+        phone: { required, minLength: minLength(13), maxLength: maxLength(18) },
+        role: { required },
     }
     const userEditValidate = useVuelidate(userEditRules, userEditState)
 
@@ -200,9 +194,6 @@ export default function useUsers() {
         newUser,
         deletedUser,
         selectedUser,
-        getFromLocalStorage,
-        addToLocalStorage,
-        removeFromLocalStorage,
         getUsers,
         getUserById,
         getUserByField,

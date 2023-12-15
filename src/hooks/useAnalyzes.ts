@@ -1,11 +1,11 @@
 import { ref } from "vue"
-import Analyzes, { AssociationRules } from "../models/AnalyzesModel"
+import Analyzes, { AssociationRules, IAnalyzesFullResponse } from "../models/AnalyzesModel"
 import { analyzesService } from "../services/AnalyzesService"
 import useState from "./useState"
 import useCRUD from "./useCRUD"
+import { usersService } from "../services/UsersService"
+import { organizationsService } from "../services/OrganizationsService"
 
-
-const DATASOURCES_STORAGE_KEY = "analyze"
 // const analyzesState = reactive<AnalyzesState>({
 //     analyze: undefined,
 //     analyzes: undefined,
@@ -13,6 +13,7 @@ const DATASOURCES_STORAGE_KEY = "analyze"
 //     userAnalyzes: undefined,
 //     associationRules: undefined,
 // })
+
 const analyzesState = useState<Analyzes>()
 const {
     error: analyzesError,
@@ -22,9 +23,6 @@ const {
     updatedModel: updatedAnalyze,
     newModel: newAnalyze,
     deletedModel: deletedAnalyze,
-    getFromLocalStorage,
-    addToLocalStorage,
-    removeFromLocalStorage,
     getAllModels: getAnalyzes,
     getModelById: getAnalyzeById,
     getModelByField: getAnalyzeByField,
@@ -32,8 +30,7 @@ const {
     createModel: createAnalyze,
     updateModel: updateAnalyze,
     deleteModel: deleteAnalyze,
-} = useCRUD(analyzesService, analyzesState, DATASOURCES_STORAGE_KEY)
-const userAnalyzes = ref<Analyzes[] | null>()
+} = useCRUD(analyzesService, analyzesState)
 
 export default function useAnalyzes() {
     // const downloadAnalyze = async (id: number) => {
@@ -53,17 +50,51 @@ export default function useAnalyzes() {
     //     return response
     // }
 
+    const userAnalyzes = ref<Analyzes[]>([])
     const getUserAnalyzes = async (userId: number) => {
         isAnalyzesLoading.value = true
         analyzesError.value = null
         try {
-            const memberships = await analyzesService.getUserAnalyzes(userId)
-            userAnalyzes.value = memberships
-
+            const analyzes = await usersService.getAnalyzes(userId)
+            userAnalyzes.value = analyzes
         } catch (err) {
             if (err instanceof Error) {
                 analyzesError.value = err
-                userAnalyzes.value = null
+                userAnalyzes.value = []
+            }
+        } finally {
+            isAnalyzesLoading.value = false
+        }
+    }
+
+    const userAnalyzesFull = ref<IAnalyzesFullResponse[]>([])
+    const getUserAnalyzesFull = async (userId: number) => {
+        isAnalyzesLoading.value = true
+        analyzesError.value = null
+        try {
+            const analyzes = await usersService.getAnalyzesFull(userId)
+            userAnalyzesFull.value = analyzes
+        } catch (err) {
+            if (err instanceof Error) {
+                analyzesError.value = err
+                userAnalyzes.value = []
+            }
+        } finally {
+            isAnalyzesLoading.value = false
+        }
+    }
+
+    const organizationAnalyzesFull = ref<IAnalyzesFullResponse[]>([])
+    const getOrganizationAnalyzesFull = async (orgId: number) => {
+        isAnalyzesLoading.value = true
+        analyzesError.value = null
+        try {
+            const analyzes = await organizationsService.getAnalyzesFull(orgId)
+            organizationAnalyzesFull.value = analyzes
+        } catch (err) {
+            if (err instanceof Error) {
+                analyzesError.value = err
+                organizationAnalyzesFull.value = []
             }
         } finally {
             isAnalyzesLoading.value = false
@@ -71,7 +102,6 @@ export default function useAnalyzes() {
     }
 
     return {
-        userAnalyzes,
         analyzesError,
         isAnalyzesLoading,
         analyze,
@@ -79,10 +109,12 @@ export default function useAnalyzes() {
         updatedAnalyze,
         newAnalyze,
         deletedAnalyze,
+        userAnalyzes,
+        organizationAnalyzesFull,
+        userAnalyzesFull,
+        getUserAnalyzesFull,
+        getOrganizationAnalyzesFull,
         getUserAnalyzes,
-        getFromLocalStorage,
-        addToLocalStorage,
-        removeFromLocalStorage,
         getAnalyzes,
         getAnalyzeById,
         getAnalyzeByField,

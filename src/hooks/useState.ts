@@ -1,7 +1,7 @@
 import { reactive } from "vue";
 
 export interface GenericState<M> {
-    models: M[] | null,
+    models: M[],
     model: M | null
     newModel: M | null
     updatedModel: M | null
@@ -11,7 +11,7 @@ export interface GenericState<M> {
 export default function useState<M>() {
     const state = reactive<GenericState<M>>({
         model: null,
-        models: null,
+        models: [],
         newModel: null,
         updatedModel: null,
         deletedModel: null

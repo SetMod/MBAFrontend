@@ -2,26 +2,9 @@ import { ref, toRefs } from "vue";
 import GenericService from "../services/GenericService";
 import { GenericState } from "./useState";
 
-
-export default function useCRUD<M, R>(service: GenericService<M, R>, state: GenericState<M>, STORAGE_KEY: string) {
+export default function useCRUD<M, R>(service: GenericService<M, R>, state: GenericState<M>) {
     const error = ref<Error | null>(null)
     const isLoading = ref(false)
-
-    const addToLocalStorage = (model: M, KEY: string | undefined) => {
-        const modelJson = service.mapModelToJSON(model)
-        localStorage.setItem(KEY || STORAGE_KEY, JSON.stringify(modelJson))
-    }
-
-    const getFromLocalStorage = (KEY: string | undefined): M | null => {
-        const modelJson = localStorage.getItem(KEY || STORAGE_KEY)
-        if (!modelJson) return null
-        return service.mapJSONToModel(JSON.parse(modelJson))
-    }
-
-    const removeFromLocalStorage = (KEY: string | undefined) => {
-        localStorage.removeItem(KEY || STORAGE_KEY)
-    }
-
 
     const getAllModels = async () => {
         isLoading.value = true
@@ -171,9 +154,6 @@ export default function useCRUD<M, R>(service: GenericService<M, R>, state: Gene
         isLoading,
         error,
         ...toRefs(state),
-        addToLocalStorage,
-        getFromLocalStorage,
-        removeFromLocalStorage,
         getAllModels,
         getModelById,
         getModelByField,
