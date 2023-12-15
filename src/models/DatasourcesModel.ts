@@ -1,20 +1,39 @@
 import GenericModel, { IGenericResponse } from "./GenericModel";
+import { IOrganizationMembersFullResponse } from "./OrganizationMembersModel";
 
 export enum DatasourceTypes {
-    FILE = "file",
-    DB = "db",
+    FILE = "File",
+    DB = "DB",
 
-    CSV = "CSV",
-    SQLITE = "SQLite",
-    MYSQL = "MySQL",
-    POSTGRESQL = "PostgreSQL"
+    // CSV = "CSV",
+    // SQLITE = "SQLite",
+    // MYSQL = "MySQL",
+    // POSTGRESQL = "PostgreSQL"
 }
+
+export const datasourceTypeOptions = Object.keys(DatasourceTypes).map((v: string) => {
+    return {
+        'name': v,
+        'value': DatasourceTypes[v]
+    }
+})
 
 export interface IDatasourcesResponse extends IGenericResponse {
     name: string
     type: DatasourceTypes
     creator_id: number
+}
+
+export interface IDatasourcesFullResponse extends IDatasourcesResponse {
+    creator: IOrganizationMembersFullResponse
+}
+
+export interface IFileDatasourcesResponse extends IDatasourcesResponse {
     file_path: string
+}
+
+export interface IDatasourcesFullResponse extends IFileDatasourcesResponse {
+    creator: IOrganizationMembersFullResponse
 }
 
 export default class Datasources extends GenericModel {
@@ -22,13 +41,10 @@ export default class Datasources extends GenericModel {
     creatorId: number
     type: DatasourceTypes
 
-    filePath: string
-
     constructor(
-        id: number,
-        name: string,
-        creatorId: number,
-        filePath: string,
+        id: number = 0,
+        name: string = '',
+        creatorId: number = 0,
         type: DatasourceTypes = DatasourceTypes.FILE,
         createdDate: Date = new Date(),
         updatedDate: Date | null = null,
@@ -39,7 +55,6 @@ export default class Datasources extends GenericModel {
         this.name = name
         this.creatorId = creatorId
         this.type = type
-        this.filePath = filePath
         this.createdDate = createdDate
         this.updatedDate = updatedDate
         this.deletedDate = deletedDate
@@ -51,7 +66,6 @@ export default class Datasources extends GenericModel {
             datasourcesJson.id,
             datasourcesJson.name,
             datasourcesJson.creator_id,
-            datasourcesJson.file_path,
             datasourcesJson.type,
             datasourcesJson.created_date,
             datasourcesJson.updated_date,

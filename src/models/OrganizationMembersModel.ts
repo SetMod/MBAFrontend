@@ -1,4 +1,6 @@
 import GenericModel, { IGenericResponse } from "./GenericModel"
+import { IOrganizationsResponse } from "./OrganizationsModel"
+import { IUsersResponse } from "./UsersModel"
 
 export enum OrganizationRoles {
     OWNER = "Owner",
@@ -12,6 +14,11 @@ export interface IOrganizationMembersResponse extends IGenericResponse {
     organization_id: number
     active: boolean
     role: OrganizationRoles
+}
+
+export interface IOrganizationMembersFullResponse extends IOrganizationMembersResponse {
+    user: IUsersResponse
+    organization: IOrganizationsResponse
 }
 
 export default class OrganizationMembers extends GenericModel {

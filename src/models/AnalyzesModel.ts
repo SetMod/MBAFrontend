@@ -1,20 +1,30 @@
+import { IDatasourcesFullResponse } from "./DatasourcesModel"
 import GenericModel, { IGenericResponse } from "./GenericModel"
+import { IOrganizationMembersFullResponse } from "./OrganizationMembersModel"
 
 export enum AnalyzeStatus {
-    SCHEDULED = "scheduled",
-    STARTED = "started",
-    IN_PROGRESS = "in progress",
-    FINISHED = "finished",
-    FAILED = "failed"
+    NOT_STARTED = "Not started",
+    STARTED = "Started",
+    SCHEDULED = "Scheduled",
+    IN_PROGRESS = "In progress",
+    FINISHED = "Finished",
+    FAILED = "Failed"
 }
 
 export enum Algorithm {
     APRIORI = "Apriori",
-    FPGROWTH = "FP-growth",
+    FPGROWTH = "FP-Growth",
     ECLAT = "ECLAT",
     FPMAX = "FP-Max",
     HMINE = "H-mine"
 }
+
+export const algorithmOptions = Object.keys(Algorithm).map((v: string) => {
+    return {
+        'name': v,
+        'value': Algorithm[v]
+    }
+})
 
 export interface IAnalyzesResponse extends IGenericResponse {
     name: string
@@ -28,7 +38,13 @@ export interface IAnalyzesResponse extends IGenericResponse {
     algorithm: Algorithm
     started_date: Date | null
     finished_date: Date | null
+    datasource_id: number
     creator_id: number
+}
+
+export interface IAnalyzesFullResponse extends IAnalyzesResponse {
+    datasource: IDatasourcesFullResponse
+    creator: IOrganizationMembersFullResponse
 }
 
 export interface IAssociationRulesResponse {
@@ -56,19 +72,21 @@ export default class Analyzes extends GenericModel {
     startedDate: Date | null
     finishedDate: Date | null
     creatorId: number
+    datasourceId: number
 
     constructor(
-        id: number,
-        name: string,
-        description: string,
+        id: number = 0,
+        name: string = '',
+        description: string = '',
         support: number = 0,
         lift: number = 0,
         confidence: number = 0,
         rulesLength: number = 0,
         filePath: string = '',
-        status: AnalyzeStatus = AnalyzeStatus.STARTED,
+        status: AnalyzeStatus = AnalyzeStatus.NOT_STARTED,
         algorithm: Algorithm = Algorithm.FPGROWTH,
         creatorId: number = 0,
+        datasourceId: number = 0,
         startedDate: Date | null = null,
         finishedDate: Date | null = null,
         createdDate: Date = new Date(),
@@ -89,6 +107,7 @@ export default class Analyzes extends GenericModel {
         this.startedDate = startedDate
         this.finishedDate = finishedDate
         this.creatorId = creatorId
+        this.datasourceId = datasourceId
         this.createdDate = createdDate
         this.updatedDate = updatedDate
         this.deletedDate = deletedDate

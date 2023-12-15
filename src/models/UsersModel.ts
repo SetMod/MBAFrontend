@@ -5,6 +5,13 @@ export enum Roles {
     USER = "User"
 }
 
+export const roleOptions = Object.keys(Roles).map((v: string) => {
+    return {
+        'name': v,
+        'value': Roles[v]
+    }
+})
+
 export interface IUsersResponse extends IGenericResponse {
     first_name: string
     second_name: string

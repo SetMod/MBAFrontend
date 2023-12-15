@@ -1,9 +1,17 @@
 import GenericModel, { IGenericResponse } from "./GenericModel"
+import { IOrganizationMembersFullResponse } from "./OrganizationMembersModel"
 
-enum ReportTypes {
-    // GENERIC = "generic",
-    STANDARD = "Standard"
+export enum ReportTypes {
+    GENERIC = "Generic",
+    // STANDARD = "Standard"
 }
+
+export const reportTypeOptions = Object.keys(ReportTypes).map((v: string) => {
+    return {
+        'name': v,
+        'value': ReportTypes[v]
+    }
+})
 
 export interface IReportsResponse extends IGenericResponse {
     name: string
@@ -11,16 +19,20 @@ export interface IReportsResponse extends IGenericResponse {
     creator_id: number
 }
 
+export interface IReportsFullResponse extends IReportsResponse {
+    creator: IOrganizationMembersFullResponse
+}
+
 export default class Reports extends GenericModel {
     name: string = ''
     creatorId: number
-    type: ReportTypes = ReportTypes.STANDARD
+    type: ReportTypes = ReportTypes.GENERIC
 
     constructor(
-        id: number,
-        name: string,
-        creatorId: number,
-        type: ReportTypes = ReportTypes.STANDARD,
+        id: number = 0,
+        name: string = '',
+        creatorId: number = 0,
+        type: ReportTypes = ReportTypes.GENERIC,
         createdDate: Date = new Date(),
         updatedDate: Date | null = null,
         deletedDate: Date | null = null,
