@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { PropType, ref } from "vue"
+import { PropType } from "vue"
 import Organizations from "../../models/OrganizationsModel"
 
-const organization = ref<Organizations>()
 const props = defineProps({
     showNewDialog: {
         type: Boolean,
@@ -12,52 +11,46 @@ const props = defineProps({
         type: Array as PropType<Organizations[]>,
         required: true
     },
+    selectedOrganization: {
+        type: [Organizations, null] as PropType<Organizations | null>,
+        required: true,
+    },
     isLoading: {
         type: Boolean,
         required: true
     },
 })
+
 const emit = defineEmits({
-    'update:show-new-dialog': (value: boolean) => {
-        if (typeof value === 'boolean') {
-            return true
-        }
-        console.error('Invalid value type for update:show-new-dialog event!');
+    'update:showNewDialog': (value: boolean) => {
+        if (typeof value === 'boolean') return true
+        console.error('Invalid value type for update:showNewDialog event!');
         return false
     },
-    selectOrganization: (value: Organizations) => {
-        if (value instanceof Organizations) {
-            return true
-        }
+    'update:selectedOrganization': (value: Organizations) => {
+        if (value instanceof Organizations) return true
         console.error('Invalid value type for submit-join event!');
         return false
     },
-    submitJoin: (value: Organizations | undefined) => {
-        if (value instanceof Organizations) {
-            return true
-        }
-        console.error('Invalid value type for submit-join event!');
-        return false
-    },
+    submitJoin: () => true,
 })
-const openCreateDialog = () => emit('update:show-new-dialog', true)
+
+const openCreateDialog = () => emit('update:showNewDialog', true)
 </script>
 
 <template>
     <Toolbar class="m-2">
         <template #start>
-            <Button label="New" icon="pi pi-plus" class="p-button-success mr-2" @click="openCreateDialog" />
+            <Button label="New" icon="pi pi-plus" class="mr-2" @click="openCreateDialog" />
             <!-- <Button label="Delete" icon="pi pi-trash" class="p-button-danger"
                 :disabled="!selectedReports || !selectedReports.length" @click="confirmDeleteSelected" /> -->
         </template>
 
         <template #end>
-            <!-- <Dropdown v-model="props.selectedOrganization" class="mr-2" :options="props.organizations.map(org => org.name)" -->
-            <Dropdown class="mr-2" :options="props.organizations" option-label="name" :filter="true"
-                placeholder="Select an organization" :show-clear="true" :loading="props.isLoading"
-                :model-value="organization"
-                @update:model-value="(organization: Organizations) => emit('selectOrganization', organization)" />
-            <Button label="Join" icon="pi pi-plus-circle" class="p-button-help" @click="emit('submitJoin', organization)" />
+            <Dropdown :model-value="props.selectedOrganization" :filter="true" :options="props.organizations"
+                option-label="name" placeholder="Select an organization" :show-clear="true" :loading="props.isLoading"
+                class="mr-2" @update:model-value="(org: Organizations) => emit('update:selectedOrganization', org)" />
+            <Button label="Join" icon="pi pi-plus-circle" class="p-button-help" @click="emit('submitJoin')" />
         </template>
     </Toolbar>
 </template>

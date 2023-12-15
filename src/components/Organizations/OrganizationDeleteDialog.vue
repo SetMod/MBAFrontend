@@ -6,6 +6,7 @@ const props = defineProps({
         required: true
     },
 })
+
 const emit = defineEmits({
     'update:show': (value: boolean) => {
         if (typeof value === 'boolean') return true
@@ -16,6 +17,7 @@ const emit = defineEmits({
         return true
     }
 })
+
 const closeDialog = () => { emit('update:show', false) }
 const submitDialog = () => {
     emit('submitDialog')

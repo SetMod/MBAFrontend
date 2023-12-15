@@ -1,9 +1,14 @@
 <script setup lang="ts">
 import { useOrgEditValidate } from "../../hooks/useOrganizations"
+import Organizations from "../../models/OrganizationsModel";
 
 const props = defineProps({
     show: {
         type: Boolean,
+        required: true
+    },
+    organization: {
+        type: Organizations,
         required: true
     }
 })
@@ -23,7 +28,7 @@ const submitDialog = () => {
     closeDialog()
 }
 
-const { orgEditValidate } = useOrgEditValidate()
+const { orgEditValidate } = useOrgEditValidate(props.organization)
 </script>
 
 <template>
@@ -73,8 +78,8 @@ const { orgEditValidate } = useOrgEditValidate()
                 long.</small>
         </div>
         <template #footer>
-            <Button label="Cancel" icon="pi pi-times" class="p-button p-button-secondary" @click="closeDialog" />
-            <Button label="Save" icon="pi pi-check" class="p-button p-button-success" :disabled="orgEditValidate.$invalid"
+            <Button label="Cancel" icon="pi pi-times" severity="secondary" @click="closeDialog" />
+            <Button label="Update" icon="pi pi-check" severity="success" :disabled="orgEditValidate.$invalid"
                 @click="submitDialog" />
         </template>
     </Dialog>

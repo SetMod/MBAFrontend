@@ -16,7 +16,7 @@ const emit = defineEmits({
         return false
     },
     submitDialog: (value: Organizations) => {
-        if (value instanceof Organizations) return true
+        if (value && value instanceof Organizations) return true
         console.error('Invalid value type for submitDialog event!');
         return false
     }
@@ -79,8 +79,8 @@ const { orgCreateState, orgCreateValidate } = useOrgCreateValidate()
         </div>
 
         <template #footer>
-            <Button label="Cancel" icon="pi pi-times" class="p-button-text" @click="closeDialog" />
-            <Button label="Save" icon="pi pi-check" class="p-button-text" :disabled="orgCreateValidate.$invalid"
+            <Button label="Cancel" icon="pi pi-times" severity="secondary" @click="closeDialog" />
+            <Button label="Create" icon="pi pi-check" severity="success" :disabled="orgCreateValidate.$invalid"
                 @click="submitDialog(orgCreateState)" />
         </template>
     </Dialog>

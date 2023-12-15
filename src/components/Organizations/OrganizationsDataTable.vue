@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { PropType, ref } from "vue"
+import { PropType } from "vue"
 import Organizations from "../../models/OrganizationsModel"
 import useRoutes from "../../hooks/useRoutes"
 
@@ -15,15 +15,16 @@ const props = defineProps(
         },
     }
 )
+
 const emit = defineEmits({
     refreshTable: () => true,
     openEdit: (value: Organizations) => {
-        if (value instanceof Organizations) return true
+        if (value && value instanceof Organizations) return true
         console.error('Invalid value type for openEdit event!');
         return false
     },
     openDelete: (value: Organizations) => {
-        if (value instanceof Organizations) return true
+        if (value && value instanceof Organizations) return true
         console.error('Invalid value type for openDelete event!');
         return false
     },
@@ -54,43 +55,23 @@ const { getOrganizationRoute } = useRoutes()
             <Column field="description" header="Description" :sortable="true"></Column>
             <Column field="email" header="Email" :sortable="true"></Column>
             <Column field="phone" header="Phone"></Column>
-            <Column field="createdDate" header="Created Date" :sortable="true">
+            <Column header="Dates" :sortable="true">
                 <template #body="slotProps">
                     <div>
-                        {{ new Date(slotProps.data.createdDate).toLocaleDateString() }}
+                        Created: {{ new Date(slotProps.data.createdDate).toLocaleDateString() }}
+                    </div>
+                    <div v-if="slotProps.data.updatedDate">
+                        Updated: {{ new Date(slotProps.data.updatedDate).toLocaleDateString() }}
+                    </div>
+                    <div v-if="slotProps.data.softDeleted">
+                        Deleted: {{ new Date(slotProps.data.deletedDate).toLocaleDateString() }}
                     </div>
                 </template>
             </Column>
-            <Column field="updatedDate" header="Updated Date" :sortable="true">
+            <Column header="Actions">
                 <template #body="slotProps">
+                    <!-- <div class="flex justify-content-around align-content-center"> -->
                     <div>
-                        {{ slotProps.data.updatedDate ? new Date(slotProps.data.updatedDate).toLocaleDateString() : 'None'
-                        }}
-                    </div>
-                </template>
-            </Column>
-            <Column field="deletedDate" header="Create Date" :sortable="true">
-                <template #body="slotProps">
-                    <div>
-                        {{ slotProps.data.updatedDate ? new Date(slotProps.data.updatedDate).toLocaleDateString() : 'None'
-                        }}
-                    </div>
-                </template>
-            </Column>
-            <Column field="softDeleted" header="Soft Deleted" :sortable="true"></Column>
-            <Column header="Actions" header-style="width: 4rem; text-align: center" body-style="overflow: visible;">
-                <template #body="slotProps">
-                    <div class="flex justify-content-around align-content-center">
-                        <Button type="button" icon="pi pi-user-edit" class="mr-1 p-button-outlined p-button-info"
-                            @click="() => emit('openEdit', slotProps.data)"></Button>
-                        <Button type="button" icon="pi pi-times" class="p-button-outlined p-button-danger"
-                            @click="() => emit('openDelete', slotProps.data)"></Button>
-                    </div>
-                </template>
-            </Column>
-            <Column header="Actions" header-style="width: 4rem; text-align: center" body-style="overflow: visible;">
-                <template #body="slotProps">
-                    <div class="flex justify-content-around align-content-center">
                         <Button type="button" icon="pi pi-list" class="p-button-outlined p-button-info mr-1"></Button>
                         <Button type="button" icon="pi pi-pencil" class="p-button-outlined p-button-warning mr-1"
                             @click="() => emit('openEdit', slotProps.data)"></Button>
@@ -99,11 +80,6 @@ const { getOrganizationRoute } = useRoutes()
                     </div>
                 </template>
             </Column>
-            <template #paginatorstart>
-                <Button type="button" icon="pi pi-refresh" class="p-button-text" @click="() => emit('refreshTable')" />
-            </template>
-            <template #paginatorend>
-            </template>
         </DataTable>
     </div>
 </template>
