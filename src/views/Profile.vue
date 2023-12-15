@@ -2,61 +2,62 @@
 import { onMounted } from "vue";
 import useUsers from "../hooks/useUsers";
 import ProfileForm from "../components/Profile/ProfileForm.vue";
-import useOrganizationMembers from "../hooks/useOrganizationMembers";
+import DatasourcesTable from "../components/Datasources/DatasourcesTable.vue";
+import OrganizationsTable from "../components/Organizations/OrganizationsTable.vue"
+import AnalyzesTable from "../components/Analyzes/AnalyzesTable.vue";
+import ReportsTable from "../components/Reports/ReportsTable.vue";
+import UserMembershipsTable from "../components/Users/UserMembershipsTable.vue";
+import useMembers from "../hooks/useMembers";
 import useOrganizations from "../hooks/useOrganizations";
-import useReports from "../hooks/useReports";
 import useDatasources from "../hooks/useDatasources";
+import useReports from "../hooks/useReports";
 import useAnalyzes from "../hooks/useAnalyzes";
 
-const { currentUser } = useUsers()
-const { getUserMemberships, userMemberships, isOrganizationMembersLoading } = useOrganizationMembers()
-const { getUserOrganizations, userOrganizations, isOrganizationsLoading } = useOrganizations()
-const { getUserReports, userReports, isReportsLoading } = useReports()
-const { getUserDatasources, userDatasources, isDatasourcesLoading } = useDatasources()
-const { getUserAnalyzes, userAnalyzes, isAnalyzesLoading } = useAnalyzes()
+const { currentUser, } = useUsers()
+const { isMembersLoading, userMembershipsFull, getUserMembershipsFull } = useMembers()
+const { isOrganizationsLoading, userOrganizations, getUserOrganizations } = useOrganizations()
+const { isDatasourcesLoading, userDatasourcesFull, getUserDatasourcesFull } = useDatasources()
+const { isReportsLoading, userReportsFull, getUserReportsFull } = useReports()
+const { isAnalyzesLoading, userAnalyzesFull, getUserAnalyzesFull } = useAnalyzes()
 
 onMounted(async () => {
   if (currentUser.value) {
-    await getUserMemberships(currentUser.value.id)
+    await getUserMembershipsFull(currentUser.value.id)
     await getUserOrganizations(currentUser.value.id)
-    await getUserReports(currentUser.value.id)
-    await getUserDatasources(currentUser.value.id)
-    await getUserAnalyzes(currentUser.value.id)
+    await getUserReportsFull(currentUser.value.id)
+    await getUserDatasourcesFull(currentUser.value.id)
+    await getUserAnalyzesFull(currentUser.value.id)
   }
 })
 
 </script>
 
 <template>
-  <section v-if="currentUser" class="flex flex-wrap justify-content-center my-3">
-    <!-- <section class="flex flex-wrap justify-content-center my-3"> -->
-    <ProfileForm />
-    <div class="max-w-25rem">
-      <div>
-        <h3>Memberships</h3>
-        <div v-if="isOrganizationMembersLoading">Loading...</div>
-        <div v-else>{{ userMemberships }}</div>
-      </div>
-      <div>
-        <h3>Organizations</h3>
-        <div v-if="isOrganizationsLoading">Loading...</div>
-        <div v-else>{{ userOrganizations }}</div>
-      </div>
-      <div>
-        <h3>Reports</h3>
-        <div v-if="isReportsLoading">Loading...</div>
-        <div>{{ userReports }}</div>
-      </div>
-      <div>
-        <h3>Datasources</h3>
-        <div v-if="isDatasourcesLoading">Loading...</div>
-        <div>{{ userDatasources }}</div>
-      </div>
-      <div>
-        <h3>Analyzes</h3>
-        <div v-if="isAnalyzesLoading">Loading...</div>
-        <div>{{ userAnalyzes }}</div>
-      </div>
+  <!-- <section v-if="currentUser" class="flex flex-wrap justify-content-center my-3"> -->
+  <!-- <section class="flex flex-wrap justify-content-center my-3"> -->
+  <section v-if="currentUser">
+    <div>
+    </div>
+
+    <div class="card flex">
+      <ProfileForm v-if="currentUser" :user="currentUser" />
+      <TabView class="w-full">
+        <TabPanel header="Memberships">
+          <UserMembershipsTable :memberships="userMembershipsFull" :is-loading="isMembersLoading" />
+        </TabPanel>
+        <TabPanel header="Organizations">
+          <OrganizationsTable :organizations="userOrganizations" :is-loading="isOrganizationsLoading" />
+        </TabPanel>
+        <TabPanel header="Datasources">
+          <DatasourcesTable :datasources="userDatasourcesFull" :is-loading="isDatasourcesLoading" />
+        </TabPanel>
+        <TabPanel header="Analyzes">
+          <AnalyzesTable :analyzes="userAnalyzesFull" :is-loading="isAnalyzesLoading" />
+        </TabPanel>
+        <TabPanel header="Reports">
+          <ReportsTable :reports="userReportsFull" :is-loading="isReportsLoading" />
+        </TabPanel>
+      </TabView>
     </div>
   </section>
 </template>
