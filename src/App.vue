@@ -9,9 +9,9 @@ import Sidebar from './components/Sidebar.vue';
   <Suspense>
     <div>
       <Navbar />
-      <div class="grid">
-        <Sidebar class="col-2" />
-        <Container class="col-auto w-10">
+      <div class="flex justify-content-between">
+        <Sidebar />
+        <Container>
           <router-view />
         </Container>
       </div>
