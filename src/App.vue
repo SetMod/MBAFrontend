@@ -20,7 +20,6 @@ import Sidebar from './components/Sidebar.vue';
   </Suspense>
 </template>
 
-
 <style>
 @import "primeicons/primeicons.css";
 @import "primeflex/primeflex.css";
@@ -31,5 +30,9 @@ import Sidebar from './components/Sidebar.vue';
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
+}
+
+body {
+  margin: 0;
 }
 </style>
