@@ -60,80 +60,46 @@ export interface IAssociationRulesResponse {
 }
 
 export default class Analyzes extends GenericModel {
-    name: string
-    description: string
-    support: number
-    lift: number
-    confidence: number
-    rulesLength: number
-    filePath: string
-    status: AnalyzeStatus
-    algorithm: Algorithm
-    startedDate: Date | null
-    finishedDate: Date | null
-    creatorId: number
-    datasourceId: number
-
-    constructor(
-        id: number = 0,
-        name: string = '',
-        description: string = '',
-        support: number = 0,
-        lift: number = 0,
-        confidence: number = 0,
-        rulesLength: number = 0,
-        filePath: string = '',
-        status: AnalyzeStatus = AnalyzeStatus.NOT_STARTED,
-        algorithm: Algorithm = Algorithm.FPGROWTH,
-        creatorId: number = 0,
-        datasourceId: number = 0,
-        startedDate: Date | null = null,
-        finishedDate: Date | null = null,
-        createdDate: Date = new Date(),
-        updatedDate: Date | null = null,
-        deletedDate: Date | null = null,
-        softDeleted: boolean = false,
-    ) {
-        super(id, createdDate, updatedDate, deletedDate, softDeleted)
-        this.name = name
-        this.description = description
-        this.support = support
-        this.lift = lift
-        this.confidence = confidence
-        this.rulesLength = rulesLength
-        this.filePath = filePath
-        this.status = status
-        this.algorithm = algorithm
-        this.startedDate = startedDate
-        this.finishedDate = finishedDate
-        this.creatorId = creatorId
-        this.datasourceId = datasourceId
-        this.createdDate = createdDate
-        this.updatedDate = updatedDate
-        this.deletedDate = deletedDate
-        this.softDeleted = softDeleted
-    }
+    id: number = 0
+    name: string = ''
+    description: string = ''
+    support: number = 0.1
+    lift: number = 1.1
+    confidence: number = 0.5
+    rulesLength: number = 2
+    filePath: string = ''
+    status: AnalyzeStatus = AnalyzeStatus.NOT_STARTED
+    algorithm: Algorithm = Algorithm.FPGROWTH
+    creatorId: number = 0
+    datasourceId: number = 0
+    startedDate: Date | null = null
+    finishedDate: Date | null = null
+    createdDate: Date = new Date()
+    updatedDate: Date | null = null
+    deletedDate: Date | null = null
+    softDeleted: boolean = false
 
     static fromJSON(analyzeJson: IAnalyzesResponse): Analyzes {
-        const analyze = new Analyzes(
-            analyzeJson.id,
-            analyzeJson.name,
-            analyzeJson.description,
-            analyzeJson.support,
-            analyzeJson.lift,
-            analyzeJson.confidence,
-            analyzeJson.rules_length,
-            analyzeJson.file_path,
-            analyzeJson.status,
-            analyzeJson.algorithm,
-            analyzeJson.creator_id,
-            analyzeJson.started_date,
-            analyzeJson.finished_date,
-            analyzeJson.created_date,
-            analyzeJson.updated_date,
-            analyzeJson.deleted_date,
-            analyzeJson.soft_deleted,
-        )
+        const analyze = new Analyzes()
+        analyze.id = analyzeJson.id
+        analyze.name = analyzeJson.name
+        analyze.description = analyzeJson.description
+        analyze.support = analyzeJson.support
+        analyze.lift = analyzeJson.lift
+        analyze.confidence = analyzeJson.confidence
+        analyze.rulesLength = analyzeJson.rules_length
+        analyze.filePath = analyzeJson.file_path
+        analyze.status = analyzeJson.status
+        analyze.algorithm = analyzeJson.algorithm
+        analyze.startedDate = analyzeJson.started_date
+        analyze.finishedDate = analyzeJson.finished_date
+        analyze.creatorId = analyzeJson.creator_id
+        analyze.datasourceId = analyzeJson.datasource_id
+        analyze.createdDate = analyzeJson.created_date
+        analyze.updatedDate = analyzeJson.updated_date
+        analyze.deletedDate = analyzeJson.deleted_date
+        analyze.softDeleted = analyzeJson.soft_deleted
+
         return analyze
     }
 
@@ -147,11 +113,12 @@ export default class Analyzes extends GenericModel {
             confidence: analyze.confidence,
             rules_length: analyze.rulesLength,
             file_path: analyze.filePath,
-            status: analyze.status,
-            algorithm: analyze.algorithm,
-            creator_id: analyze.creatorId,
+            status: Object.keys(AnalyzeStatus).find((v) => AnalyzeStatus[v] == analyze.status),
+            algorithm: Object.keys(Algorithm).find((v) => Algorithm[v] == analyze.algorithm),
             started_date: analyze.startedDate,
             finished_date: analyze.finishedDate,
+            creator_id: analyze.creatorId,
+            datasource_id: analyze.datasourceId,
             created_date: analyze.createdDate,
             updated_date: analyze.updatedDate,
             deleted_date: analyze.deletedDate,

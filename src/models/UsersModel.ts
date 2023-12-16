@@ -37,13 +37,13 @@ export default class Users extends GenericModel {
     lastLoginDate: Date | null
 
     constructor(
-        id: number,
-        firstName: string,
-        secondName: string,
-        username: string,
-        password: string,
-        email: string,
-        phone: string,
+        id: number = 0,
+        firstName: string = '',
+        secondName: string = '',
+        username: string = '',
+        password: string = '',
+        email: string = '',
+        phone: string = '',
         active: boolean = true,
         role: Roles = Roles.USER,
         lastLoginDate: Date | null = null,
