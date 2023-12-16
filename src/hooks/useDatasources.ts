@@ -6,6 +6,8 @@ import useState from "./useState"
 import { usersService } from "../services/UsersService"
 import { organizationsService } from "../services/OrganizationsService"
 import { filesService } from "../services/FileDatasourcesService"
+import useVuelidate from "@vuelidate/core"
+import { minLength, maxLength, required } from "@vuelidate/validators"
 
 const datasourcesState = useState<Datasources>()
 const userDatasources = ref<Datasources[] | null>(null)
@@ -25,6 +27,19 @@ const {
     updateModel: updateDatasource,
     deleteModel: deleteDatasource,
 } = useCRUD(datasourcesService, datasourcesState)
+
+export function useDatasourceCreateValidate(datasourceState: Datasources) {
+    const datasourceRules = {
+        name: { required, minLength: minLength(2), maxLength: maxLength(50) },
+        type: { required }
+    }
+    const datasourceValidate = useVuelidate(datasourceRules, datasourceState)
+    return {
+        datasourceValidate,
+        datasourceState,
+        datasourceRules
+    }
+}
 
 export default function useDatasources() {
 
