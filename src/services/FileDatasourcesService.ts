@@ -36,17 +36,14 @@ export default class FileDatasourcesService extends DatasourcesService {
         try {
             console.log('Creating file datasource');
 
-            // const dataFile = this.mapFileToData(file)
+            formData.append('file_datasource', JSON.stringify(file.toJSON()))
+
             const res = await this.api.post(
                 `${this.url}/upload`,
                 formData,
                 {
                     headers: {
                         'Content-Type': 'multipart/form-data'
-                    },
-                    params: {
-                        "name": file.name ? file.name : 'Untitled',
-                        "id": file.id
                     }
                 }
             )
