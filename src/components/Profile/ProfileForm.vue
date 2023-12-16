@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { useToast } from "primevue/usetoast";
 import { ref } from "vue";
-import useUsers, { useUserEditValidate } from "../../hooks/useUsers";
+import useUsers from "../../hooks/useUsers";
+import useUserEditValidate from "../../modules/Users/hooks/useUserEditValidate";
 import Users, { roleOptions } from "../../models/UsersModel";
 
 const props = defineProps({
