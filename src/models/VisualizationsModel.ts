@@ -1,64 +1,79 @@
 import GenericModel, { IGenericResponse } from "./GenericModel"
+import { ChartData } from "chart.js"
 
-enum VisualizationTypes {
+export enum VisualizationTypes {
     FILE = "file",
     DATA_POINTS = "data_points"
 }
+export enum VisualizationChartTypes {
+    PIE = "pie",
+    LINE = "line",
+    BAR = "bar",
+    RADAR = "radar",
+    POLARAREA = "polarArea",
+}
+
+export type ChartType = 'pie' | 'line' | 'bar' | 'radar' | 'polarArea'
+export const ChartTypeOptions = [
+    {
+        value: 'pie',
+        name: 'Pie',
+    },
+    {
+        value: 'line',
+        name: 'Line',
+    },
+    {
+        value: 'bar',
+        name: 'Bar',
+    },
+    {
+        value: 'radar',
+        name: 'Radar',
+    },
+    {
+        value: 'polarArea',
+        name: 'Polar area',
+    }
+]
 
 export interface IVisualizationResponse extends IGenericResponse {
     name: string
     type: VisualizationTypes
+    chart_type: VisualizationChartTypes
     report_id: number
     file_path: string
-    data_points: ChardData | null
+    data_points: ChartData | null
 }
 
 export default class Visualizations extends GenericModel {
-    name: string
-    type: VisualizationTypes
-    reportId: number
+    id: number = 0
+    name: string = ''
+    reportId: number = 0
+    filePath: string | null = ''
+    dataPoints: ChartData | null = null
+    type: VisualizationTypes = VisualizationTypes.DATA_POINTS
+    createdDate: Date = new Date()
+    updatedDate: Date | null = null
+    deletedDate: Date | null = null
+    softDeleted: boolean = false
 
-    filePath: string
-
-    dataPoints: ChardData | null = null
-
-    constructor(
-        id: number,
-        name: string,
-        reportId: number,
-        filePath: string,
-        dataPoints: ChardData | null = null,
-        type: VisualizationTypes = VisualizationTypes.DATA_POINTS,
-        createdDate: Date = new Date(),
-        updatedDate: Date | null = null,
-        deletedDate: Date | null = null,
-        softDeleted: boolean = false,
-    ) {
-        super(id, createdDate, updatedDate, deletedDate, softDeleted)
-        this.name = name
-        this.type = type
-        this.reportId = reportId
-        this.filePath = filePath
-        this.dataPoints = dataPoints
-        this.createdDate = createdDate
-        this.updatedDate = updatedDate
-        this.deletedDate = deletedDate
-        this.softDeleted = softDeleted
-    }
+    chartType: VisualizationChartTypes = VisualizationChartTypes.BAR
+    chartData: ChartData | null = null
 
     static fromJSON(visualizationJson: IVisualizationResponse): Visualizations {
-        const visualization = new Visualizations(
-            visualizationJson.id,
-            visualizationJson.name,
-            visualizationJson.report_id,
-            visualizationJson.file_path,
-            visualizationJson.data_points,
-            visualizationJson.type,
-            visualizationJson.created_date,
-            visualizationJson.updated_date,
-            visualizationJson.deleted_date,
-            visualizationJson.soft_deleted,
-        )
+        const visualization = new Visualizations()
+        visualization.id = visualizationJson.id
+        visualization.name = visualizationJson.name
+        visualization.type = VisualizationTypes[visualizationJson.type]
+        visualization.chartType = VisualizationChartTypes[visualizationJson.chart_type]
+        visualization.reportId = visualizationJson.report_id
+        visualization.filePath = visualizationJson.file_path
+        visualization.dataPoints = visualizationJson.data_points
+        visualization.createdDate = visualizationJson.created_date
+        visualization.updatedDate = visualizationJson.updated_date
+        visualization.deletedDate = visualizationJson.deleted_date
+        visualization.softDeleted = visualizationJson.soft_deleted
 
         return visualization
     }
@@ -67,7 +82,8 @@ export default class Visualizations extends GenericModel {
         const visualizationRes = <IVisualizationResponse>{
             id: visualization.id,
             name: visualization.name,
-            type: visualization.type,
+            type: Object.keys(VisualizationTypes).find(v => VisualizationTypes[v] == visualization.type),
+            chart_type: Object.keys(VisualizationChartTypes).find(v => VisualizationChartTypes[v] == visualization.chartType),
             report_id: visualization.reportId,
             file_path: visualization.filePath,
             data_points: visualization.dataPoints,
@@ -83,18 +99,6 @@ export default class Visualizations extends GenericModel {
     toJSON(): IVisualizationResponse {
         return Visualizations.toJSON(this)
     }
-}
-
-export interface ChartDataset {
-    type: string | undefined,
-    label: string | undefined,
-    backgroundColor: string | undefined,
-    data: number[]
-}
-
-export interface ChardData {
-    labels: Array<string>
-    datasets: Array<ChartDataset>
 }
 
 export interface TopSupportDataResponse {
