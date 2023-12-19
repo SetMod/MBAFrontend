@@ -35,53 +35,31 @@ export interface IDatasourcesFullResponse extends IDatasourcesResponse {
 }
 
 export default class Datasources extends GenericModel {
-    name: string
-    creatorId: number
-    type: DatasourceTypes
-    filePath: string | null
-    fileName: string | null
-    fileSize: number | null
-
-    constructor(
-        id: number = 0,
-        name: string = '',
-        creatorId: number = 0,
-        type: DatasourceTypes = DatasourceTypes.FILE,
-        filePath: string | null = null,
-        fileName: string | null = null,
-        fileSize: number | null = null,
-        createdDate: Date = new Date(),
-        updatedDate: Date | null = null,
-        deletedDate: Date | null = null,
-        softDeleted: boolean = false,
-    ) {
-        super(id, createdDate, updatedDate, deletedDate, softDeleted)
-        this.name = name
-        this.creatorId = creatorId
-        this.type = type
-        this.fileName = fileName
-        this.filePath = filePath
-        this.fileSize = fileSize
-        this.createdDate = createdDate
-        this.updatedDate = updatedDate
-        this.deletedDate = deletedDate
-        this.softDeleted = softDeleted
-    }
+    id: number = 0
+    name: string = ''
+    creatorId: number = 0
+    type: DatasourceTypes = DatasourceTypes.FILE
+    filePath: string | null = null
+    fileName: string | null = null
+    fileSize: number | null = null
+    createdDate: Date = new Date()
+    updatedDate: Date | null = null
+    deletedDate: Date | null = null
+    softDeleted: boolean = false
 
     static fromJSON(datasourcesJson: IDatasourcesResponse): Datasources {
-        const datasource = new Datasources(
-            datasourcesJson.id,
-            datasourcesJson.name,
-            datasourcesJson.creator_id,
-            datasourcesJson.type,
-            datasourcesJson.file_path,
-            datasourcesJson.file_name,
-            datasourcesJson.file_size,
-            datasourcesJson.created_date,
-            datasourcesJson.updated_date,
-            datasourcesJson.deleted_date,
-            datasourcesJson.soft_deleted,
-        )
+        const datasource = new Datasources()
+        datasource.id = datasourcesJson.id
+        datasource.name = datasourcesJson.name
+        datasource.creatorId = datasourcesJson.creator_id
+        datasource.type = DatasourceTypes[datasourcesJson.type]
+        datasource.filePath = datasourcesJson.file_path
+        datasource.fileName = datasourcesJson.file_name
+        datasource.fileSize = datasourcesJson.file_size
+        datasource.createdDate = datasourcesJson.created_date
+        datasource.updatedDate = datasourcesJson.updated_date
+        datasource.deletedDate = datasourcesJson.deleted_date
+        datasource.softDeleted = datasourcesJson.soft_deleted
 
         return datasource
     }
