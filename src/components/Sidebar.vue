@@ -72,7 +72,7 @@ const sideBarItems = computed(() => {
 
 <template>
     <!-- <div v-if="isLoggedIn" class="p-2 bg-black-alpha-10"> -->
-    <div v-if="isLoggedIn" class="p-2">
+    <div v-if="isLoggedIn">
         <!-- <MegaMenu :model="props.routes" orientation="vertical" /> -->
         <!-- <PanelMenu :model="props.routes" multiple class="w-full md:w-14rem" /> -->
         <!-- <PanelMenu :model="sideBarItems" multiple class="w-full md:w-14rem">

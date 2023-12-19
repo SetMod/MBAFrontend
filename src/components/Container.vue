@@ -3,7 +3,9 @@
 
 <template>
   <!-- <div class="w-full h-screen"> -->
-  <div class="min-h-screen w-full max-w-screen">
-    <slot />
-  </div>
+    <div class="flex justify-content-center">
+      <div class="min-h-screen w-full">
+        <slot />
+      </div>
+    </div>
 </template>
