@@ -1,6 +1,7 @@
 import { AxiosError } from "axios";
 import Reports, { IReportsResponse } from "../models/ReportsModel";
 import GenericService from "./GenericService";
+import Visualizations from "../models/VisualizationsModel";
 
 export default class ReportsService extends GenericService<Reports, IReportsResponse> {
 
@@ -16,45 +17,29 @@ export default class ReportsService extends GenericService<Reports, IReportsResp
         return Reports.toJSON(report)
     }
 
-    // async getVisualizations(id: number) {
-    //     try {
-    //         const res = await this.api.get(`${this.url}/${id}/visualizations`)
+    async getVisualizations(id: number) {
+        try {
+            const res = await this.api.get(`${this.url}/${id}/visualizations`)
+            console.log(res)
 
-    //         const visualizations: Visualizations[] = res.data.map((val: IVisualizationResponse) => {
-    //             return this.mapDataToVisualization(val)
-    //         })
-    //         console.log(visualizations)
-    //         return visualizations
-    //     } catch (err) {
-    //         let errorMessage = 'Failed to get report visualizations'
-    //         console.error(err);
-    //         if (err instanceof AxiosError) {
-    //             errorMessage += err.message
-    //         }
+            if (res.data instanceof Array) {
+                const visualizations = res.data.map(visualizationJson => Visualizations.fromJSON(visualizationJson))
+                console.log(visualizations)
 
-    //         throw new Error(errorMessage)
-    //     }
-    // }
+                return visualizations
+            }
 
-    // async getAnalyzes(reportId: number) {
-    //     const errorMessage: String = 'Failed to get report analyzes'
-    //     try {
-    //         const response = await axios.get(`${config.baseUrl}/reports/${reportId}.analyzes`)
+            return []
+        } catch (err) {
+            let errorMessage = 'Failed to get report visualizations'
+            console.error(err);
+            if (err instanceof AxiosError) {
+                errorMessage += err.message
+            }
 
-    //         if (response.data instanceof String) return response.data
-    //         if (Object.keys(response.data).length === 0) return errorMessage
-
-    //         const report: Reports = this.mapDataToReport(response.data)
-    //         console.log(report)
-    //         return report
-    //     } catch (error) {
-    //         console.error(error);
-    //         if (error instanceof AxiosError)
-    //             if (error.response?.data && typeof error.response?.data === 'string') return new String(error.response?.data)
-    //         return errorMessage
-    //     }
-    // }
-
+            throw new Error(errorMessage)
+        }
+    }
 }
 
 export const reportsService = new ReportsService()

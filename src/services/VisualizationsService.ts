@@ -29,10 +29,27 @@ export default class VisualizationsService extends GenericService<Visualizations
         return 'total_cost_item' in obj;
     }
 
+    async createMany(visualizations: Visualizations[]) {
+        try {
+            console.log(`Creating visualizations`);
+            const visualizationsJson = this.mapModelsToJSON(visualizations)
+            console.log(visualizationsJson)
+
+            const res = await this.api.post(`${this.url}/many`, visualizationsJson)
+            console.log(res)
+        } catch (err) {
+            let errorMessage = 'Failed to create visualizations'
+            console.log(errorMessage)
+            if (err instanceof AxiosError) {
+                errorMessage += `. ${err.message}`
+            }
+
+            throw new Error(errorMessage)
+        }
+    }
+
     async getVisualizationData(id: number) {
         try {
-            const visualization = await this.getById(id)
-
             const response = await this.api.get(`${this.url}/data/${id}`)
             console.log(response.data)
 
@@ -58,81 +75,15 @@ export default class VisualizationsService extends GenericService<Visualizations
 
             const blob = new Blob([res.data], { type: res.data.type })
             const link = document.createElement('a')
+
             link.href = URL.createObjectURL(blob)
             link.download = visualization.name ? visualization.name : 'Untitled'
             // link.download = response.headers["content-disposition"].split("name=")[1]
-            document.body.appendChild(link);
             link.click()
 
         } catch (error) {
             let errorMessage = 'Failed to download the visualization file'
             console.error(error);
-
-            throw new Error(errorMessage)
-        }
-    }
-
-
-    async createVisualization(visualization: Visualizations, fileId: number) {
-        try {
-            const dataAnalyze = this.mapModelToJSON(visualization)
-            // const res = await this.api.post(`${config.baseUrl}/visualizations/`, { ...dataAnalyze, id: fileId })
-            const res = await this.api.post(this.url, dataAnalyze, {
-                params: {
-                    "id": fileId
-                }
-            })
-            console.log(res);
-
-            // const associationRules: AssociationRules[] = res.data.map((val: IAssociationRulesResponse) => {
-            //     return this.mapDataToAssociationRules(val)
-            // })
-            // // console.log(associationRules)
-            // return associationRules
-        } catch (error) {
-            let errorMessage = 'Failed to create visualization'
-
-            console.error(error);
-            if (error instanceof AxiosError)
-                if (error.response?.data && typeof error.response?.data === 'string') return error.response?.data
-            throw new Error(errorMessage)
-        }
-    }
-
-    async updateVisualization(visualization: Visualizations) {
-        try {
-            const dataVisualization = this.mapModelToJSON(visualization)
-            const response = await this.api.put(`${this.url}/${visualization.id}`, dataVisualization)
-
-            const updatedVisualization: Visualizations = this.mapJSONToModel(response.data)
-            console.log(updatedVisualization)
-
-            return updatedVisualization
-        } catch (err) {
-            let errorMessage = 'Failed to update visualization'
-            console.error(err);
-            if (err instanceof AxiosError) {
-                errorMessage += err.message
-            }
-
-            throw new Error(errorMessage)
-        }
-    }
-
-    async deleteVisualization(id: number) {
-        try {
-            const response = await this.api.delete(`${this.url}/${id}`)
-
-            const deletedVisualization: Visualizations = this.mapJSONToModel(response.data)
-            console.log(deletedVisualization)
-
-            return deletedVisualization
-        } catch (err) {
-            let errorMessage = 'Failed to delete visualization'
-            console.error(err);
-            if (err instanceof AxiosError) {
-                errorMessage += err.message
-            }
 
             throw new Error(errorMessage)
         }

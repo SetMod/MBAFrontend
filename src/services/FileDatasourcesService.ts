@@ -4,18 +4,18 @@ import DatasourcesService from "./DatasourcesService";
 
 export default class FileDatasourcesService extends DatasourcesService {
 
-    async downloadFileById(fileId: number) {
+    async downloadFileById(fileDatasourceId: number) {
         try {
-            console.log(`Downloading file with id=${fileId}`);
+            console.log(`Downloading file with id=${fileDatasourceId}`);
 
-            const res = await this.api.get(`${this.url}/download/${fileId}`, { responseType: 'blob' })
+            const res = await this.api.get(`${this.url}/download/${fileDatasourceId}`, { responseType: 'blob' })
             console.log(res)
 
             const blob = new Blob([res.data], { type: res.data.type })
             const link = document.createElement('a')
+
             link.href = URL.createObjectURL(blob)
-            link.download = `file_datasource_${fileId}`
-            // link.download = fileDatasource.name ? fileDatasource.name : 'Untitled'
+            link.download = `file_datasource_${fileDatasourceId}` // fileDatasource.name ? fileDatasource.name : 'Untitled'
             link.click()
 
             // const file: Files = this.mapDataToFile(response.data)

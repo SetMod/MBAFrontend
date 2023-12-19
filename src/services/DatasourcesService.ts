@@ -20,7 +20,7 @@ export default class DatasourcesService extends GenericService<Datasources, IDat
     async getUserDatasources(userId: number) {
         try {
             console.log(`Getting all user datasources with id='${userId}'`);
-            const res = await this.api.get(`/users/${userId}/datasources`)
+            const res = await this.api.get(`/users/${userId}/datasources/full`)
             console.log(res)
 
             const models = this.mapJSONToModels(res.data)
