@@ -9,9 +9,9 @@ import Sidebar from './components/Sidebar.vue';
   <Suspense>
     <div>
       <Navbar />
-      <div class="flex justify-content-between">
-        <Sidebar />
-        <Container>
+      <div class="flex justify-content-center">
+        <Sidebar class="p-2 mr-1" />
+        <Container class="app-container">
           <router-view />
         </Container>
       </div>
@@ -34,5 +34,10 @@ import Sidebar from './components/Sidebar.vue';
 
 body {
   margin: 0;
+}
+
+.app-container {
+  max-width: 1600px;
+  width: 1600px;
 }
 </style>
