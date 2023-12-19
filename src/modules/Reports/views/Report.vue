@@ -3,10 +3,6 @@
 
 <template>
     <div>
-        <h4 class="m-3 text-left">My Report</h4>
-        <hr>
-        <div>
-            <router-view></router-view>
-        </div>
+        <router-view></router-view>
     </div>
 </template>

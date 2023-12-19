@@ -15,7 +15,12 @@ const props = defineProps({
         required: true
     }
 })
-const { reportVisualizations, isVisualizationsLoading, deleteVisualization, getReportVisualizations } = useVisualizations()
+const {
+    reportVisualizations,
+    isVisualizationsLoading,
+    deleteVisualization,
+    getReportVisualizations
+} = useVisualizations()
 const layout = ref('list')
 const selectedVisualization = ref<Visualizations>()
 const displayDelete = ref(false)
@@ -98,7 +103,7 @@ const submitDelete = async () => {
                         :data="slotProps.data.visualizationData" :options="basicOptions" />
                     <div v-else>No visualization data</div>
                     <div class="flex justify-content-between mt-2">
-                        <div>{{ new Date(slotProps.data.visualizationCreateDate).toLocaleDateString() }}</div>
+                        <div>{{ new Date(slotProps.data.visualizationCreateDate).toUTCString() }}</div>
                         <small>ID: {{ slotProps.data.id }}</small>
                     </div>
                 </div>
@@ -121,7 +126,7 @@ const submitDelete = async () => {
                             :data="slotProps.data.visualizationData" :options="basicOptions" />
                         <div v-else class="my-8">No visualization data</div>
                         <div class="flex justify-content-between mt-2">
-                            <div>{{ new Date(slotProps.data.visualizationCreateDate).toLocaleDateString() }}</div>
+                            <div>{{ new Date(slotProps.data.visualizationCreateDate).toUTCString() }}</div>
                             <small>ID: {{ slotProps.data.id }}</small>
                         </div>
                     </div>

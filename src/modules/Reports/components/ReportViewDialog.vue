@@ -50,7 +50,7 @@ const layout = ref('list');
         </div>
         <div class="field">
             <label for="description">Create date</label>
-            <div>{{ new Date(report.reportCreateDate).toLocaleDateString() }}</div>
+            <div>{{ new Date(report.reportCreateDate).toUTCString() }}</div>
         </div>
         <div class="field">
             <h3 class="mt-6">Visualizations:</h3>

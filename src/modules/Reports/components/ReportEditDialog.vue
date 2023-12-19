@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import Reports from "../../../models/ReportsModel"
-import ReportsAnalyzesDataViewVue from './ReportsAnalyzesDataView.vue'
-import ReportsVisualizationsDataViewVue from "./ReportsVisualizationsDataView.vue"
 import useReportEditValidate from "../hooks/useReportEditValidate"
+import VisualizationDataView from "../../Visualizations/components/VisualizationDataView.vue"
+import useVisualizations from "../../../hooks/useVisualizations"
+import useAnalyzes from "../../../hooks/useAnalyzes"
+import { simpleCSVParser, associationRulesToChartData } from "../../../utils"
+import { onMounted } from "vue"
 
 const props = defineProps({
     show: {
@@ -30,6 +33,21 @@ const submitDialog = () => {
     closeDialog()
 }
 
+onMounted(async () => {
+    await getReportVisualizations(props.report.id)
+    if (props.report.analyzeId) {
+        await previewAnalyze(props.report.analyzeId)
+    }
+    if (analyzePreview.value) {
+        const res = simpleCSVParser(analyzePreview.value, undefined, undefined)
+        reportVisualizations.value.map((v) => {
+            v.chartData = associationRulesToChartData(res.chartData)
+        })
+    }
+})
+
+const { isVisualizationsLoading, visualizationsError, reportVisualizations, getReportVisualizations } = useVisualizations()
+const { isAnalyzesLoading, analyzesError, analyzePreview, previewAnalyze, } = useAnalyzes()
 const { reportValidate } = useReportEditValidate(props.report)
 </script>
 
@@ -57,14 +75,10 @@ const { reportValidate } = useReportEditValidate(props.report)
                 long.</small>
         </div> -->
         <div class="field">
-            <label for="description">Create date</label>
-            <div>{{ new Date(report.createdDate).toLocaleDateString() }}</div>
-        </div>
-        <div class="field">
             <h3 class="mt-6">Visualizations:</h3>
-            <ReportsVisualizationsDataViewVue :edit="true" :report="report" />
-            <h3 class="mt-6">Analyzes:</h3>
-            <ReportsAnalyzesDataViewVue :edit="true" :report="report" />
+            <VisualizationDataView :visualizations="reportVisualizations" />
+            <!-- <h3 class="mt-6">Analyzes:</h3>
+            <ReportsAnalyzesDataViewVue :edit="true" :report="report" /> -->
         </div>
 
         <template #footer>

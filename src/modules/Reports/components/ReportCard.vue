@@ -35,8 +35,7 @@ const props = defineProps({
                 <div class="field">
                     <b>Type: </b>
                     <span>
-                        <Badge :value="getReportTypeValue(props.report.type)"
-                            :severity="getReportTypeSeverity(props.report.type)" />
+                        <Badge :value="props.report.type" :severity="getReportTypeSeverity(props.report.type)" />
                     </span>
                 </div>
                 <div class="field">
@@ -49,13 +48,13 @@ const props = defineProps({
                     <b>Dates: </b>
                     <div>
                         <div>
-                            Created: {{ new Date(props.report.createdDate).toLocaleDateString() }}
+                            <b>Created:</b> {{ new Date(props.report.createdDate).toUTCString() }}
                         </div>
                         <div v-if="props.report.updatedDate">
-                            Updated: {{ new Date(props.report.updatedDate).toLocaleDateString() }}
+                            <b>Updated:</b> {{ new Date(props.report.updatedDate).toUTCString() }}
                         </div>
                         <div v-if="props.report.softDeleted && props.report.deletedDate">
-                            Deleted: {{ new Date(props.report.deletedDate).toLocaleDateString() }}
+                            <b>Deleted:</b> {{ new Date(props.report.deletedDate).toUTCString() }}
                         </div>
                     </div>
                 </div>

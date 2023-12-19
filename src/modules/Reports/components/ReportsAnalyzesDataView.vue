@@ -80,7 +80,7 @@ const submitDownload = async (id: number) => {
                                 Description: <b>{{ slotProps.data.description }}</b>
                             </div>
                             <div>
-                                Create Date: <b>{{ new Date(slotProps.data.analyzeCreateDate).toLocaleDateString()
+                                Create Date: <b>{{ new Date(slotProps.data.analyzeCreateDate).toUTCString()
                                 }}</b>
                             </div>
                         </div>
@@ -116,7 +116,7 @@ const submitDownload = async (id: number) => {
                                 Description: <b>{{ slotProps.data.description }}</b>
                             </div>
                             <div>
-                                Create Date: <b>{{ new Date(slotProps.data.analyzeCreateDate).toLocaleDateString()
+                                Create Date: <b>{{ new Date(slotProps.data.analyzeCreateDate).toUTCString()
                                 }}</b>
                             </div>
                         </div>

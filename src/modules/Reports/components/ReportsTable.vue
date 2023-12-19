@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { PropType } from "vue"
 import useRoutes from "../../../hooks/useRoutes"
-import { IReportsFullResponse, ReportTypes } from "../../../models/ReportsModel"
+import { IReportsFullResponse } from "../../../models/ReportsModel"
+import { getReportTypeSeverity, getReportTypeValue } from "../utils"
+import Reports from '../../../models/ReportsModel'
 
 const props = defineProps(
     {
@@ -18,7 +20,24 @@ const props = defineProps(
 
 const emit = defineEmits({
     refreshTable: () => true,
+    submitEdit: (report: Reports) => {
+        if (report instanceof Reports) return true
+        console.error('Invalid params type for submitEdit event');
+        return false
+    },
+    submitDelete: (report: Reports) => {
+        if (report instanceof Reports) return true
+        console.error('Invalid params type for submitDelete event');
+        return false
+    },
 })
+
+const submitEdit = (reportJson: IReportsFullResponse) => {
+    emit('submitEdit', Reports.fromJSON(reportJson))
+}
+const submitDelete = (reportJson: IReportsFullResponse) => {
+    emit('submitDelete', Reports.fromJSON(reportJson))
+}
 
 const { getReportRoute, getUserRoute, getOrganizationRoute } = useRoutes()
 </script>
@@ -60,19 +79,32 @@ const { getReportRoute, getUserRoute, getOrganizationRoute } = useRoutes()
             </Column>
             <Column field="type" header="Type" :sortable="true">
                 <template #body="slotProps">
-                    <Badge :value="ReportTypes[slotProps.data.type]" />
+                    <Badge :value="getReportTypeValue(slotProps.data.type)"
+                        :severity="getReportTypeSeverity(getReportTypeValue(slotProps.data.type))" />
                 </template>
             </Column>
             <Column header="Dates" :sortable="true">
                 <template #body="slotProps">
                     <div>
-                        Created: {{ new Date(slotProps.data.createdDate).toLocaleDateString() }}
+                        <b>Created:</b> {{ new Date(slotProps.data.created_date).toUTCString() }}
                     </div>
-                    <div v-if="slotProps.data.updatedDate">
-                        Updated: {{ new Date(slotProps.data.updatedDate).toLocaleDateString() }}
+                    <div v-if="slotProps.data.updated_date">
+                        <b>Updated:</b> {{ new Date(slotProps.data.updated_date).toUTCString() }}
                     </div>
-                    <div v-if="slotProps.data.softDeleted">
-                        Deleted: {{ new Date(slotProps.data.deletedDate).toLocaleDateString() }}
+                    <div v-if="slotProps.data.soft_deleted">
+                        <b>Deleted:</b> {{ new Date(slotProps.data.deleted_date).toUTCString() }}
+                    </div>
+                </template>
+            </Column>
+            <Column header="Actions">
+                <template #body="slotProps">
+                    <div class="w-10rem flex gap-1">
+                        <Button v-tooltip="{ value: 'Edit', showDelay: 1000, hideDelay: 300 }" icon="pi pi-pencil"
+                            severity="warning" outlined @click="() => submitEdit(slotProps.data)"></Button>
+                        <Button v-tooltip="{ value: 'Delete', showDelay: 1000, hideDelay: 300 }" icon="pi pi-times"
+                            severity="danger" outlined @click="() => submitDelete(slotProps.data)"></Button>
+                        <!-- <Button label="Toggle" :aria-haspopup="true" aria-controls="overlay_actions_menu" @click="toggle" />
+                    <TieredMenu id="overlay_actions_menu" ref="menu" :model="items" popup /> -->
                     </div>
                 </template>
             </Column>

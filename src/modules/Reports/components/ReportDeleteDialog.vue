@@ -1,10 +1,15 @@
 <script setup lang="ts">
+import Reports from "../../../models/ReportsModel"
+
 const props = defineProps({
     show: {
         type: Boolean,
         required: true
-
-    }
+    },
+    report: {
+        type: Reports,
+        required: true
+    },
 })
 
 const emit = defineEmits({
@@ -27,11 +32,11 @@ const submitDialog = () => {
     <Dialog :visible="props.show" :style="{ width: '450px' }" header="Confirm" :modal="true" @update:visible="closeDialog">
         <div class="confirmation-content flex align-content-center justify-content-center">
             <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
-            <span>Are you sure you want to delete report?</span>
+            <span>Are you sure you want to delete "{{ props.report.name }}" report?</span>
         </div>
         <template #footer>
-            <Button label="No" icon="pi pi-times" class="p-button-text" @click="closeDialog" />
-            <Button label="Yes" icon="pi pi-check" class="p-button-text" @click="submitDialog" />
+            <Button label="No" icon="pi pi-times" severity="secondary" @click="closeDialog" />
+            <Button label="Yes" icon="pi pi-check" severity="success" @click="submitDialog" />
         </template>
     </Dialog>
 </template>

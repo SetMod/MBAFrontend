@@ -58,7 +58,7 @@ const filters = ref({
         <Column field="reportCreateDate" header="Create date" :sortable="true" style="min-width:16rem">
             <template #body="slotProps">
                 <div>
-                    {{ new Date(slotProps.data.reportCreateDate).toLocaleDateString() }}
+                    {{ new Date(slotProps.data.reportCreateDate).toUTCString() }}
                 </div>
             </template>
         </Column>
