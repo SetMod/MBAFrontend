@@ -2,7 +2,7 @@
 import { FilterMatchMode } from "primevue/api";
 import { PropType, ref } from "vue";
 import useRoutes from "../../../hooks/useRoutes";
-import { IAnalyzesFullResponse } from "../../../models/AnalyzesModel";
+import Analyzes, { IAnalyzesFullResponse } from "../../../models/AnalyzesModel";
 import { getAlgorithmValue, getAlgorithmSeverity, getAnalyzeStatus, getAnalyzeSeverity } from "../utils"
 
 const props = defineProps(
@@ -20,7 +20,52 @@ const props = defineProps(
 
 const emit = defineEmits({
     refreshTable: () => true,
+    submitAnalyze: (analyze: Analyzes) => {
+        if (analyze instanceof Analyzes) return true
+        console.error('Invalid params type for submitAnalyze event');
+        return false
+    },
+    submitDownload: (analyze: Analyzes) => {
+        if (analyze instanceof Analyzes) return true
+        console.error('Invalid params type for submitDownload event');
+        return false
+    },
+    submitPreview: (analyze: Analyzes) => {
+        if (analyze instanceof Analyzes) return true
+        console.error('Invalid params type for submitPreview event');
+        return false
+    },
+    submitEdit: (analyze: Analyzes) => {
+        if (analyze instanceof Analyzes) return true
+        console.error('Invalid params type for submitEdit event');
+        return false
+    },
+    submitDelete: (analyze: Analyzes) => {
+        if (analyze instanceof Analyzes) return true
+        console.error('Invalid params type for submitDelete event');
+        return false
+    },
 })
+
+const submitAnalyze = (analyzeJson: IAnalyzesFullResponse) => {
+    emit('submitAnalyze', Analyzes.fromJSON(analyzeJson))
+}
+const submitPreview = (analyzeJson: IAnalyzesFullResponse) => {
+    emit('submitPreview', Analyzes.fromJSON(analyzeJson))
+}
+const submitDownload = (analyzeJson: IAnalyzesFullResponse) => {
+    emit('submitDownload', Analyzes.fromJSON(analyzeJson))
+}
+const submitEdit = (analyzeJson: IAnalyzesFullResponse) => {
+    emit('submitEdit', Analyzes.fromJSON(analyzeJson))
+}
+const submitDelete = (analyzeJson: IAnalyzesFullResponse) => {
+    emit('submitDelete', Analyzes.fromJSON(analyzeJson))
+}
+
+const previewFileDatasource = () => {
+    console.log('Previewing file');
+}
 
 const {
     getOrganizationRoute,
@@ -31,11 +76,12 @@ const {
 const filters = ref({
     global: { value: undefined, matchMode: FilterMatchMode.CONTAINS },
 });
+
 </script>
 
 <template>
     <DataTable :value="props.analyzes" removable-sort responsive-layout="scroll" :filters="filters" :paginator="true"
-        :loading="props.isLoading" :rows="10"
+        :loading="props.isLoading" :rows="10" scrollable
         paginator-template="CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
         :rows-per-page-options="[10, 25, 50]" current-page-report-template="Showing {first} to {last} of {totalRecords}">
         <template #header>
@@ -62,13 +108,13 @@ const filters = ref({
         <Column field="algorithm" header="Algorithm" :sortable="true">
             <template #body="slotProps">
                 <Badge :value="getAlgorithmValue(slotProps.data.algorithm)"
-                    :severity="getAlgorithmSeverity(slotProps.data.algorithm)" />
+                    :severity="getAlgorithmSeverity(getAlgorithmValue(slotProps.data.algorithm))" />
             </template>
         </Column>
         <Column field="status" header="Status" :sortable="true">
             <template #body="slotProps">
                 <Badge :value="getAnalyzeStatus(slotProps.data.status)"
-                    :severity="getAnalyzeSeverity(slotProps.data.status)" class="h-full" />
+                    :severity="getAnalyzeSeverity(getAnalyzeStatus(slotProps.data.status))" class="h-full" />
             </template>
         </Column>
         <Column field="creator.user.username" header="Creator" :sortable="true">
@@ -109,14 +155,14 @@ const filters = ref({
                     <b>Started:</b>
                     {{
                         slotProps.data.started_date ?
-                        new Date(slotProps.data.started_date).toLocaleDateString() : 'None'
+                        new Date(slotProps.data.started_date).toUTCString() : 'None'
                     }}
                 </div>
                 <div>
                     <b>Finished:</b>
                     {{
                         slotProps.data.finished_date ?
-                        new Date(slotProps.data.finished_date).toLocaleDateString() : 'None'
+                        new Date(slotProps.data.finished_date).toUTCString() : 'None'
                     }}
                 </div>
             </template>
@@ -124,25 +170,34 @@ const filters = ref({
         <Column header="Dates" :sortable="true">
             <template #body="slotProps">
                 <div>
-                    <b>Created:</b> {{ new Date(slotProps.data.created_date).toLocaleDateString() }}
+                    <b>Created:</b> {{ new Date(slotProps.data.created_date).toUTCString() }}
                 </div>
                 <div v-if="slotProps.data.updated_date">
-                    <b>Updated:</b> {{ new Date(slotProps.data.updated_date).toLocaleDateString() }}
+                    <b>Updated:</b> {{ new Date(slotProps.data.updated_date).toUTCString() }}
                 </div>
                 <div v-if="slotProps.data.soft_deleted">
-                    <b>Deleted:</b> {{ new Date(slotProps.data.deleted_date).toLocaleDateString() }}
+                    <b>Deleted:</b> {{ new Date(slotProps.data.deleted_date).toUTCString() }}
                 </div>
             </template>
         </Column>
-        <!-- <Column header="Actions">
+        <Column header="Actions">
             <template #body="slotProps">
-                <div class="flex justify-content-around align-content-center">
-                    <Button type="button" icon="pi pi-user-edit" class="mr-1 p-button-outlined p-button-info"
-                        @click="() => emit('openEdit', slotProps.data)"></Button>
-                    <Button type="button" icon="pi pi-times" class="p-button-outlined p-button-danger"
-                        @click="() => emit('openDelete', slotProps.data)"></Button>
+                <div class="w-10rem flex gap-1">
+                    <Button v-tooltip="{ value: 'Analyze', showDelay: 1000, hideDelay: 300 }" icon="pi pi-bolt"
+                        severity="info" @click="() => submitAnalyze(slotProps.data)"></Button>
+                    <Button v-tooltip="{ value: 'Edit', showDelay: 1000, hideDelay: 300 }" icon="pi pi-pencil"
+                        severity="warning" outlined @click="() => submitEdit(slotProps.data)"></Button>
+                    <Button v-tooltip="{ value: 'Preview', showDelay: 1000, hideDelay: 300 }" icon="pi pi-info-circle"
+                        @click="() => submitPreview(slotProps.data)"></Button>
+                    <Button v-if="slotProps.data.file_path"
+                        v-tooltip="{ value: 'Download', showDelay: 1000, hideDelay: 300 }" icon="pi pi-download"
+                        security="info" outlined @click="() => submitDownload(slotProps.data)"></Button>
+                    <Button v-tooltip="{ value: 'Delete', showDelay: 1000, hideDelay: 300 }" icon="pi pi-times"
+                        severity="danger" outlined @click="() => submitDelete(slotProps.data)"></Button>
+                    <!-- <Button label="Toggle" :aria-haspopup="true" aria-controls="overlay_actions_menu" @click="toggle" />
+                    <TieredMenu id="overlay_actions_menu" ref="menu" :model="items" popup /> -->
                 </div>
             </template>
-        </Column> -->
+        </Column>
     </DataTable>
 </template>

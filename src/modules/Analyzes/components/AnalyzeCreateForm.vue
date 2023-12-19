@@ -4,7 +4,7 @@ import Analyzes, { algorithmOptions } from "../../../models/AnalyzesModel"
 import { IDatasourcesFullResponse } from "../../../models/DatasourcesModel"
 import { getDatasourceTypeValue, getDatasourceTypeSeverity } from '../../Datasources/utils'
 import useAnalyzeCreateValidate from "../hooks/useAnalyzeCreateValidate"
-import OrganizationMembers from "../../../models/OrganizationMembersModel"
+import { getAnalyzeSeverity } from "../utils"
 
 const props = defineProps({
     isLoading: {
@@ -14,10 +14,6 @@ const props = defineProps({
     isDatasourcesLoading: {
         type: Boolean,
         default: false
-    },
-    currentMember: {
-        type: OrganizationMembers,
-        required: true,
     },
     datasources: {
         type: Array as PropType<IDatasourcesFullResponse[]>,
@@ -38,7 +34,8 @@ const emit = defineEmits({
     }
 })
 
-const { analyzeValidate, analyzeCreateState } = useAnalyzeCreateValidate(props.currentMember)
+const { analyzeValidate, analyzeCreateState } = useAnalyzeCreateValidate()
+
 const selectedDatasource = computed(() => {
     return props.datasources.find(ds => ds.id == analyzeCreateState.value.datasourceId)
 })
@@ -53,7 +50,6 @@ const submitCreate = () => {
 <template>
     <div class="p-card m-1 w-full">
         <!-- <h2 class="p-card-title">Analyze</h2> -->
-        <div>{{ analyzeCreateState }}</div>
         <div class="p-card-body  text-left">
             <div class="grid flex justify-content-center">
                 <div class="col-4">
@@ -129,15 +125,16 @@ const submitCreate = () => {
                         <label for="File" class="flex align-items-center">
                             <b>Status:</b>
                         </label>
-                        <Badge class="w-fit" :value="analyzeValidate.status.$model" severity="info" />
+                        <Badge class="w-fit" :value="analyzeValidate.status.$model"
+                            :severity="getAnalyzeSeverity(analyzeValidate.status.$model)" />
                     </div>
                 </div>
                 <div class="col-4">
                     <div class="field">
                         <label for="name">Support:</label>
                         <InputNumber id="name" v-model.number="analyzeValidate.support.$model" required="true" autofocus
-                            class="w-full" :class="analyzeValidate.support.$invalid ? 'p-invalid' : ''" :min="0.01" :max="1"
-                            :step="0.1" />
+                            class="w-full" :class="analyzeValidate.support.$invalid ? 'p-invalid' : ''" :step="0.1"
+                            :max-fraction-digits="5" />
                         <small class="p-error">
                             {{ analyzeValidate.support.required.$invalid ? 'Support is required.' : '&nbsp;' }}
                         </small>
@@ -151,8 +148,8 @@ const submitCreate = () => {
                     <div class="field">
                         <label for="name">Lift:</label>
                         <InputNumber id="name" v-model.number="analyzeValidate.lift.$model" required="true" autofocus
-                            class="w-full" :class="analyzeValidate.lift.$invalid ? 'p-invalid' : ''" :min="0.01" :max="1"
-                            :step="0.1" />
+                            class="w-full" :class="analyzeValidate.lift.$invalid ? 'p-invalid' : ''" :step="0.1"
+                            :max-fraction-digits="5" />
                         <small class="p-error">
                             {{ analyzeValidate.lift.required.$invalid ? 'Lift is required.' : '&nbsp;' }}
                         </small>
@@ -166,8 +163,8 @@ const submitCreate = () => {
                     <div class="field">
                         <label for="name">Confidence:</label>
                         <InputNumber id="name" v-model.number="analyzeValidate.confidence.$model" required="true" autofocus
-                            class="w-full" :class="analyzeValidate.confidence.$invalid ? 'p-invalid' : ''" :min="0.01"
-                            :max="1" :step="0.1" />
+                            class="w-full" :class="analyzeValidate.confidence.$invalid ? 'p-invalid' : ''" :step="0.1"
+                            :max-fraction-digits="5" />
                         <small class="p-error">
                             {{ analyzeValidate.confidence.required.$invalid ? 'Confidence is required.' : '&nbsp;' }}
                         </small>
@@ -181,8 +178,8 @@ const submitCreate = () => {
                     <div class="field">
                         <label for="name">Rules length:</label>
                         <InputNumber id="name" v-model.number="analyzeValidate.rulesLength.$model" required="true" autofocus
-                            class="w-full" :class="analyzeValidate.rulesLength.$invalid ? 'p-invalid' : ''" :min="1"
-                            :max="10" />
+                            class="w-full" :class="analyzeValidate.rulesLength.$invalid ? 'p-invalid' : ''"
+                            :max-fraction-digits="0" />
                         <small class="p-error">
                             {{ analyzeValidate.rulesLength.required.$invalid ? 'Rules length is required.' : '&nbsp;' }}
                         </small>
@@ -197,10 +194,10 @@ const submitCreate = () => {
             </div>
 
             <div class="field flex justify-content-center">
-                <i v-if="props.isLoading" class="pi pi-spin pi-spinner" style="font-size: 2rem"></i>
-                <Button label="Create" severity="success" :disabled="analyzeValidate.$invalid" @click="submitCreate" />
-                <Button class="ml-5" label="Analyze" severity="info" :disabled="analyzeValidate.$invalid"
-                    @click="submitCreate" />
+                <!-- <i v-if="props.isLoading" class="pi pi-spin pi-spinner" style="font-size: 2rem"></i> -->
+                <Button label="Create" severity="success" :disabled="analyzeValidate.$invalid || props.isLoading" @click="submitCreate" />
+                <!-- <Button label="Create & Analyze" severity="info" class="ml-5" :disabled="analyzeValidate.$invalid"
+                    @click="submitCreate" /> -->
             </div>
         </div>
     </div>

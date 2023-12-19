@@ -41,14 +41,14 @@ const props = defineProps({
                 <div class="field">
                     <b>Algorithm: </b>
                     <span>
-                        <Badge :value="getAlgorithmValue(props.analyze.algorithm)"
+                        <Badge :value="props.analyze.algorithm"
                             :severity="getAlgorithmSeverity(props.analyze.algorithm)" />
                     </span>
                 </div>
                 <div class="field">
                     <b>Status: </b>
                     <span>
-                        <Badge :value="getAnalyzeStatus(props.analyze.status)"
+                        <Badge :value="props.analyze.status"
                             :severity="getAnalyzeSeverity(props.analyze.status)" />
                     </span>
                 </div>
@@ -70,14 +70,14 @@ const props = defineProps({
                         <b>Started:</b>
                         {{
                             props.analyze.startedDate ?
-                            new Date(props.analyze.startedDate).toLocaleDateString() : 'None'
+                            new Date(props.analyze.startedDate).toUTCString() : 'None'
                         }}
                     </div>
                     <div>
                         <b>Finished:</b>
                         {{
                             props.analyze.finishedDate ?
-                            new Date(props.analyze.finishedDate).toLocaleDateString() : 'None'
+                            new Date(props.analyze.finishedDate).toUTCString() : 'None'
                         }}
                     </div>
                 </div>
@@ -85,13 +85,13 @@ const props = defineProps({
                     <b>Dates: </b>
                     <div>
                         <div>
-                            Created: {{ new Date(props.analyze.createdDate).toLocaleDateString() }}
+                            Created: {{ new Date(props.analyze.createdDate).toUTCString() }}
                         </div>
                         <div v-if="props.analyze.updatedDate">
-                            Updated: {{ new Date(props.analyze.updatedDate).toLocaleDateString() }}
+                            Updated: {{ new Date(props.analyze.updatedDate).toUTCString() }}
                         </div>
                         <div v-if="props.analyze.softDeleted && props.analyze.deletedDate">
-                            Deleted: {{ new Date(props.analyze.deletedDate).toLocaleDateString() }}
+                            Deleted: {{ new Date(props.analyze.deletedDate).toUTCString() }}
                         </div>
                     </div>
                 </div>
