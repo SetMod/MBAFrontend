@@ -71,13 +71,13 @@ const filters = ref({
         <Column header="Dates" :sortable="true">
             <template #body="slotProps">
                 <div>
-                    Created: {{ new Date(slotProps.data.createdDate).toLocaleDateString() }}
+                    Created: {{ new Date(slotProps.data.createdDate).toUTCString() }}
                 </div>
                 <div v-if="slotProps.data.updatedDate">
-                    Updated: {{ new Date(slotProps.data.updatedDate).toLocaleDateString() }}
+                    Updated: {{ new Date(slotProps.data.updatedDate).toUTCString() }}
                 </div>
                 <div v-if="slotProps.data.softDeleted">
-                    Deleted: {{ new Date(slotProps.data.deletedDate).toLocaleDateString() }}
+                    Deleted: {{ new Date(slotProps.data.deletedDate).toUTCString() }}
                 </div>
             </template>
         </Column>
