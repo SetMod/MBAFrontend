@@ -1,12 +1,9 @@
-import { reactive, ref } from "vue";
+import { ref } from "vue";
 import Organizations from "../models/OrganizationsModel";
 import { organizationsService } from "../services/OrganizationsService";
 import useCRUD from "./useCRUD";
 import useState from "./useState";
-import useVuelidate from "@vuelidate/core";
-import { required, minLength, maxLength, email } from "@vuelidate/validators";
 import { useLocalStorage } from "./useLocalStorage";
-import OrganizationMembers, { IOrganizationMembersFullResponse } from "../models/OrganizationMembersModel";
 import { usersService } from "../services/UsersService";
 
 const ORGANIZATION_STORAGE_KEY = "organization"
@@ -36,35 +33,6 @@ const {
     deleteModel: deleteOrganization,
 } = useCRUD(organizationsService, organizationsState)
 
-
-
-const orgRules = {
-    name: { required, minLength: minLength(2), maxLength: maxLength(200) },
-    description: { required, minLength: minLength(10), maxLength: maxLength(2000) },
-    email: { required, email, maxLength: maxLength(255) },
-    phone: { minLength: minLength(18), maxLength: maxLength(18) },
-}
-
-export function useOrgCreateValidate() {
-    const orgCreateState = reactive<Organizations>(new Organizations(0, '', '', '', '',))
-    const orgCreateValidate = useVuelidate(orgRules, orgCreateState)
-
-    return {
-        orgCreateState,
-        orgCreateRules: orgRules,
-        orgCreateValidate,
-    }
-}
-export function useOrgEditValidate(orgEditState: Organizations) {
-    // const orgEditState = reactive<Organizations>(selectedOrganization.value)
-    const orgEditValidate = useVuelidate(orgRules, orgEditState)
-
-    return {
-        orgEditState,
-        orgEditRules: orgRules,
-        orgEditValidate,
-    }
-}
 
 export default function useOrganizations() {
     const selectOrganization = async (orgId: number) => {

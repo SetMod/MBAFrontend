@@ -57,6 +57,19 @@ export default function useDatasources() {
             isDatasourcesLoading.value = false
         }
     }
+    const downloadFileDatasource = async (datasourceId: number) => {
+        isDatasourcesLoading.value = true
+        datasourcesError.value = null
+        try {
+            await filesService.downloadFileById(datasourceId)
+        } catch (err) {
+            if (err instanceof Error) {
+                datasourcesError.value = err
+            }
+        } finally {
+            isDatasourcesLoading.value = false
+        }
+    }
 
     const getUserDatasources = async (userId: number) => {
         isDatasourcesLoading.value = true
@@ -138,6 +151,7 @@ export default function useDatasources() {
         getDatasourceByField,
         getDatasourcesByFields,
         createDatasource,
+        downloadFileDatasource,
         createFileDatasource,
         updateDatasource,
         deleteDatasource,

@@ -81,6 +81,9 @@ export default function useRoutes() {
     const getReportRoute = (orgId: number, reportId: number) => {
         return `/organization/${orgId}/report/${reportId}`
     }
+    const getReportCreateRoute = (orgId: number) => {
+        return `/organization/${orgId}/report/create`
+    }
     const getOrganizationAnalyzesRoute = (orgId: number) => {
         return `/organization/${orgId}/analyzes`
     }
@@ -121,6 +124,7 @@ export default function useRoutes() {
         getAboutRoute,
         getLoginRoute,
         getReportRoute,
+        getReportCreateRoute,
         getRegisterRoute,
         getProfileRoute,
         getOrganizationRoute,
