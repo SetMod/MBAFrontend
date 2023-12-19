@@ -62,20 +62,20 @@ const filters = ref({
             <template #body="slotProps">
                 <div>
                     <Badge :value="getOrganizationRoleValue(slotProps.data.role)"
-                        :severity="getOrganizationRoleSeverity(slotProps.data.role)"></Badge>
+                        :severity="getOrganizationRoleSeverity(getOrganizationRoleValue(slotProps.data.role))"></Badge>
                 </div>
             </template>
         </Column>
         <Column header="Dates" :sortable="true">
             <template #body="slotProps">
                 <div>
-                    Created: {{ new Date(slotProps.data.created_date).toLocaleDateString() }}
+                    Created: {{ new Date(slotProps.data.created_date).toUTCString() }}
                 </div>
                 <div v-if="slotProps.data.updated_date">
-                    Updated: {{ new Date(slotProps.data.updated_date).toLocaleDateString() }}
+                    Updated: {{ new Date(slotProps.data.updated_date).toUTCString() }}
                 </div>
                 <div v-if="slotProps.data.soft_deleted">
-                    Deleted: {{ new Date(slotProps.data.deleted_date).toLocaleDateString() }}
+                    Deleted: {{ new Date(slotProps.data.deleted_date).toUTCString() }}
                 </div>
             </template>
         </Column>

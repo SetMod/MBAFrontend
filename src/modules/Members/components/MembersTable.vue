@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { FilterMatchMode } from "primevue/api";
 import { PropType, ref } from "vue";
-import { IOrganizationMembersFullResponse } from "../../../models/OrganizationMembersModel";
+import OrganizationMembers, { IOrganizationMembersFullResponse } from "../../../models/OrganizationMembersModel";
 import useRoutes from "../../../hooks/useRoutes";
 import { getOrganizationRoleValue, getOrganizationRoleSeverity } from '../utils'
 
@@ -20,7 +20,24 @@ const props = defineProps(
 
 const emit = defineEmits({
     refreshTable: () => true,
+    submitDelete: (member: OrganizationMembers) => {
+        if (member instanceof OrganizationMembers) return true
+        console.error('Invalid params type for submitDelete event');
+        return false
+    },
+    submitEdit: (member: OrganizationMembers) => {
+        if (member instanceof OrganizationMembers) return true
+        console.error('Invalid params type for submitEdit event');
+        return false
+    },
 })
+
+const submitEdit = (memberJson: IOrganizationMembersFullResponse) => {
+    emit('submitEdit', OrganizationMembers.fromJSON(memberJson))
+}
+const submitDelete = (memberJson: IOrganizationMembersFullResponse) => {
+    emit('submitDelete', OrganizationMembers.fromJSON(memberJson))
+}
 
 const { getOrganizationRoute, getUserRoute } = useRoutes()
 const filters = ref({
@@ -64,33 +81,33 @@ const filters = ref({
             <template #body="slotProps">
                 <div>
                     <Badge :value="getOrganizationRoleValue(slotProps.data.role)"
-                        :severity="getOrganizationRoleSeverity(slotProps.data.role)"></Badge>
+                        :severity="getOrganizationRoleSeverity(getOrganizationRoleValue(slotProps.data.role))"></Badge>
                 </div>
             </template>
         </Column>
         <Column header="Dates" :sortable="true">
             <template #body="slotProps">
                 <div>
-                    Created: {{ new Date(slotProps.data.created_date).toLocaleDateString() }}
+                    Created: {{ new Date(slotProps.data.created_date).toUTCString() }}
                 </div>
                 <div v-if="slotProps.data.updated_date">
-                    Updated: {{ new Date(slotProps.data.updated_date).toLocaleDateString() }}
+                    Updated: {{ new Date(slotProps.data.updated_date).toUTCString() }}
                 </div>
                 <div v-if="slotProps.data.soft_deleted">
-                    Deleted: {{ new Date(slotProps.data.deleted_date).toLocaleDateString() }}
+                    Deleted: {{ new Date(slotProps.data.deleted_date).toUTCString() }}
                 </div>
             </template>
         </Column>
-        <!-- <Column header="Actions">
+        <Column header="Actions">
             <template #body="slotProps">
-                <div class="flex justify-content-around align-content-center">
-                    <Button type="button" icon="pi pi-user-edit" class="mr-1 p-button-outlined p-button-info"
-                        @click="() => emit('openEdit', slotProps.data)"></Button>
-                    <Button type="button" icon="pi pi-times" class="p-button-outlined p-button-danger"
-                        @click="() => emit('openDelete', slotProps.data)"></Button>
+                <div class="w-10rem flex gap-1">
+                    <Button v-tooltip="{ value: 'Edit', showDelay: 1000, hideDelay: 300 }" icon="pi pi-pencil"
+                        severity="warning" outlined @click="() => submitEdit(slotProps.data)"></Button>
+                    <Button v-tooltip="{ value: 'Delete', showDelay: 1000, hideDelay: 300 }" icon="pi pi-times"
+                        severity="danger" outlined @click="() => submitDelete(slotProps.data)"></Button>
                 </div>
             </template>
-        </Column> -->
+        </Column>
     </DataTable>
 </template>
 

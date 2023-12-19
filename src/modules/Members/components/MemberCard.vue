@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { getMemberActiveSeverity, getMemberActiveValue, getOrganizationRoleValue } from "../utils"
+import { getMemberActiveSeverity, getMemberActiveValue, getOrganizationRoleSeverity } from "../utils"
 import OrganizationMembers from "../../../models/OrganizationMembersModel";
 import Users from "../../../models/UsersModel";
 
@@ -36,7 +36,7 @@ const props = defineProps({
                 <div class="field">
                     <b>Role: </b>
                     <span>
-                        <Badge :value="getOrganizationRoleValue(props.member.role)" severity="danger"></Badge>
+                        <Badge :value="props.member.role" :severity="getOrganizationRoleSeverity(props.member.role)"></Badge>
                     </span>
                 </div>
                 <div class="field">
@@ -52,19 +52,19 @@ const props = defineProps({
                     <div>
                         <b>Created: </b>
                         <span>
-                            {{ new Date(props.member.createdDate).toLocaleDateString() }}
+                            {{ new Date(props.member.createdDate).toUTCString() }}
                         </span>
                     </div>
                     <div v-if="props.member.updatedDate">
                         <b>Updated: </b>
                         <span>
-                            {{ new Date(props.member.updatedDate).toLocaleDateString() }}
+                            {{ new Date(props.member.updatedDate).toUTCString() }}
                         </span>
                     </div>
                     <div v-if="props.member.softDeleted && props.member.deletedDate">
                         <b>Deleted: </b>
                         <span>
-                            {{ new Date(props.member.deletedDate).toLocaleDateString() }}
+                            {{ new Date(props.member.deletedDate).toUTCString() }}
                         </span>
                     </div>
                 </div>
