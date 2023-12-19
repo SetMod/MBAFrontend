@@ -16,7 +16,8 @@ export const reportTypeOptions = Object.keys(ReportTypes).map((v: string) => {
 export interface IReportsResponse extends IGenericResponse {
     name: string
     type: ReportTypes
-    creator_id: number
+    creator_id: number | null
+    analyze_id: number | null
 }
 
 export interface IReportsFullResponse extends IReportsResponse {
@@ -24,41 +25,27 @@ export interface IReportsFullResponse extends IReportsResponse {
 }
 
 export default class Reports extends GenericModel {
+    id: number = 0
     name: string = ''
-    creatorId: number
     type: ReportTypes = ReportTypes.GENERIC
-
-    constructor(
-        id: number = 0,
-        name: string = '',
-        creatorId: number = 0,
-        type: ReportTypes = ReportTypes.GENERIC,
-        createdDate: Date = new Date(),
-        updatedDate: Date | null = null,
-        deletedDate: Date | null = null,
-        softDeleted: boolean = false,
-    ) {
-        super(id, createdDate, updatedDate, deletedDate, softDeleted)
-        this.name = name
-        this.type = type
-        this.creatorId = creatorId
-        this.createdDate = createdDate
-        this.updatedDate = updatedDate
-        this.deletedDate = deletedDate
-        this.softDeleted = softDeleted
-    }
+    creatorId: number | null = 0
+    analyzeId: number | null = 0
+    createdDate: Date = new Date()
+    updatedDate: Date | null = null
+    deletedDate: Date | null = null
+    softDeleted: boolean = false
 
     static fromJSON(reportJson: IReportsResponse): Reports {
-        const report = new Reports(
-            reportJson.id,
-            reportJson.name,
-            reportJson.creator_id,
-            reportJson.type,
-            reportJson.created_date,
-            reportJson.updated_date,
-            reportJson.deleted_date,
-            reportJson.soft_deleted,
-        )
+        const report = new Reports()
+        report.id = reportJson.id
+        report.name = reportJson.name
+        report.creatorId = reportJson.creator_id
+        report.analyzeId = reportJson.analyze_id
+        report.type = ReportTypes[reportJson.type]
+        report.createdDate = reportJson.created_date
+        report.updatedDate = reportJson.updated_date
+        report.deletedDate = reportJson.deleted_date
+        report.softDeleted = reportJson.soft_deleted
 
         return report
     }
@@ -67,8 +54,9 @@ export default class Reports extends GenericModel {
         const reportRes = <IReportsResponse>{
             id: report.id,
             name: report.name,
-            type: report.type,
+            type: Object.keys(ReportTypes).find((v) => ReportTypes[v] == report.type),
             creator_id: report.creatorId,
+            analyze_id: report.analyzeId,
             created_date: report.createdDate,
             updated_date: report.updatedDate,
             deleted_date: report.deletedDate,
