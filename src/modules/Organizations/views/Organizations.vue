@@ -103,13 +103,11 @@ const submitOrgsCreate = async (newOrganization: Organizations) => {
         return
     }
 
-    const newMember = new OrganizationMembers(
-        0,
-        currentUser.value.id,
-        organization.id,
-        true,
-        OrganizationRoles.OWNER
-    )
+    const newMember = new OrganizationMembers()
+    newMember.userId = currentUser.value.id
+    newMember.organizationId = organization.id
+    newMember.role = OrganizationRoles.OWNER
+
 
     await createMember(newMember)
     if (membersError.value instanceof Error) {
@@ -188,11 +186,9 @@ const submitOrgsJoin = async () => {
         return
     }
 
-    const member = new OrganizationMembers(
-        0,
-        currentUser.value.id,
-        selectedOrganization.value.id,
-    )
+    const member = new OrganizationMembers()
+    member.userId = currentUser.value.id
+    member.organizationId = selectedOrganization.value.id
 
     await createMember(member)
 
@@ -210,8 +206,8 @@ const submitOrgsJoin = async () => {
         Organizations
     </h1>
     <OrganizationCreateDialog v-model:show="showOrgsCreate" @submit-dialog="submitOrgsCreate" />
-    <OrganizationEditDialog v-if="selectedOrganization" v-model:show="showOrgsEdit" :organization="selectedOrganization"
-        @submit-dialog="submitOrgsEdit" />
+    <OrganizationEditDialog v-if="selectedOrganization && showOrgsEdit" v-model:show="showOrgsEdit"
+        :organization="selectedOrganization" @submit-dialog="submitOrgsEdit" />
     <OrganizationDeleteDialog v-model:show="showOrgsDelete" @submit-dialog="submitOrgsDelete" />
     <OrganizationLeaveDialog v-model:show="showOrgsLeave" @submit-dialog="submitOrgsLeave" />
     <div v-if="userOrganizations.length">

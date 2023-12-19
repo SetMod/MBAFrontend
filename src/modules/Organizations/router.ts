@@ -36,6 +36,7 @@ export const OrganizationRoutes: RouteRecordRaw = {
         AnalyzesModule.AnalyzeRoutes.OrganizationAnalyzesRoute,
         ReportsModule.ReportRoutes.OrganizationReportRoutes,
         ReportsModule.ReportRoutes.OrganizationReportsRoute,
+        ReportsModule.ReportRoutes.OrganizationReportCreateRoute,
     ]
 }
 

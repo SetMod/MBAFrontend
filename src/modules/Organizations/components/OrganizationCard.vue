@@ -43,19 +43,19 @@ const props = defineProps({
                     <div>
                         <b>Created: </b>
                         <span>
-                            {{ new Date(props.organization.createdDate).toLocaleDateString() }}
+                            {{ new Date(props.organization.createdDate).toUTCString() }}
                         </span>
                     </div>
                     <div v-if="props.organization.updatedDate">
                         <b>Updated: </b>
                         <span>
-                            {{ new Date(props.organization.updatedDate).toLocaleDateString() }}
+                            {{ new Date(props.organization.updatedDate).toUTCString() }}
                         </span>
                     </div>
                     <div v-if="props.organization.softDeleted && props.organization.deletedDate">
                         <b>Deleted: </b>
                         <span>
-                            {{ new Date(props.organization.deletedDate).toLocaleDateString() }}
+                            {{ new Date(props.organization.deletedDate).toUTCString() }}
                         </span>
                     </div>
                 </div>

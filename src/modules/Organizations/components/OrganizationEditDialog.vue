@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { useOrgEditValidate } from "../../../hooks/useOrganizations"
 import Organizations from "../../../models/OrganizationsModel";
+import useOrgEditValidate from "../hooks/useOrgEditValidate";
 
 const props = defineProps({
     show: {
@@ -70,8 +70,6 @@ const { orgEditValidate } = useOrgEditValidate(props.organization)
             <label for="name">Phone</label>
             <InputMask v-model="orgEditValidate.phone.$model" mask="+99 (999) 999-9999" placeholder="+ 99 (999) 999-9999"
                 :class="{ 'p-invalid': orgEditValidate.phone.$invalid }" />
-            <!-- <InputText id="name" v-model.trim="v$.phone.$model" autofocus
-                :class="{ 'p-invalid': v$.phone.$invalid }" /> -->
             <small v-if="orgEditValidate.phone.minLength.$invalid" class="p-error">Phone number is to
                 short.</small>
             <small v-else-if="orgEditValidate.phone.maxLength.$invalid" class="p-error">Phone number is to

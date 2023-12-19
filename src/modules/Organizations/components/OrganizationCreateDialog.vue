@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Organizations from "../../../models/OrganizationsModel"
-import { useOrgCreateValidate } from "../../../hooks/useOrganizations"
+import useOrgCreateValidate from "../hooks/useOrgCreateValidate"
 
 const props = defineProps({
     show: {

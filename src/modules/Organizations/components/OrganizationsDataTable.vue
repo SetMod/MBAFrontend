@@ -58,13 +58,13 @@ const { getOrganizationRoute } = useRoutes()
             <Column header="Dates" :sortable="true">
                 <template #body="slotProps">
                     <div>
-                        Created: {{ new Date(slotProps.data.createdDate).toLocaleDateString() }}
+                        <b>Created:</b> {{ new Date(slotProps.data.createdDate).toUTCString() }}
                     </div>
                     <div v-if="slotProps.data.updatedDate">
-                        Updated: {{ new Date(slotProps.data.updatedDate).toLocaleDateString() }}
+                        <b>Updated:</b> {{ new Date(slotProps.data.updatedDate).toUTCString() }}
                     </div>
                     <div v-if="slotProps.data.softDeleted">
-                        Deleted: {{ new Date(slotProps.data.deletedDate).toLocaleDateString() }}
+                        <b>Deleted:</b> {{ new Date(slotProps.data.deletedDate).toUTCString() }}
                     </div>
                 </template>
             </Column>
