@@ -26,6 +26,13 @@ export const algorithmOptions = Object.keys(Algorithm).map((v: string) => {
     }
 })
 
+export interface IAnalyzeOptions {
+    lines: string[],
+    lines_limit: number,
+    recreate: boolean
+    scheduled_date: Date | null
+}
+
 export interface IAnalyzesResponse extends IGenericResponse {
     name: string
     description: string
@@ -89,8 +96,8 @@ export default class Analyzes extends GenericModel {
         analyze.confidence = analyzeJson.confidence
         analyze.rulesLength = analyzeJson.rules_length
         analyze.filePath = analyzeJson.file_path
-        analyze.status = analyzeJson.status
-        analyze.algorithm = analyzeJson.algorithm
+        analyze.status = AnalyzeStatus[analyzeJson.status]
+        analyze.algorithm = Algorithm[analyzeJson.algorithm]
         analyze.startedDate = analyzeJson.started_date
         analyze.finishedDate = analyzeJson.finished_date
         analyze.creatorId = analyzeJson.creator_id
