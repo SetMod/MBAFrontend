@@ -17,7 +17,7 @@ const emit = defineEmits({
     }
 })
 
-const { datasourceValidate } = useDatasourceCreateValidate(props.datasource)
+const { datasourceCreateValidate } = useDatasourceCreateValidate(props.datasource)
 </script>
 
 <template>
@@ -25,9 +25,9 @@ const { datasourceValidate } = useDatasourceCreateValidate(props.datasource)
         <label>
             <b>Connection string:</b>
         </label>
-        <InputText :maxlength="50" :minlength="2" autofocus :class="{ 'p-invalid': datasourceValidate.$invalid }" />
+        <InputText :maxlength="50" :minlength="2" autofocus :class="{ 'p-invalid': datasourceCreateValidate.$invalid }" />
         <small class="p-error">
-            {{ datasourceValidate.$invalid ? 'Test' : '' }}
+            {{ datasourceCreateValidate.$invalid ? 'Test' : '' }}
         </small>
         <Button class="mt-2" label="Test connection" @click="(event) => emit('testConnection', event, props.datasource)" />
     </div>

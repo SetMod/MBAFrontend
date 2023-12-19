@@ -2,9 +2,10 @@
 import { FilterMatchMode } from "primevue/api";
 import { PropType, ref } from "vue";
 import useRoutes from "../../../hooks/useRoutes";
-import { IDatasourcesFullResponse } from "../../../models/DatasourcesModel";
+import Datasources, { DatasourceTypes, IDatasourcesFullResponse } from "../../../models/DatasourcesModel";
 import { getDatasourceTypeValue, getDatasourceTypeSeverity } from '../utils'
 import Organizations from "../../../models/OrganizationsModel";
+import TieredMenu from "primevue/tieredmenu";
 
 const props = defineProps(
     {
@@ -22,19 +23,55 @@ const props = defineProps(
         },
     }
 )
+
 const emit = defineEmits({
     refreshTable: () => true,
+    submitDownload: (datasource: Datasources) => {
+        if (datasource instanceof Datasources) return true
+        console.error('Invalid params type for submitDownload event');
+        return false
+    },
+    submitDelete: (datasource: Datasources) => {
+        if (datasource instanceof Datasources) return true
+        console.error('Invalid params type for submitDelete event');
+        return false
+    },
+    submitEdit: (datasource: Datasources) => {
+        if (datasource instanceof Datasources) return true
+        console.error('Invalid params type for submitEdit event');
+        return false
+    },
 })
 
+const submitDownload = (datasourceJson: IDatasourcesFullResponse) => {
+    emit('submitDownload', Datasources.fromJSON(datasourceJson))
+}
+const submitEdit = (datasourceJson: IDatasourcesFullResponse) => {
+    emit('submitEdit', Datasources.fromJSON(datasourceJson))
+}
+const submitDelete = (datasourceJson: IDatasourcesFullResponse) => {
+    emit('submitDelete', Datasources.fromJSON(datasourceJson))
+}
 
+const previewFileDatasource = () => {
+    console.log('Previewing file');
+}
+
+const filters = ref({
+    global: { value: undefined, matchMode: FilterMatchMode.CONTAINS },
+});
 const {
     getOrganizationRoute,
     getUserRoute,
     getOrganizationDatasourceRoute
 } = useRoutes()
-const filters = ref({
-    global: { value: undefined, matchMode: FilterMatchMode.CONTAINS },
-});
+
+// const menu = ref<TieredMenu>();
+// const toggle = (event: any) => {
+//     if (menu.value) {
+//         menu.value.toggle(event);
+//     }
+// };
 </script>
 
 <template>
@@ -73,6 +110,32 @@ const filters = ref({
                     :severity="getDatasourceTypeSeverity(slotProps.data.type)" />
             </template>
         </Column>
+        <Column header="Details" :sortable="true">
+            <template #body="slotProps">
+                <div v-if="getDatasourceTypeValue(slotProps.data.type) == DatasourceTypes.FILE">
+                    <div class="field">
+                        <b>File name: </b>
+                        <span>
+                            {{ slotProps.data.file_name }}
+                        </span>
+                    </div>
+                    <div class="field">
+                        <b>File size: </b>
+                        <span>
+                            {{ Math.round(slotProps.data.file_size / 1024 / 1024) }}Mb
+                        </span>
+                    </div>
+                </div>
+                <div v-if="getDatasourceTypeValue(slotProps.data.type) == DatasourceTypes.DB">
+                    <div v-if="slotProps.data.connection_string" class="field">
+                        <b>Connection string: </b>
+                        <span>
+                            {{ slotProps.data.connection_string }}
+                        </span>
+                    </div>
+                </div>
+            </template>
+        </Column>
         <Column field="creator.user.username" header="Creator" :sortable="true">
             <template #body="slotProps">
                 <router-link :to="getUserRoute(slotProps.data.creator.user_id)">
@@ -90,26 +153,33 @@ const filters = ref({
         <Column header="Dates" :sortable="true">
             <template #body="slotProps">
                 <div>
-                    Created: {{ new Date(slotProps.data.created_date).toLocaleDateString() }}
+                    <b>Created:</b> {{ new Date(slotProps.data.created_date).toUTCString() }}
                 </div>
                 <div v-if="slotProps.data.updated_date">
-                    Updated: {{ new Date(slotProps.data.updated_date).toLocaleDateString() }}
+                    <b>Updated:</b> {{ new Date(slotProps.data.updated_date).toUTCString() }}
                 </div>
                 <div v-if="slotProps.data.soft_deleted">
-                    Deleted: {{ new Date(slotProps.data.deleted_date).toLocaleDateString() }}
+                    <b>Deleted:</b> {{ new Date(slotProps.data.deleted_date).toUTCString() }}
                 </div>
             </template>
         </Column>
-        <!-- <Column header="Actions">
+        <Column header="Actions">
             <template #body="slotProps">
-                <div class="flex justify-content-around align-content-center">
-                    <Button type="button" icon="pi pi-user-edit" class="mr-1 p-button-outlined p-button-info"
-                        @click="() => emit('openEdit', slotProps.data)"></Button>
-                    <Button type="button" icon="pi pi-times" class="p-button-outlined p-button-danger"
-                        @click="() => emit('openDelete', slotProps.data)"></Button>
+                <div class="w-10rem flex gap-1">
+                    <Button v-if="slotProps.data.file_path"
+                        v-tooltip="{ value: 'Download', showDelay: 1000, hideDelay: 300 }" icon="pi pi-download"
+                        security="info" outlined @click="() => submitDownload(slotProps.data)"></Button>
+                    <Button v-tooltip="{ value: 'Preview', showDelay: 1000, hideDelay: 300 }" icon="pi pi-info-circle"
+                        @click="previewFileDatasource"></Button>
+                    <Button v-tooltip="{ value: 'Edit', showDelay: 1000, hideDelay: 300 }" icon="pi pi-pencil"
+                        severity="warning" outlined @click="() => submitEdit(slotProps.data)"></Button>
+                    <Button v-tooltip="{ value: 'Delete', showDelay: 1000, hideDelay: 300 }" icon="pi pi-times"
+                        severity="danger" outlined @click="() => submitDelete(slotProps.data)"></Button>
+                    <!-- <Button label="Toggle" :aria-haspopup="true" aria-controls="overlay_actions_menu" @click="toggle" />
+                    <TieredMenu id="overlay_actions_menu" ref="menu" :model="items" popup /> -->
                 </div>
             </template>
-        </Column> -->
+        </Column>
     </DataTable>
 </template>
 

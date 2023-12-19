@@ -35,7 +35,7 @@ const props = defineProps({
                 <div class="field">
                     <b>Type: </b>
                     <span>
-                        <Badge :value="getDatasourceTypeValue(props.datasource.type)"
+                        <Badge :value="props.datasource.type"
                             :severity="getDatasourceTypeSeverity(props.datasource.type)" />
                     </span>
                 </div>
@@ -61,13 +61,13 @@ const props = defineProps({
                     <b>Dates: </b>
                     <div>
                         <div>
-                            Created: {{ new Date(props.datasource.createdDate).toLocaleDateString() }}
+                            Created: {{ new Date(props.datasource.createdDate).toUTCString() }}
                         </div>
                         <div v-if="props.datasource.updatedDate">
-                            Updated: {{ new Date(props.datasource.updatedDate).toLocaleDateString() }}
+                            Updated: {{ new Date(props.datasource.updatedDate).toUTCString() }}
                         </div>
                         <div v-if="props.datasource.softDeleted && props.datasource.deletedDate">
-                            Deleted: {{ new Date(props.datasource.deletedDate).toLocaleDateString() }}
+                            Deleted: {{ new Date(props.datasource.deletedDate).toUTCString() }}
                         </div>
                     </div>
                 </div>

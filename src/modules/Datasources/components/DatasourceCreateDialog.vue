@@ -24,7 +24,7 @@ const emit = defineEmits({
 })
 
 const newDatasource = reactive<Datasources>(new Datasources())
-const { datasourceValidate } = useDatasourceCreateValidate(newDatasource)
+const { datasourceCreateValidate } = useDatasourceCreateValidate(newDatasource)
 
 const closeDialog = () => emit('update:show', false)
 const submitDialog = () => {
@@ -34,29 +34,30 @@ const submitDialog = () => {
 </script>
 
 <template>
-    <Dialog header="Datasource" :modal="true" class="p-fluid w-30rem" :visible="props.show" @update:visible="closeDialog">
+    <Dialog header="Datasource" :modal="true" class="p-fluid" :style="{ width: '50rem' }" :visible="props.show"
+        @update:visible="closeDialog">
         <div class="field">
             <label class="mr-2">
                 <b>Name:</b>
             </label>
-            <InputText v-model="datasourceValidate.name.$model" :maxlength="50" :minlength="2" autofocus
-                :class="{ 'p-invalid': datasourceValidate.name.$invalid }">
+            <InputText v-model="datasourceCreateValidate.name.$model" :maxlength="50" :minlength="2" autofocus
+                :class="{ 'p-invalid': datasourceCreateValidate.name.$invalid }">
             </InputText>
             <small class="p-error ml-auto">
-                {{ datasourceValidate.name.required.$invalid ? 'Name is required.' : '&nbsp;' }}
+                {{ datasourceCreateValidate.name.required.$invalid ? 'Name is required.' : '&nbsp;' }}
             </small>
             <small class="p-error ml-auto">
-                {{ datasourceValidate.name.minLength.$invalid ? 'Name is to short.' : '' }}
+                {{ datasourceCreateValidate.name.minLength.$invalid ? 'Name is to short.' : '' }}
             </small>
             <small class="p-error ml-auto">
-                {{ datasourceValidate.name.maxLength.$invalid ? 'Name is to long.' : '' }}
+                {{ datasourceCreateValidate.name.maxLength.$invalid ? 'Name is to long.' : '' }}
             </small>
         </div>
         <div class="field">
             <label for="type">
                 <b>Type:</b>
             </label>
-            <Dropdown v-model="datasourceValidate.type.$model" :options="datasourceTypeOptions" option-label="label"
+            <Dropdown v-model="datasourceCreateValidate.type.$model" :options="datasourceTypeOptions" option-label="label"
                 option-value="value" placeholder="Select a datasource type" :filter="true" filter-placeholder="Find type" />
         </div>
 
@@ -66,7 +67,7 @@ const submitDialog = () => {
 
         <template #footer>
             <Button label="Cancel" icon="pi pi-times" severity="secondary" @click="closeDialog" />
-            <Button label="Create" icon="pi pi-check" severity="success" :disabled="datasourceValidate.$invalid"
+            <Button label="Create" icon="pi pi-check" severity="success" :disabled="datasourceCreateValidate.$invalid"
                 @click="submitDialog" />
         </template>
     </Dialog>
