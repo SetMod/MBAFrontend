@@ -1,112 +1,124 @@
-import { reactive, ref, toRefs } from "vue";
+import { ref } from "vue";
 import Organizations from "../models/OrganizationsModel";
-import UserOrganizations from "../models/UserOrganizationsModel";
-import UsersOrganizations from "../models/UsersOrganizationsModel";
-import OrganizationsService from "../services/OrganizationsService";
+import { organizationsService } from "../services/OrganizationsService";
+import useCRUD from "./useCRUD";
+import useState from "./useState";
+import { useLocalStorage } from "./useLocalStorage";
+import { usersService } from "../services/UsersService";
 
-interface OrganizationsState {
-    organization: Organizations | undefined,
-    organizations: Organizations[] | undefined,
-    userOrganizations: UserOrganizations[] | undefined,
-}
+const ORGANIZATION_STORAGE_KEY = "organization"
+const SELECTED_ORGANIZATION_STORAGE_KEY = "selected_organization"
+const organizationsState = useState<Organizations>()
+const {
+    getFromLocalStorage,
+    addToLocalStorage,
+    removeFromLocalStorage
+} = useLocalStorage(organizationsService, ORGANIZATION_STORAGE_KEY)
+const selectedOrganization = ref<Organizations | null>(getFromLocalStorage(SELECTED_ORGANIZATION_STORAGE_KEY))
 
-const state = reactive<OrganizationsState>({
-    organization: undefined,
-    organizations: undefined,
-    userOrganizations: undefined,
-})
+const {
+    error: organizationsError,
+    isLoading: isOrganizationsLoading,
+    model: organization,
+    models: organizations,
+    updatedModel: updatedOrganization,
+    newModel: newOrganization,
+    deletedModel: deletedOrganization,
+    getAllModels: getOrganizations,
+    getModelById: getOrganizationById,
+    getModelByField: getOrganizationByField,
+    getModelsByFields: getOrganizationsByFields,
+    createModel: createOrganization,
+    updateModel: updateOrganization,
+    deleteModel: deleteOrganization,
+} = useCRUD(organizationsService, organizationsState)
+
 
 export default function useOrganizations() {
-    const organizationsService = reactive(new OrganizationsService())
-    const isLoading = ref(false)
+    const selectOrganization = async (orgId: number) => {
+        isOrganizationsLoading.value = true
+        organizationsError.value = null
+        try {
+            const organization = await organizationsService.getById(orgId)
+            selectedOrganization.value = organization
+            addToLocalStorage(organization, SELECTED_ORGANIZATION_STORAGE_KEY)
 
-    const resetOrganizations = () => {
-        state.organization = undefined
-        state.organizations = undefined
-        localStorage.removeItem('organization')
-    }
-    const resetOrganization = () => {
-        state.organization = undefined
-        localStorage.removeItem('organization')
-    }
-
-    const getOrganizations = async () => {
-        isLoading.value = true
-        const response = await organizationsService.getOrganizations()
-        if (Array.isArray(response)) state.organizations = response
-        isLoading.value = false
-
-        return response
-    }
-
-    const getOrganizationById = async (userId: number) => {
-        isLoading.value = true
-        const response = await organizationsService.getOrganizationById(userId)
-        if (response instanceof Organizations) {
-            localStorage.setItem('organization', JSON.stringify(organizationsService.mapOrganizationToData(response)))
+            return organization
+        } catch (err) {
+            if (err instanceof Error) {
+                console.error(err);
+                organizationsError.value = err
+                selectedOrganization.value = null
+                removeFromLocalStorage(SELECTED_ORGANIZATION_STORAGE_KEY)
+            }
+        } finally {
+            isOrganizationsLoading.value = false
         }
-        isLoading.value = false
-
-        return response
     }
 
+    const userOrganizations = ref<Organizations[]>([])
     const getUserOrganizations = async (userId: number) => {
-        isLoading.value = true
-        const response = await organizationsService.getUserOrganizations(userId)
-        if (Array.isArray(response)) state.userOrganizations = response
-        isLoading.value = false
+        isOrganizationsLoading.value = true
+        organizationsError.value = null
+        try {
+            const organizations = await usersService.getOrganizations(userId)
+            userOrganizations.value = organizations
 
-        return response
-    }
-    const addUserToOrganization = async (usersOrganization: UsersOrganizations) => {
-        isLoading.value = true
-        const response = await organizationsService.addUserToOrganization(usersOrganization)
-        isLoading.value = false
-
-        return response
-    }
-    const createOrganization = async (newOrganization: Organizations, userId: number) => {
-        isLoading.value = true
-        const response = await organizationsService.createOrganization(newOrganization, userId)
-        isLoading.value = false
-
-        return response
+        } catch (err) {
+            if (err instanceof Error) {
+                organizationsError.value = err
+                userOrganizations.value = []
+            }
+        } finally {
+            isOrganizationsLoading.value = false
+        }
     }
 
-    const updateOrganization = async (updatedOrganization: Organizations) => {
-        isLoading.value = true
-        const response = await organizationsService.updateOrganization(updatedOrganization)
-        isLoading.value = false
 
-        return response
-    }
 
-    const deleteOrganization = async (organizationId: number) => {
-        isLoading.value = true
-        const response = await organizationsService.deleteOrganization(organizationId)
-        isLoading.value = false
+    // const getOrganizationMembers = async (userId: number) => {
+    //     isOrganizationsLoading.value = true
+    //     const response = await organizationsService.getOrganizationMembers(userId)
+    //     if (Array.isArray(response)) organizationsState.organizationMembers = response
+    //     isOrganizationsLoading.value = false
 
-        return response
-    }
-    const deleteUserFromOrganization = async (usersOrganization: UsersOrganizations) => {
-        isLoading.value = true
-        const response = await organizationsService.deleteUserFromOrganization(usersOrganization)
-        isLoading.value = false
+    //     return response
+    // }
+    // const addUserToOrganization = async (usersOrganization: OrganizationMembers) => {
+    //     isOrganizationsLoading.value = true
+    //     const response = await organizationsService.addUserToOrganization(usersOrganization)
+    //     isOrganizationsLoading.value = false
 
-        return response
-    }
+    //     return response
+    // }
+    // const deleteUserFromOrganization = async (usersOrganization: OrganizationMembers) => {
+    //     isOrganizationsLoading.value = true
+    //     const response = await organizationsService.deleteUserFromOrganization(usersOrganization)
+    //     isOrganizationsLoading.value = false
+
+    //     return response
+    // }
     return {
-        isOrganizationsLoading: isLoading,
-        resetOrganizations,
-        resetOrganization,
-        getOrganizationById,
+        selectedOrganization,
+        isOrganizationsLoading,
+        organizationsError,
+        organization,
+        organizations,
+        updatedOrganization,
+        newOrganization,
+        deletedOrganization,
+        userOrganizations,
         getOrganizations,
+        getOrganizationById,
+        getOrganizationByField,
         getUserOrganizations,
-        addUserToOrganization,
+        getOrganizationsByFields,
+        // getOrganizationMembers,
+        // addUserToOrganization,
+        // deleteUserFromOrganization,
         createOrganization,
         updateOrganization,
         deleteOrganization,
-        deleteUserFromOrganization,
-        ...toRefs(state)
+        selectOrganization,
     }
 }

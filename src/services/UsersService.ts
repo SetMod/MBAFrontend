@@ -1,169 +1,311 @@
-import axios, { AxiosError } from "axios";
-import config from "../config";
-import Users from "../models/UsersModel";
+import { AxiosError } from "axios";
+import Users, { IUsersResponse } from "../models/UsersModel";
+import GenericService from "./GenericService";
+import OrganizationMembers, { IOrganizationMembersFullResponse } from "../models/OrganizationMembersModel";
+import Reports, { IReportsFullResponse } from "../models/ReportsModel";
+import Datasources, { DatasourceTypes, IDatasourcesFullResponse } from "../models/DatasourcesModel";
+import Analyzes, { IAnalyzesFullResponse } from "../models/AnalyzesModel";
+import Organizations from "../models/OrganizationsModel";
 
-interface UsersResponse {
-    user_id: number
-    user_first_name: string
-    user_second_name: string
-    user_email: string
-    user_phone: string
-    user_create_date: string
-    user_username: string
-    user_password: string
-    role_id: number
-    role_name: string
+export default class UsersService extends GenericService<Users, IUsersResponse> {
+
+    constructor() {
+        super("/users")
+    }
+
+    mapJSONToModel(userJson: IUsersResponse): Users {
+        return Users.fromJSON(userJson)
+    }
+
+    mapModelToJSON(user: Users): IUsersResponse {
+        return Users.toJSON(user)
+    }
+
+    async getOrganizations(userId: number): Promise<Organizations[]> {
+        try {
+            const res = await this.api.get(`${this.url}/${userId}/organizations`)
+            console.log(res)
+
+            if (res.data instanceof Array) {
+                const organizations = res.data.map(orgJson => Organizations.fromJSON(orgJson))
+                console.log(organizations)
+
+                return organizations
+            }
+
+            return []
+        } catch (err) {
+            let errorMessage = "Failed to get user organizations"
+            console.error(errorMessage)
+            if (err instanceof AxiosError) {
+                errorMessage += `. ${err.message}`
+            }
+
+            throw new Error(errorMessage)
+        }
+    }
+
+    async getMemberships(userId: number): Promise<OrganizationMembers[]> {
+        try {
+            const res = await this.api.get(`${this.url}/${userId}/memberships`)
+            console.log(res)
+
+            if (res.data instanceof Array) {
+                const members = res.data.map(memberJson => OrganizationMembers.fromJSON(memberJson))
+                console.log(members)
+
+                return members
+            }
+
+            return []
+        } catch (err) {
+            let errorMessage = "Failed to get user memberships"
+            console.error(errorMessage)
+            if (err instanceof AxiosError) {
+                errorMessage += `. ${err.message}`
+            }
+
+            throw new Error(errorMessage)
+        }
+    }
+
+    async getOrganizationMembersFull(userId: number): Promise<IOrganizationMembersFullResponse[]> {
+        try {
+            console.log('Getting all user memberships full');
+
+            const res = await this.api.get(`${this.url}/${userId}/memberships/full`)
+            console.log(res)
+
+            return res.data
+        } catch (err) {
+            let errorMessage = "Failed to get user memberships full"
+            console.error(errorMessage)
+            if (err instanceof AxiosError) {
+                errorMessage += `. ${err.message}`
+            }
+
+            throw new Error(errorMessage)
+        }
+    }
+
+    async getDatasources(userId: number): Promise<Datasources[]> {
+        try {
+            const res = await this.api.get(`${this.url}/${userId}/datasources`)
+            console.log(res)
+
+            if (res.data instanceof Array) {
+                const datasources = res.data.map(reportJson => Datasources.fromJSON(reportJson))
+                console.log(datasources)
+
+                return datasources
+            }
+
+            return []
+        } catch (err) {
+            let errorMessage = "Failed to get user datasources"
+            console.error(errorMessage)
+            if (err instanceof AxiosError) {
+                errorMessage += `. ${err.message}`
+            }
+
+            throw new Error(errorMessage)
+        }
+    }
+
+    async getDatasourcesFull(userId: number): Promise<IDatasourcesFullResponse[]> {
+        try {
+            console.log('Getting all user datasources full');
+
+            const res = await this.api.get(`${this.url}/${userId}/datasources/full`)
+            console.log(res)
+
+            return res.data
+        } catch (err) {
+            let errorMessage = "Failed to get user datasources"
+            console.error(errorMessage)
+            if (err instanceof AxiosError) {
+                errorMessage += `. ${err.message}`
+            }
+
+            throw new Error(errorMessage)
+        }
+    }
+
+    async getAnalyzes(userId: number): Promise<Analyzes[]> {
+        try {
+            const res = await this.api.get(`${this.url}/${userId}/analyzes`)
+            console.log(res)
+
+            if (res.data instanceof Array) {
+                const analyzes = res.data.map(reportJson => Analyzes.fromJSON(reportJson))
+                console.log(analyzes)
+
+                return analyzes
+            }
+
+            return []
+        } catch (err) {
+            let errorMessage = "Failed to get user analyzes"
+            console.error(errorMessage)
+            if (err instanceof AxiosError) {
+                errorMessage += `. ${err.message}`
+            }
+
+            throw new Error(errorMessage)
+        }
+    }
+
+    async getAnalyzesFull(userId: number): Promise<IAnalyzesFullResponse[]> {
+        try {
+            console.log('Getting all user analyzes full');
+
+            const res = await this.api.get(`${this.url}/${userId}/analyzes/full`)
+            console.log(res)
+
+            return res.data
+        } catch (err) {
+            let errorMessage = "Failed to get user analyzes"
+            console.error(errorMessage)
+            if (err instanceof AxiosError) {
+                errorMessage += `. ${err.message}`
+            }
+
+            throw new Error(errorMessage)
+        }
+    }
+
+    async getReports(userId: number): Promise<Reports[]> {
+        try {
+            const res = await this.api.get(`${this.url}/${userId}/reports`)
+            console.log(res)
+
+            if (res.data instanceof Array) {
+                const reports = res.data.map(reportJson => Reports.fromJSON(reportJson))
+                console.log(reports)
+
+                return reports
+            }
+
+            return []
+        } catch (err) {
+            let errorMessage = "Failed to get user reports"
+            console.error(errorMessage)
+            if (err instanceof AxiosError) {
+                errorMessage += `. ${err.message}`
+            }
+
+            throw new Error(errorMessage)
+        }
+    }
+
+    async getReportsFull(userId: number): Promise<IReportsFullResponse[]> {
+        try {
+            console.log('Getting user reports full');
+
+            const res = await this.api.get(`${this.url}/${userId}/reports/full`)
+            console.log(res)
+
+            return res.data
+        } catch (err) {
+            let errorMessage = "Failed to get user reports"
+            console.error(errorMessage)
+            if (err instanceof AxiosError) {
+                errorMessage += `. ${err.message}`
+            }
+
+            throw new Error(errorMessage)
+        }
+    }
+
+    async login(userUsername: string, userPassword: string) {
+        try {
+            const res = await this.api.post(`${this.url}/auth/login`, {
+                username: userUsername,
+                password: userPassword
+            })
+            console.log(res);
+
+            const data: { message: string, access_token: string } = res.data
+
+            return data
+            // const user = this.mapJSONToModel(res.data)
+            // console.log(user);
+
+            // return user
+        } catch (err) {
+            let errorMessage = 'Login failed'
+            console.error(err);
+            if (err instanceof AxiosError) {
+                errorMessage += `. ${err.message}`
+            }
+
+            throw new Error(errorMessage)
+        }
+    }
+
+    async whoAmI() {
+        try {
+            const res = await this.api.get(`${this.url}/auth/who_am_i`)
+            console.log(res)
+
+            const user = this.mapJSONToModel(res.data)
+            console.log(user)
+
+            return user
+        } catch (err) {
+            let errorMessage = 'Failed to check who am I'
+            console.error(err);
+            if (err instanceof AxiosError) {
+                errorMessage += `. ${err.message}`
+            }
+
+            throw new Error(errorMessage)
+        }
+    }
+
+    async logout() {
+        try {
+            const res = await this.api.get(`${this.url}/auth/logout`)
+            console.log(res);
+
+            const data: { message: string } = res.data
+            // const user = this.mapJSONToModel(res.data)
+            // console.log(user);
+
+            return data
+        } catch (err) {
+            let errorMessage = 'Logout failed'
+            console.error(err);
+            if (err instanceof AxiosError) {
+                errorMessage += `. ${err.message}`
+            }
+
+            throw new Error(errorMessage)
+        }
+    }
+
+    async register(newUser: Users): Promise<Users> {
+        try {
+            const newUserJson = this.mapModelToJSON(newUser)
+            console.log(newUserJson)
+
+            const res = await this.api.post(`${this.url}/auth/register`, newUserJson)
+            console.log(res)
+
+            const newModel = this.mapJSONToModel(res.data)
+            console.log(newModel)
+
+            return newModel
+        } catch (err) {
+            let errorMessage = 'Failed to register'
+            console.log(errorMessage)
+            if (err instanceof AxiosError) {
+                errorMessage += `. ${err.message}`
+            }
+
+            throw new Error(errorMessage)
+        }
+    }
 }
 
-
-export default class UsersService {
-
-    async getUsers() {
-        const errorMessage: String = 'Failed to get users'
-        try {
-            const response = await axios.get(`${config.baseUrl}/users`)
-
-            if (response.data instanceof String) return response.data
-            if (Array.isArray(response.data) == false) return errorMessage
-
-            const users: Users[] = response.data.map((user: UsersResponse) => {
-                return this.mapDataToUser(user)
-            })
-            console.log(users)
-            return users
-        } catch (error) {
-            console.error(error);
-            if (error instanceof AxiosError)
-                if (error.response?.data && typeof error.response?.data === 'string') return new String(error.response?.data)
-            return errorMessage
-        }
-    }
-    async getUserById(userId: number) {
-        const errorMessage: String = 'Failed to get user'
-        try {
-            const response = await axios.get(`${config.baseUrl}/users/${userId}`)
-
-            if (response.data instanceof String) return response.data
-            if (Object.keys(response.data).length === 0) return errorMessage
-
-            console.log(response.data);
-
-            const user: Users = this.mapDataToUser(response.data)
-            console.log(user)
-            return user
-        } catch (error) {
-            console.error(error)
-            if (error instanceof AxiosError)
-                if (error.response?.data && typeof error.response?.data === 'string') return new String(error.response?.data)
-            return errorMessage
-        }
-    }
-    async sigInUser(userUsername: string, userPassword: string) {
-        const errorMessage: String = 'Sign In failed'
-        try {
-            const response = await axios.post(`${config.baseUrl}/users/login`, {
-                user_username: userUsername,
-                user_password: userPassword
-            })
-
-            if (response.data instanceof String) return response.data
-            if (Object.keys(response.data).length === 0) return errorMessage
-
-            const user = this.mapDataToUser(response.data)
-            console.log(user);
-            return user
-        } catch (error) {
-            console.error(error);
-            if (error instanceof AxiosError)
-                if (error.response?.data && typeof error.response?.data === 'string') return new String(error.response?.data)
-            // if (error instanceof AxiosError) {
-            //     alert(error.response?.data)
-            // }
-            return errorMessage
-        }
-
-    }
-    async createUser(user: Users) {
-        const errorMessage: String = 'Sign Up failed'
-        try {
-            const dataUser = this.mapUserToData(user)
-            const response = await axios.post(`${config.baseUrl}/users/`, dataUser)
-
-            if (response.data instanceof String) return response.data
-
-            const newUser: Users = this.mapDataToUser(response.data)
-            console.log(newUser)
-            return newUser
-        } catch (error) {
-            console.error(error);
-            if (error instanceof AxiosError)
-                if (error.response?.data && typeof error.response?.data === 'string') return new String(error.response?.data)
-            return errorMessage
-        }
-    }
-    async updateUser(user: Users) {
-        const errorMessage: String = 'User update failed'
-        try {
-            const dataUser = this.mapUserToData(user)
-            const response = await axios.put(`${config.baseUrl}/users/${user.userId}`, dataUser)
-
-            if (response.data instanceof String) return response.data
-
-            const updatedUser: Users = this.mapDataToUser(response.data)
-            console.log(updatedUser)
-            return updatedUser
-        } catch (error) {
-            console.error(error);
-            if (error instanceof AxiosError)
-                if (error.response?.data && typeof error.response?.data === 'string') return new String(error.response?.data)
-            return errorMessage
-        }
-    }
-    async deleteUser(userId: number) {
-        const errorMessage: String = 'Failed to delete a user'
-        try {
-            const response = await axios.delete(`${config.baseUrl}/users/${userId}`)
-
-            if (response.data instanceof String) return response.data
-
-            const user: Users = this.mapDataToUser(response.data)
-            console.log(user)
-            return user
-        } catch (error) {
-            console.error(error);
-            if (error instanceof AxiosError)
-                if (error.response?.data && typeof error.response?.data === 'string') return new String(error.response?.data)
-            return errorMessage
-        }
-    }
-    mapDataToUser(data: UsersResponse) {
-        const user = new Users()
-        user.userId = data.user_id
-        user.userFirstName = data.user_first_name
-        user.userSecondName = data.user_second_name
-        user.userEmail = data.user_email
-        user.userPhone = data.user_phone
-        user.userUsername = data.user_username
-        user.userPassword = data.user_password
-        user.userCreateDate = new Date(data.user_create_date)
-        user.roleId = data.role_id
-        user.roleName = data.role_name
-        return user
-    }
-    mapUserToData(user: Users) {
-        return <UsersResponse>{
-            user_id: user.userId,
-            user_first_name: user.userFirstName,
-            user_second_name: user.userSecondName,
-            user_email: user.userEmail,
-            user_create_date: user.userCreateDate?.toJSON(),
-            user_phone: user.userPhone,
-            user_username: user.userUsername,
-            user_password: user.userPassword,
-            role_id: user.roleId,
-        }
-    }
-}
-
-const userService = new UsersService()
-export { userService }
+export const usersService = new UsersService()

@@ -1,218 +1,197 @@
-import axios, { AxiosError } from "axios"
-import config from "../config"
-import Organizations from "../models/OrganizationsModel"
-import UserOrganizations from "../models/UserOrganizationsModel"
-import UsersOrganizations from "../models/UsersOrganizationsModel"
+import { AxiosError } from "axios"
+import Organizations, { IOrganizationsResponse } from "../models/OrganizationsModel"
+import GenericService from "./GenericService"
+import Datasources, { IDatasourcesFullResponse } from "../models/DatasourcesModel"
+import OrganizationMembers, { IOrganizationMembersFullResponse } from "../models/OrganizationMembersModel"
+import Analyzes, { IAnalyzesFullResponse } from "../models/AnalyzesModel"
+import Reports, { IReportsFullResponse } from "../models/ReportsModel"
 
-interface OrganizationsResponse {
-    organization_id: number
-    organization_name: string
-    organization_description: string
-    organization_email: string
-    organization_phone: string
-    organization_create_date: Date
-}
-interface UserOrganizationsResponse {
-    organization_id: number
-    organization_name: string
-    organization_description: string
-    organization_email: string
-    organization_phone: string
-    organization_create_date: Date
-    organization_role_description: string
-    organization_role_id: number
-    organization_role_name: string
-}
-interface UsersOrganizationsResponse {
-    user_id: number
-    organization_id: number
-    organization_role_id: number
-}
-export default class OrganizationsService {
-    async getOrganizations() {
-        const errorMessage = new String('Failed to get organizations')
+export default class OrganizationsService extends GenericService<Organizations, IOrganizationsResponse> {
+
+    constructor() {
+        super("/organizations")
+    }
+
+    mapJSONToModel(organizationJson: IOrganizationsResponse): Organizations {
+        return Organizations.fromJSON(organizationJson)
+    }
+
+    mapModelToJSON(organization: Organizations): IOrganizationsResponse {
+        return Organizations.toJSON(organization)
+    }
+
+    async getMembers(orgId: number): Promise<OrganizationMembers[]> {
         try {
-            const response = await axios.get(`${config.baseUrl}/organizations/`)
+            console.log("Getting organization members");
 
-            if (response.data instanceof String) return response.data
-            if (Array.isArray(response.data) == false) return errorMessage
+            const res = await this.api.get(`${this.url}/${orgId}/members`)
+            console.log(res)
 
-            const organizations: Organizations[] = response.data.map((val: OrganizationsResponse) => {
-                return this.mapDataToOrganization(val)
-            })
-            console.log(organizations);
-            return organizations
-        } catch (error) {
-            console.error(error);
-            if (error instanceof AxiosError)
-                if (error.response?.data && typeof error.response?.data === 'string') return new String(error.response?.data)
-            return errorMessage
+            if (res.data instanceof Array) {
+                const members = res.data.map(memberJson => OrganizationMembers.fromJSON(memberJson))
+                console.log(members)
+
+                return members
+            }
+
+            return []
+        } catch (err) {
+            let errorMessage = "Failed to get organization members"
+            console.error(errorMessage)
+            if (err instanceof AxiosError) {
+                errorMessage += `. ${err.message}`
+            }
+
+            throw new Error(errorMessage)
         }
     }
-    async getOrganizationById(organizationId: number) {
-        const errorMessage = new String('Failed to get organization')
+
+    async getOrganizationMembersFull(orgId: number): Promise<IOrganizationMembersFullResponse[]> {
         try {
-            const response = await axios.get(`${config.baseUrl}/organizations/${organizationId}`)
+            console.log("Getting organization members full");
+            const res = await this.api.get(`${this.url}/${orgId}/members/full`)
+            console.log(res)
 
-            if (response.data instanceof String) return response.data
-            if (Object.keys(response.data).length === 0) return errorMessage
+            return res.data
+        } catch (err) {
+            let errorMessage = "Failed to get organization members"
+            console.error(errorMessage)
+            if (err instanceof AxiosError) {
+                errorMessage += `. ${err.message}`
+            }
 
-            const organization: Organizations = this.mapDataToOrganization(response.data)
-            console.log(organization)
-            return organization
-        } catch (error) {
-            console.error(error);
-            if (error instanceof AxiosError)
-                if (error.response?.data && typeof error.response?.data === 'string') return new String(error.response?.data)
-            return error
+            throw new Error(errorMessage)
         }
     }
-    async getUserOrganizations(userId: number) {
-        const errorMessage = new String('Failed to get user organizations')
+
+    async getDatasources(orgId: number): Promise<Datasources[]> {
         try {
-            const response = await axios.get(`${config.baseUrl}/organizations/user/${userId}`)
+            const res = await this.api.get(`${this.url}/${orgId}/datasources`)
+            console.log(res)
 
-            if (response.data instanceof String) return response.data
-            if (Object.keys(response.data).length === 0) return errorMessage
-            console.log(response.data);
+            if (res.data instanceof Array) {
+                const datasources = res.data.map(reportJson => Datasources.fromJSON(reportJson))
+                console.log(datasources)
 
-            const userOrganizations: UserOrganizations[] = response.data.map((val: UserOrganizationsResponse) => {
-                return this.mapDataToUserOrganization(val)
-            })
-            console.log(userOrganizations)
-            return userOrganizations
-        } catch (error) {
-            console.error(error);
-            if (error instanceof AxiosError)
-                if (error.response?.data && typeof error.response?.data === 'string') return new String(error.response?.data)
-            return errorMessage
+                return datasources
+            }
+
+            return []
+        } catch (err) {
+            let errorMessage = "Failed to get organization datasources"
+            console.error(errorMessage)
+            if (err instanceof AxiosError) {
+                errorMessage += `. ${err.message}`
+            }
+
+            throw new Error(errorMessage)
         }
     }
-    async addUserToOrganization(userOrganization: UsersOrganizations) {
-        const errorMessage = new String('Failed to add user to organization')
+
+    async getDatasourcesFull(orgId: number): Promise<IDatasourcesFullResponse[]> {
         try {
-            const dataUserOrganization = this.mapUserOrganizationToData(userOrganization)
-            const response = await axios.post(`${config.baseUrl}/organizations/users`, dataUserOrganization)
+            console.log('Getting all organization datasources full');
+            
+            const res = await this.api.get(`${this.url}/${orgId}/datasources/full`)
+            console.log(res)
 
-            if (response.data instanceof String) return response.data
+            return res.data
+        } catch (err) {
+            let errorMessage = "Failed to get organization datasources"
+            console.error(errorMessage)
+            if (err instanceof AxiosError) {
+                errorMessage += `. ${err.message}`
+            }
 
-            const newUserOrganization: Organizations[] = response.data.map((val: OrganizationsResponse) => {
-                return this.mapDataToOrganization(val)
-            })
-            console.log(newUserOrganization)
-            return newUserOrganization
-        } catch (error) {
-            console.error(error);
-            if (error instanceof AxiosError)
-                if (error.response?.data && typeof error.response?.data === 'string') return new String(error.response?.data)
-            return errorMessage
+            throw new Error(errorMessage)
         }
     }
-    async createOrganization(organization: Organizations, userId: number) {
-        const errorMessage = new String('Failed to create organization')
+
+    async getAnalyzes(orgId: number): Promise<Analyzes[]> {
         try {
-            const dataOrganization = this.mapOrganizationToData(organization)
-            const response = await axios.post(`${config.baseUrl}/organizations/?user_id=${userId}`, dataOrganization)
+            const res = await this.api.get(`${this.url}/${orgId}/analyzes`)
+            console.log(res)
 
-            if (response.data instanceof String) return response.data
+            if (res.data instanceof Array) {
+                const analyzes = res.data.map(reportJson => Analyzes.fromJSON(reportJson))
+                console.log(analyzes)
 
-            const newOrganization: Organizations = this.mapDataToOrganization(response.data)
-            console.log(newOrganization)
-            return newOrganization
-        } catch (error) {
-            console.error(error);
-            if (error instanceof AxiosError)
-                if (error.response?.data && typeof error.response?.data === 'string') return new String(error.response?.data)
-            return errorMessage
+                return analyzes
+            }
+
+            return []
+        } catch (err) {
+            let errorMessage = "Failed to get organization analyzes"
+            console.error(errorMessage)
+            if (err instanceof AxiosError) {
+                errorMessage += `. ${err.message}`
+            }
+
+            throw new Error(errorMessage)
         }
     }
-    async updateOrganization(organization: Organizations) {
-        const errorMessage = new String('Failed to update organization')
+
+    async getAnalyzesFull(orgId: number): Promise<IAnalyzesFullResponse[]> {
         try {
-            const dataOrganization = this.mapOrganizationToData(organization)
-            const response = await axios.put(`${config.baseUrl}/organizations/${organization.organizationId}`, dataOrganization)
+            console.log('Getting all organization analyzes full');
+            
+            const res = await this.api.get(`${this.url}/${orgId}/analyzes/full`)
+            console.log(res)
 
-            if (response.data instanceof String) return response.data
+            return res.data
+        } catch (err) {
+            let errorMessage = "Failed to get organization analyzes"
+            console.error(errorMessage)
+            if (err instanceof AxiosError) {
+                errorMessage += `. ${err.message}`
+            }
 
-            const updatedOrganization: Organizations = this.mapDataToOrganization(response.data)
-            console.log(updatedOrganization)
-            return updatedOrganization
-        } catch (error) {
-            console.error(error);
-            if (error instanceof AxiosError)
-                if (error.response?.data && typeof error.response?.data === 'string') return new String(error.response?.data)
-            return errorMessage
+            throw new Error(errorMessage)
         }
     }
-    async deleteOrganization(organizationId: number) {
-        const errorMessage = new String('Failed to delete organization')
+
+    async getReports(orgId: number): Promise<Reports[]> {
         try {
-            const response = await axios.delete(`${config.baseUrl}/organizations/${organizationId}`)
-            if (Object.keys(response.data).length === 0) return errorMessage
-            const organization: Organizations = this.mapDataToOrganization(response.data)
-            console.log(organization)
-            return organization
-        } catch (error) {
-            console.error(error);
-            if (error instanceof AxiosError)
-                if (error.response?.data && typeof error.response?.data === 'string') return new String(error.response?.data)
-            return errorMessage
+            const res = await this.api.get(`${this.url}/${orgId}/reports`)
+            console.log(res)
+
+            if (res.data instanceof Array) {
+                const reports = res.data.map(reportJson => Reports.fromJSON(reportJson))
+                console.log(reports)
+
+                return reports
+            }
+
+            return []
+        } catch (err) {
+            let errorMessage = "Failed to get organization reports"
+            console.error(errorMessage)
+            if (err instanceof AxiosError) {
+                errorMessage += `. ${err.message}`
+            }
+
+            throw new Error(errorMessage)
         }
     }
-    async deleteUserFromOrganization(userOrganization: UsersOrganizations) {
-        const errorMessage = new String('Failed to delete user from organization')
+
+    async getReportsFull(orgId: number): Promise<IReportsFullResponse[]> {
         try {
-            const response = await axios.delete(`${config.baseUrl}/organizations/${userOrganization.organizationId}/user/${userOrganization.userId}`)
-            if (Object.keys(response.data).length === 0) return errorMessage
-            const organization: Organizations = this.mapDataToOrganization(response.data)
-            console.log(organization)
-            return organization
-        } catch (error) {
-            console.error(error);
-            if (error instanceof AxiosError)
-                if (error.response?.data && typeof error.response?.data === 'string') return new String(error.response?.data)
-            return errorMessage
-        }
-    }
-    mapDataToOrganization(data: OrganizationsResponse) {
-        const organization = new Organizations()
-        organization.organizationId = data.organization_id
-        organization.organizationName = data.organization_name
-        organization.organizationDescription = data.organization_description
-        organization.organizationEmail = data.organization_email
-        organization.organizationPhone = data.organization_phone
-        organization.organizationCreateDate = data.organization_create_date
-        return organization
-    }
-    mapDataToUserOrganization(data: UserOrganizationsResponse) {
-        const userOrganization = new UserOrganizations()
-        userOrganization.organizationId = data.organization_id
-        userOrganization.organizationName = data.organization_name
-        userOrganization.organizationDescription = data.organization_description
-        userOrganization.organizationEmail = data.organization_email
-        userOrganization.organizationPhone = data.organization_phone
-        userOrganization.organizationCreateDate = data.organization_create_date
-        userOrganization.organizationRoleId = data.organization_role_id
-        userOrganization.organizationRoleName = data.organization_role_name
-        return userOrganization
-    }
-    mapOrganizationToData(organization: Organizations) {
-        return <OrganizationsResponse>{
-            organization_name: organization.organizationName,
-            organization_description: organization.organizationDescription,
-            organization_email: organization.organizationEmail,
-            organization_phone: organization.organizationPhone,
-            organization_create_date: organization.organizationCreateDate
-        }
-    }
-    mapUserOrganizationToData(userOrganization: UsersOrganizations) {
-        return <UsersOrganizationsResponse>{
-            user_id: userOrganization.userId,
-            organization_id: userOrganization.organizationId,
-            organization_role_id: userOrganization.organizationRoleId
+            console.log('Getting organization reports full');
+            
+            const res = await this.api.get(`${this.url}/${orgId}/reports/full`)
+            console.log(res)
+
+            return res.data
+        } catch (err) {
+            let errorMessage = "Failed to get organization reports"
+            console.error(errorMessage)
+            if (err instanceof AxiosError) {
+                errorMessage += `. ${err.message}`
+            }
+
+            throw new Error(errorMessage)
         }
     }
 }
 
-const organizationService = new OrganizationsService()
-export { organizationService }
+export const organizationsService = new OrganizationsService()

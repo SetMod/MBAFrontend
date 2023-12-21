@@ -1,118 +1,136 @@
-import { computed, reactive, ref, toRefs } from "vue";
-import Users from "../models/UsersModel";
-import UsersService from "../services/UsersService";
+import { computed, reactive, ref } from "vue";
+import Users, { Roles } from "../models/UsersModel";
+import { usersService } from "../services/UsersService";
+import { setJWTToken, removeJWTToken } from "../utils/jwt"
+import useCRUD from "./useCRUD";
+import { getJWTToken } from "../utils/jwt"
+import useState from "./useState";
+import { email, maxLength, minLength, required, sameAs } from "@vuelidate/validators";
+import useVuelidate from "@vuelidate/core";
+import { useLocalStorage } from "./useLocalStorage";
 
-interface UsersState {
-    user: Users | undefined
-    users: Users[] | undefined
-}
+const USER_STORAGE_KEY = "user"
+const CURRENT_USER_STORAGE_KEY = "current_user"
+const usersState = useState<Users>()
+const {
+    getFromLocalStorage,
+    addToLocalStorage,
+    removeFromLocalStorage
+} = useLocalStorage(usersService, USER_STORAGE_KEY)
+const currentUser = ref<Users | null>(getFromLocalStorage(CURRENT_USER_STORAGE_KEY))
+const SELECTED_USER_STORAGE_KEY = "selected_organization"
+const selectedUser = ref<Users | null>(getFromLocalStorage(SELECTED_USER_STORAGE_KEY))
 
-const state = reactive<UsersState>({
-    user: undefined,
-    users: undefined,
-})
+const {
+    error: usersError,
+    isLoading: isUsersLoading,
+    model: user,
+    models: users,
+    updatedModel: updatedUser,
+    newModel: newUser,
+    deletedModel: deletedUser,
+    getAllModels: getUsers,
+    getModelById: getUserById,
+    getModelByField: getUserByField,
+    getModelsByFields: getUsersByFields,
+    createModel: createUser,
+    updateModel: updateUser,
+    deleteModel: deleteUser,
+} = useCRUD(usersService, usersState)
 
 export default function useUsers() {
-    const userService = reactive(new UsersService())
-    const isLoading = ref(false)
 
-    const resetUsers = () => {
-        state.user = undefined
-        state.users = undefined
-        localStorage.removeItem('user')
-    }
-    const mapUser = (lsUser: any) => {
-        const user = new Users()
-        user.userId = lsUser.userId
-        user.userFirstName = lsUser.userFirstName
-        user.userSecondName = lsUser.userSecondName
-        user.userEmail = lsUser.userEmail
-        user.userPhone = lsUser.userPhone
-        user.userUsername = lsUser.userUsername
-        user.userPassword = lsUser.userPassword
-        user.roleId = lsUser.roleId
-        user.roleName = lsUser.roleName
-        user.userCreateDate = lsUser.userCreateDate
-        return user
-    }
-    const isLoggedIn = computed(() => {
-        const user = localStorage.getItem('user')
-        if (user) {
-            const loggedUser = mapUser(JSON.parse(user))
-            state.user = loggedUser
-        }
-        return state.user === undefined ? false : true
+    const isAdmin = computed(() => {
+        return currentUser.value?.role.toLocaleLowerCase() == Roles.ADMIN.toLocaleLowerCase() ? true : false
     })
-    const isAdmin = computed(() => state.user && state.user.roleName === 'Admin' ? true : false)
+    const isLoggedIn = computed(() => {
+        return currentUser.value && getJWTToken() ? true : false
+    })
 
-    const getUsers = async () => {
-        isLoading.value = true
-        const response = await userService.getUsers()
-        if (Array.isArray(response)) state.users = response
-        isLoading.value = false
+    const login = async (username: string, password: string) => {
+        isUsersLoading.value = true
+        usersError.value = null
+        try {
+            const res = await usersService.login(username, password)
+            setJWTToken(res.access_token);
 
-        return response
-    }
-
-    const getUserById = async (userId: number) => {
-        isLoading.value = true
-        const response = await userService.getUserById(userId)
-        isLoading.value = false
-
-        return response
-    }
-
-    const sigIn = async (userUsername: string, userPassword: string) => {
-        isLoading.value = true
-        const response = await userService.sigInUser(userUsername, userPassword)
-        if (response instanceof Users) {
-            state.user = response
-            localStorage.setItem('user', JSON.stringify(response))
+            return res
+        } catch (err) {
+            if (err instanceof Error) {
+                console.error(err);
+                usersError.value = err
+            }
+        } finally {
+            isUsersLoading.value = false
         }
-        isLoading.value = false
-
-        return response
     }
 
+    const whoAmI = async () => {
+        isUsersLoading.value = true
+        usersError.value = null
+        try {
+            const user = await usersService.whoAmI()
+            currentUser.value = user
+            addToLocalStorage(user, CURRENT_USER_STORAGE_KEY)
 
-    const signUp = async (newUser: Users) => {
-        isLoading.value = true
-        const response = await userService.createUser(newUser)
-        isLoading.value = false
-
-        return response
+            return user
+        } catch (err) {
+            if (err instanceof Error) {
+                console.error(err)
+                usersError.value = err
+                currentUser.value = null
+                removeFromLocalStorage(CURRENT_USER_STORAGE_KEY)
+            }
+        } finally {
+            isUsersLoading.value = false
+        }
     }
-    const updateUser = async (updatedUser: Users) => {
-        // isLoading.value = true
-        const response = await userService.updateUser(updatedUser)
-        // if (response instanceof Users) {
-        //     state.user = response
-        //     localStorage.setItem('user', JSON.stringify(response))
-        // }
-        // isLoading.value = false
 
-        return response
+    const logout = () => {
+        currentUser.value = null
+        removeJWTToken()
+        removeFromLocalStorage(CURRENT_USER_STORAGE_KEY)
     }
 
-    const deleteUser = async (userId: number) => {
-        isLoading.value = true
-        const response = await userService.deleteUser(userId)
-        isLoading.value = false
+    const register = async (newUser: Users) => {
+        isUsersLoading.value = true
+        usersError.value = null
+        try {
+            const res = await usersService.register(newUser)
 
-        return response
+            return res
+        } catch (err) {
+            if (err instanceof Error) {
+                console.error(err);
+                usersError.value = err
+            }
+        } finally {
+            isUsersLoading.value = false
+        }
     }
 
     return {
         isLoggedIn,
-        isUsersLoading: isLoading,
         isAdmin,
-        resetUsers,
+        register,
+        login,
+        whoAmI,
+        logout,
+        usersError,
+        isUsersLoading,
+        users,
+        user,
+        currentUser,
+        updatedUser,
+        newUser,
+        deletedUser,
+        selectedUser,
         getUsers,
         getUserById,
+        getUserByField,
+        getUsersByFields,
+        createUser,
         updateUser,
         deleteUser,
-        signUp,
-        sigIn,
-        ...toRefs(state)
     }
 }
